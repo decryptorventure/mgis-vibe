@@ -205,7 +205,7 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="flex flex-col gap-8 animate-in fade-in duration-500 pb-8">
       <PageHeader
         icon={<Activity size={20} />}
         title="Global Dashboard"
@@ -233,107 +233,128 @@ export const Dashboard: React.FC = () => {
         handleReset={handleReset}
       />
 
-      <DashboardMetrics metrics={metrics} />
+      {/* ── System Overview Section ── */}
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center gap-2 px-1">
+          <Activity size={18} className="text-[var(--color-primary-500)]" />
+          <h2 className="text-base font-bold text-[var(--text-primary)] m-0">System Overview</h2>
+        </div>
+        <DashboardMetrics metrics={metrics} />
+      </section>
 
-      {/* ── Analytics Hub: Funnel KPI Strip ── */}
-      <FunnelKpiStrip campaigns={mockCampaigns} />
+      {/* ── Advertising Analytics Section ── */}
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center gap-2 px-1">
+          <DollarSign size={18} className="text-[var(--color-primary-500)]" />
+          <h2 className="text-base font-bold text-[var(--text-primary)] m-0">Advertising Performance</h2>
+        </div>
+        <FunnelKpiStrip campaigns={mockCampaigns} />
 
-      {/* ── Analytics Hub: Network Comparison + Budget Pacing ── */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={14}>
-          <Card
-            className="rounded-xl border-[var(--border-default)]"
-            styles={{ body: { padding: '16px' } }}
-            title={
-              <div className="flex items-center gap-2">
-                <TrendingUp size={15} className="text-[var(--color-primary-500)]" />
-                <span className="font-semibold text-[var(--text-primary)] text-sm">Network Performance</span>
-              </div>
-            }
-          >
-            <NetworkComparisonCards campaigns={mockCampaigns} />
-          </Card>
-        </Col>
-        <Col xs={24} lg={10}>
-          <Card
-            className="rounded-xl border-[var(--border-default)]"
-            styles={{ body: { padding: '16px' } }}
-            title={
-              <div className="flex items-center gap-2">
-                <DollarSign size={15} className="text-[var(--color-primary-500)]" />
-                <span className="font-semibold text-[var(--text-primary)] text-sm">Budget Pacing</span>
-              </div>
-            }
-          >
-            <BudgetPacingBar campaigns={mockCampaigns} />
-          </Card>
-        </Col>
-      </Row>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={14}>
+            <Card
+              className="rounded-xl border-[var(--border-default)]"
+              styles={{ body: { padding: '16px' } }}
+              title={
+                <div className="flex items-center gap-2">
+                  <TrendingUp size={15} className="text-[var(--color-primary-500)]" />
+                  <span className="font-semibold text-[var(--text-primary)] text-sm">Network Performance</span>
+                </div>
+              }
+            >
+              <NetworkComparisonCards campaigns={mockCampaigns} />
+            </Card>
+          </Col>
+          <Col xs={24} lg={10}>
+            <Card
+              className="rounded-xl border-[var(--border-default)]"
+              styles={{ body: { padding: '16px' } }}
+              title={
+                <div className="flex items-center gap-2">
+                  <DollarSign size={15} className="text-[var(--color-primary-500)]" />
+                  <span className="font-semibold text-[var(--text-primary)] text-sm">Budget Pacing</span>
+                </div>
+              }
+            >
+              <BudgetPacingBar campaigns={mockCampaigns} />
+            </Card>
+          </Col>
+        </Row>
+      </section>
 
       {/* Activity Trend & Platform Distribution Charts */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={14}>
-          <ChartContainer
-            title="Activity Trends"
-            description="Create, update, pause, and delete activity by day"
-            height={250}
-          >
-            <AreaChart data={activityTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
-              <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis-text)', fontSize: 10 }} />
-              <YAxis tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis-text)', fontSize: 10 }} />
-              <RechartsTooltip
-                contentStyle={{ backgroundColor: 'var(--surface-base)', borderRadius: '8px', border: '1px solid var(--border-default)' }}
-                labelStyle={{ fontWeight: 'bold', color: 'var(--text-primary)', fontSize: '11px' }}
-                itemStyle={{ fontSize: '11px' }}
-              />
-              <Area type="monotone" dataKey="Create" stroke="var(--chart-2)" fill="var(--chart-2)" fillOpacity={0.05} strokeWidth={2} />
-              <Area type="monotone" dataKey="Update" stroke="var(--chart-1)" fill="var(--chart-1)" fillOpacity={0.05} strokeWidth={2} />
-              <Area type="monotone" dataKey="Pause" stroke="var(--chart-3)" fill="var(--chart-3)" fillOpacity={0.05} strokeWidth={2} />
-              <Area type="monotone" dataKey="Delete" stroke="var(--status-error)" fill="var(--status-error)" fillOpacity={0.05} strokeWidth={2} />
-            </AreaChart>
-          </ChartContainer>
-        </Col>
-        <Col xs={24} lg={10}>
-          <ChartContainer
-            title="Platform Share"
-            description="Share of activity by ad platform"
-            height={250}
-          >
-            <PieChart>
-              <Pie
-                data={platformData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={4}
-                dataKey="value"
-              >
-                {platformData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <RechartsTooltip
-                contentStyle={{ backgroundColor: 'var(--surface-base)', borderRadius: '8px', border: '1px solid var(--border-default)' }}
-                itemStyle={{ fontSize: '11px', fontWeight: 'semibold' }}
-              />
-            </PieChart>
-          </ChartContainer>
-        </Col>
-      </Row>
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center gap-2 px-1">
+          <TrendingUp size={18} className="text-[var(--color-primary-500)]" />
+          <h2 className="text-base font-bold text-[var(--text-primary)] m-0">Activity Analytics</h2>
+        </div>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={14}>
+            <ChartContainer
+              title="Activity Trends"
+              description="Create, update, pause, and delete activity by day"
+              height={250}
+            >
+              <AreaChart data={activityTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis-text)', fontSize: 10 }} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fill: 'var(--chart-axis-text)', fontSize: 10 }} />
+                <RechartsTooltip
+                  contentStyle={{ backgroundColor: 'var(--surface-base)', borderRadius: '8px', border: '1px solid var(--border-default)' }}
+                  labelStyle={{ fontWeight: 'bold', color: 'var(--text-primary)', fontSize: '11px' }}
+                  itemStyle={{ fontSize: '11px' }}
+                />
+                <Area type="monotone" dataKey="Create" stroke="var(--chart-2)" fill="var(--chart-2)" fillOpacity={0.05} strokeWidth={2} />
+                <Area type="monotone" dataKey="Update" stroke="var(--chart-1)" fill="var(--chart-1)" fillOpacity={0.05} strokeWidth={2} />
+                <Area type="monotone" dataKey="Pause" stroke="var(--chart-3)" fill="var(--chart-3)" fillOpacity={0.05} strokeWidth={2} />
+                <Area type="monotone" dataKey="Delete" stroke="var(--status-error)" fill="var(--status-error)" fillOpacity={0.05} strokeWidth={2} />
+              </AreaChart>
+            </ChartContainer>
+          </Col>
+          <Col xs={24} lg={10}>
+            <ChartContainer
+              title="Platform Share"
+              description="Share of activity by ad platform"
+              height={250}
+            >
+              <PieChart>
+                <Pie
+                  data={platformData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={4}
+                  dataKey="value"
+                >
+                  {platformData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <RechartsTooltip
+                  contentStyle={{ backgroundColor: 'var(--surface-base)', borderRadius: '8px', border: '1px solid var(--border-default)' }}
+                  itemStyle={{ fontSize: '11px', fontWeight: 'semibold' }}
+                />
+              </PieChart>
+            </ChartContainer>
+          </Col>
+        </Row>
+      </section>
 
-      <DashboardLeaderboard
-        filteredRankData={filteredRankData}
-        selectedUserFilter={selectedUserFilter}
-        handleUserRowClick={handleUserRowClick}
-      />
+      {/* Leaderboard & Logs Section */}
+      <section className="flex flex-col gap-6">
+        <DashboardLeaderboard
+          filteredRankData={filteredRankData}
+          selectedUserFilter={selectedUserFilter}
+          handleUserRowClick={handleUserRowClick}
+        />
 
-      <DashboardLogs
-        filteredLogs={filteredLogs}
-        logSearchQuery={logSearchQuery}
-        setLogSearchQuery={setLogSearchQuery}
-      />
+        <DashboardLogs
+          filteredLogs={filteredLogs}
+          logSearchQuery={logSearchQuery}
+          setLogSearchQuery={setLogSearchQuery}
+        />
+      </section>
     </div>
   );
 };
