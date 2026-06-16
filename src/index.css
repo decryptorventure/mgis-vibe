@@ -1,0 +1,267 @@
+@import "tailwindcss";
+
+/* ─── Tailwind design token classes ─────────────────────────────────── */
+@theme {
+  /* Brand palette */
+  --color-primary-50:  #fff3ec;
+  --color-primary-100: #ffe5d3;
+  --color-primary-200: #ffc8a5;
+  --color-primary-300: #ffa26d;
+  --color-primary-400: #ff7232;
+  --color-primary-500: #ff4f0a;
+  --color-primary-600: #f03800;
+  --color-primary-700: #c72802;
+  --color-primary-800: #9e210a;
+  --color-primary-900: #7f1e0d;
+  --color-primary-950: #450c04;
+
+  /* Typography */
+  --font-sans: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* ─── Semantic design tokens ─────────────────────────────────────────── */
+:root {
+  /* Surface */
+  --surface-base:    #ffffff;
+  --surface-subtle:  #f5f7fa;
+  --surface-muted:   #f1f5f9;
+
+  /* Border */
+  --border-default:  #e5e7eb;
+  --border-subtle:   #f3f4f6;
+  --border-strong:   #d1d5db;
+
+  /* Text */
+  --text-primary:    #111827;
+  --text-secondary:  #4b5563;
+  --text-tertiary:   #9ca3af;
+  --text-disabled:   #d1d5db;
+  --text-inverse:    #ffffff;
+
+  /* Status — semantic only, no hardcodes in components */
+  --status-success:     #16a34a;
+  --status-success-bg:  #dcfce7;
+  --status-success-border: #bbf7d0;
+  --status-error:       #dc2626;
+  --status-error-bg:    #fee2e2;
+  --status-error-border:#fecaca;
+  --status-warning:     #ca8a04;
+  --status-warning-bg:  #fef9c3;
+  --status-warning-border:#fde68a;
+  --status-info:        #2563eb;
+  --status-info-bg:     #dbeafe;
+  --status-info-border: #bfdbfe;
+
+  /* Navigation — Core DS: no brand orange for nav active */
+  --nav-item-hover-bg:    #f8fafc;
+  --nav-item-active-bg:   #f1f5f9;
+  --nav-item-active-text: #0f172a;
+  --nav-item-active-weight: 600;
+  --nav-item-text:        #374151;
+  --nav-item-icon-active: #0f172a;
+
+  /* Sidebar */
+  --sidebar-bg:      #ffffff;
+  --sidebar-border:  var(--border-default);
+  --sidebar-width:   260px;
+
+  /* Elevation — Core DS: shadow ONLY on floating layers */
+  --shadow-float: 0 4px 16px -2px rgb(0 0 0 / 0.10),
+                  0 2px 6px -1px rgb(0 0 0 / 0.06);
+  --shadow-dropdown: 0 8px 24px -4px rgb(0 0 0 / 0.12),
+                     0 3px 8px -2px rgb(0 0 0 / 0.07);
+
+  /* Chart palette — categorical series, no brand orange dominance */
+  --chart-1: #2563eb;
+  --chart-2: #16a34a;
+  --chart-3: #f59e0b;
+  --chart-4: #8b5cf6;
+  --chart-5: #06b6d4;
+  --chart-6: #db2777;
+  --chart-grid: #e5e7eb;
+  --chart-axis-text: #9ca3af;
+}
+
+/* ─── Dark mode token overrides ──────────────────────────────────────────── */
+[data-theme="dark"] {
+  /* Surface */
+  --surface-base:    #0f1117;
+  --surface-subtle:  #161923;
+  --surface-muted:   #1e2130;
+
+  /* Border */
+  --border-default:  #2a2d3a;
+  --border-subtle:   #1e2130;
+  --border-strong:   #3a3d4a;
+
+  /* Text */
+  --text-primary:    #f1f3f9;
+  --text-secondary:  #9ca3b4;
+  --text-tertiary:   #6b7280;
+  --text-disabled:   #4b5060;
+  --text-inverse:    #111827;
+
+  /* Status — keep same hues, adjust brightness for dark bg */
+  --status-success:        #22c55e;
+  --status-success-bg:     #052e16;
+  --status-success-border: #14532d;
+  --status-error:          #ef4444;
+  --status-error-bg:       #2d0a0a;
+  --status-error-border:   #7f1d1d;
+  --status-warning:        #eab308;
+  --status-warning-bg:     #2d2505;
+  --status-warning-border: #713f12;
+  --status-info:           #3b82f6;
+  --status-info-bg:        #0a1a2d;
+  --status-info-border:    #1e3a5f;
+
+  /* Navigation */
+  --nav-item-hover-bg:    #1e2130;
+  --nav-item-active-bg:   #252838;
+  --nav-item-active-text: #f1f3f9;
+  --nav-item-text:        #9ca3b4;
+  --nav-item-icon-active: #f1f3f9;
+
+  /* Sidebar */
+  --sidebar-bg:      #0f1117;
+  --sidebar-border:  var(--border-default);
+
+  /* Elevation — deeper shadows for dark surfaces */
+  --shadow-float: 0 4px 16px -2px rgb(0 0 0 / 0.40),
+                  0 2px 6px -1px rgb(0 0 0 / 0.30);
+  --shadow-dropdown: 0 8px 24px -4px rgb(0 0 0 / 0.50),
+                     0 3px 8px -2px rgb(0 0 0 / 0.35);
+
+  /* Chart palette — brightened for dark surfaces */
+  --chart-1: #3b82f6;
+  --chart-2: #22c55e;
+  --chart-3: #fbbf24;
+  --chart-4: #a78bfa;
+  --chart-5: #22d3ee;
+  --chart-6: #f472b6;
+  --chart-grid: #2a2d3a;
+  --chart-axis-text: #6b7280;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────── */
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--surface-subtle);
+  color: var(--text-primary);
+}
+
+/* ─── Utility overrides (token-bound, no raw values in components) ─── */
+.nms-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  line-height: 1.6;
+}
+.nms-status-badge.success { color: var(--status-success); background: var(--status-success-bg); }
+.nms-status-badge.error   { color: var(--status-error);   background: var(--status-error-bg);   }
+.nms-status-badge.warning { color: var(--status-warning); background: var(--status-warning-bg); }
+.nms-status-badge.info    { color: var(--status-info);    background: var(--status-info-bg);    }
+.nms-status-badge.neutral { color: var(--text-secondary); background: var(--surface-muted);     }
+
+/* ─── Core DS 1.1 Typography scale ──────────────────────────────────── */
+/* body_s = 13px  →  baseline for all UI component text                  */
+/* body_m = 16px  →  long-form reading only                              */
+:root {
+  --font-size-body-s:   13px;
+  --font-size-body-m:   16px;
+  --font-size-label-xs: 11px;
+  --font-size-label-s:  12px;
+  --line-height-body:   1.6;
+}
+
+/* Antd component baseline override — ensure form labels, table cells,
+   select options, etc. render at body_s (13px) not Antd's 14px default. */
+.ant-form-item-label > label,
+.ant-select-selection-item,
+.ant-select-item-option-content,
+.ant-input,
+.ant-input-number-input,
+.ant-picker-input > input,
+.ant-checkbox-wrapper,
+.ant-radio-wrapper,
+.ant-tabs-tab,
+.ant-tag {
+  font-size: var(--font-size-body-s) !important;
+}
+
+/* ─── Core DS Data-grid: table row height ≥ 64px ─────────────────────── */
+/* Apply .nms-table to any <Table> className to enforce Core DS row height */
+.nms-table .ant-table-tbody > tr > td {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+  min-height: 64px;
+  vertical-align: middle;
+}
+.nms-table .ant-table-thead > tr > th {
+  font-size: var(--font-size-label-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  background: var(--surface-muted) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+}
+/* Remove table box-shadow — Core DS: shadow only on floating layers */
+.nms-table .ant-table-wrapper,
+.nms-table .ant-table {
+  box-shadow: none !important;
+}
+
+/* ─── Global Transitions & Micro-Animations ──────────────────────────── */
+.ant-btn, 
+.ant-tag, 
+.nms-table .ant-table-tbody > tr {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.nms-table .ant-table-tbody > tr:hover > td {
+  background-color: var(--surface-subtle) !important;
+}
+
+/* ─── Recharts Global Tooltip Styling ──────────────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  border-radius: 12px !important;
+  border: 1px solid var(--border-default) !important;
+  box-shadow: var(--shadow-dropdown) !important;
+  background-color: var(--surface-base) !important;
+  padding: 12px 16px !important;
+}
+
+.recharts-tooltip-item {
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.recharts-tooltip-label {
+  font-weight: 700 !important;
+  color: var(--text-secondary) !important;
+  font-size: 12px !important;
+  margin-bottom: 6px !important;
+  padding-bottom: 6px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+/* ─── Wizard Step Animation ────────────────────────────────────────────── */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.step-animate {
+  animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

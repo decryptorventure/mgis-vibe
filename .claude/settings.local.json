@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.tsx$\")",
+      "Bash(node \"%USERPROFILE%/.claude/scripts/set-active-plan.cjs\" \"plans/260610-1705-nms-fe-uiux-upgrade\")",
+      "Bash(node \"C:\\\\Users\\\\iKame\\\\.claude\\\\scripts\\\\set-active-plan.cjs\" \"plans/260610-1705-nms-fe-uiux-upgrade\")",
+      "Bash(npx tsc *)"
+    ]
+  }
+}
