@@ -100,9 +100,14 @@ export function getAppNetworkPath(appId: string, networkId: ActiveNetworkKey): s
   return `/apps/${appId}/networks/${networkId}`;
 }
 
+export function getNetworkPath(networkId: ActiveNetworkKey): string {
+  return `/networks/${networkId}`;
+}
+
 export function getSelectedNavPath(pathname: string): string {
   if (pathname === '/' || pathname === '/dashboard') return '/';
   if (pathname === '/media-libraries') return '/creatives';
+  if (/^\/networks\/[^/]+$/.test(pathname)) return '/networks';
 
   const globalItem = GLOBAL_NAV_ITEMS.find(item => item.path === pathname);
   if (globalItem) return globalItem.path;
@@ -120,6 +125,10 @@ export function getPageTitle(pathname: string): string {
 
   if (/^\/apps\/[^/]+\/dashboard$/.test(pathname)) return 'App Dashboard';
   if (/^\/apps\/[^/]+\/(automation-rules|network-rules)$/.test(pathname)) return 'App Network Rules';
+
+  const globalNetworkMatch = pathname.match(/^\/networks\/([^/]+)$/);
+  const globalNetworkMeta = getNetworkMeta(globalNetworkMatch?.[1]);
+  if (globalNetworkMeta) return `${globalNetworkMeta.label} Report Center`;
 
   const networkMatch = pathname.match(/^\/apps\/[^/]+\/networks\/([^/]+)$/);
   const networkMeta = getNetworkMeta(networkMatch?.[1]);
@@ -145,6 +154,13 @@ export function getBreadcrumbItems(
     if (pathname.includes('/network-rules') || pathname.includes('/automation-rules')) {
       crumbs.push('Network Rules');
     }
+    return crumbs;
+  }
+
+  const globalNetworkScoped = pathname.match(/^\/networks\/([^/]+)$/);
+  if (globalNetworkScoped) {
+    const crumbs = ['Networks'];
+    if (context.networkLabel) crumbs.push(context.networkLabel);
     return crumbs;
   }
 

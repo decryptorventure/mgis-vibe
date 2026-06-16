@@ -3,6 +3,7 @@ import { cn } from '@frontend-team/ui-kit';
 import { NETWORK_LOGOS } from '@/shared/network-config';
 import {
   ACTIVE_NETWORKS,
+  getNetworkPath,
   getAppNetworkPath,
   type ActiveNetworkKey,
 } from '@/shared/navigation';
@@ -29,7 +30,7 @@ export const NetworkContextBar: React.FC<NetworkContextBarProps> = ({ activeNetw
       navigate(getAppNetworkPath(appId, networkKey));
       return;
     }
-    navigate('/networks');
+    navigate(getNetworkPath(networkKey));
   };
 
   return (
@@ -44,7 +45,7 @@ export const NetworkContextBar: React.FC<NetworkContextBarProps> = ({ activeNetw
           />
         </span>
         <span className="text-xs font-bold text_primary">
-          {activeApp?.name ?? 'App workspace'}
+          {activeApp?.name ?? `${ACTIVE_NETWORKS[activeNetwork].label} report`}
         </span>
       </div>
 

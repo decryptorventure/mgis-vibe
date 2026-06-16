@@ -32,6 +32,7 @@ export const NetworkWorkspaceShell: React.FC<NetworkWorkspaceShellProps> = ({
 
   const { appId } = useParams<{ appId?: string }>();
   const activeApp = mockProjects.find((p) => p.id === appId);
+  const connectedAppsCount = new Set(campaigns.map(campaign => campaign.projectId)).size;
 
   const filtered = campaigns.filter(c =>
     c.name.toLowerCase().includes(searchText.toLowerCase())
@@ -114,7 +115,9 @@ export const NetworkWorkspaceShell: React.FC<NetworkWorkspaceShellProps> = ({
         icon={config.icon}
         iconBg={config.color}
         title={`${config.label} Workspace`}
-        subtitle={`Manage ${config.label} campaigns, insights and settings`}
+        subtitle={appId && activeApp
+          ? `Manage ${config.label} campaigns, insights and settings for ${activeApp.name}`
+          : `Detailed performance across ${connectedAppsCount} app(s) running on ${config.label}`}
       />
 
       <FilterBar

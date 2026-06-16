@@ -5,6 +5,7 @@ import { MetaWorkspace } from './networks/MetaWorkspace';
 import { AsaWorkspace } from './networks/AsaWorkspace';
 import { AxonWorkspace } from './networks/AxonWorkspace';
 import { MolocoWorkspace } from './networks/MolocoWorkspace';
+import { NetworkPortfolioWorkspace } from './NetworkPortfolioWorkspace';
 
 import { useParams } from 'react-router-dom';
 
@@ -25,7 +26,7 @@ export const NetworkWorkspace: React.FC<NetworkWorkspaceProps> = ({
   network: propNetwork,
   networkLabel: propNetworkLabel,
 }) => {
-  const { networkId } = useParams<{ networkId?: string }>();
+  const { appId, networkId } = useParams<{ appId?: string; networkId?: string }>();
   const network = propNetwork || networkId || '';
   const networkLabel = propNetworkLabel || NETWORK_LABELS_MAP[network] || network;
 
@@ -57,6 +58,10 @@ export const NetworkWorkspace: React.FC<NetworkWorkspaceProps> = ({
         <Skeleton active paragraph={{ rows: 10 }} />
       </div>
     );
+  }
+
+  if (!appId) {
+    return <NetworkPortfolioWorkspace />;
   }
 
   switch (network) {

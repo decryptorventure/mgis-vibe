@@ -56,6 +56,7 @@ export const appRouter = createBrowserRouter([
       // Global Sitemap (Vòng ngoài cùng)
       { path: 'apps', element: <SuspenseWrap><AppsList /></SuspenseWrap> },
       { path: 'networks', element: <SuspenseWrap><NetworksList /></SuspenseWrap> },
+      { path: 'networks/:networkId', element: <SuspenseWrap><NetworkWorkspace /></SuspenseWrap> },
       { path: 'creatives', element: <SuspenseWrap><MediaLibraries /></SuspenseWrap> },
       { path: 'automation-settings', element: <SuspenseWrap><AutomationSettingsPage /></SuspenseWrap> },
       { path: 'insight-settings', element: <SuspenseWrap><InsightSettingsPage /></SuspenseWrap> },

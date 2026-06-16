@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { PageHeader, StatCard } from '@/components/ui';
 import { mockCampaigns, mockVaultKeys, mockProjects } from '@/shared/mock-data';
 import { NETWORK_LOGOS } from '@/shared/network-config';
-import { ACTIVE_NETWORKS, ACTIVE_NETWORK_KEYS, type ActiveNetworkKey } from '@/shared/navigation';
+import { ACTIVE_NETWORKS, ACTIVE_NETWORK_KEYS, getNetworkPath, type ActiveNetworkKey } from '@/shared/navigation';
 
 const NETWORK_DESCRIPTIONS: Record<ActiveNetworkKey, string> = {
   'google-ads': 'Google Universal App Campaigns, Search, and Display network ads.',
@@ -178,15 +178,7 @@ export const NetworksList: React.FC = () => {
                       variant="primary"
                       size="s"
                       style={{ background: net.color, borderColor: net.color }}
-                      onClick={() => {
-                        // Navigating into the first connected app's network workspace
-                        if (net.connectedApps.length > 0) {
-                          navigate(`/apps/${net.connectedApps[0].id}/networks/${net.key}`);
-                        } else {
-                          // Fallback to AppsList
-                          navigate('/apps');
-                        }
-                      }}
+                      onClick={() => navigate(getNetworkPath(net.key))}
                       className="text-xs gap-0.5"
                     >
                       <ChevronRight size={11} />
