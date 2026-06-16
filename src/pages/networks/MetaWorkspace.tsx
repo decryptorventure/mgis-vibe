@@ -27,6 +27,7 @@ import {
   FileText,
   Filter,
   Folder,
+  GitBranch,
   Layers3,
   Megaphone,
   MoreHorizontal,
@@ -41,12 +42,20 @@ import {
   Sparkles,
   Trash2,
   Upload,
+  WandSparkles,
   X,
   Zap,
 } from 'lucide-react';
 import { Button, Card, cn, toast } from '@frontend-team/ui-kit';
 import { DataTable } from '@/components/ui/DataTable';
 import { StatusBadge, statusToVariant } from '@/components/ui/StatusBadge';
+import { MetaBulkCreateDrawer } from './meta-bulk-create-drawer';
+import type {
+  MetaAutomationRun,
+  MetaBulkCriteria,
+  MetaBulkGenerationResult,
+  MetaCreationRecipe,
+} from './meta-bulk-generation';
 import {
   mockAds,
   mockAdSets,
@@ -142,6 +151,10 @@ interface DraftCampaign {
     adsets: number;
     creatives: number;
     ads: number;
+    campaignTotal?: number;
+    adsetsTotal?: number;
+    creativesTotal?: number;
+    adsTotal?: number;
   };
 }
 
@@ -275,6 +288,61 @@ const DEFAULT_VISIBLE_BY_ENTITY: Record<MetaEntity, MetaColumnKey[]> = {
   campaigns: ['action', 'entity', 'status', 'account', 'createdAt', 'bidStrategy', 'budget', 'amountSpent', 'resultRoas', 'appInstalls', 'costPerAppInstall', 'results', 'costPerResults', 'ctrAll', 'cpm', 'linkClicks', 'cpcLinkClick'],
   adsets: ['action', 'entity', 'status', 'account', 'bidStrategy', 'budget', 'amountSpent', 'appInstalls', 'costPerAppInstall', 'results', 'costPerResults', 'ctrAll', 'cvrInstall', 'reach', 'frequency', 'linkClicks', 'cpcLinkClick'],
   ads: ['action', 'entity', 'status', 'account', 'amountSpent', 'resultRoas', 'appInstalls', 'costPerAppInstall', 'ctrAll', 'cpcAll', 'cpm', 'purchase', 'costPerPurchase', 'linkClicks', 'cpcLinkClick'],
+};
+
+const TABLE_PREF_STORAGE_KEY = 'nms_meta_workspace_table_preferences_v2';
+const META_CREATION_RECIPES_STORAGE_KEY = 'nms_meta_creation_recipes_v1';
+const META_CREATION_RUNS_STORAGE_KEY = 'nms_meta_creation_runs_v1';
+
+const TABLE_VIEW_PRESETS: Record<MetaEntity, { id: string; label: string; keys: MetaColumnKey[]; heatmaps: Partial<Record<MetaColumnKey, string>> }[]> = {
+  campaigns: [
+    { id: 'performance', label: 'Performance', keys: ['action', 'entity', 'status', 'account', 'budget', 'amountSpent', 'resultRoas', 'appInstalls', 'costPerAppInstall', 'cpm', 'ctrAll', 'cpcAll'], heatmaps: { resultRoas: 'green', costPerAppInstall: 'orange', amountSpent: 'indigo' } },
+    { id: 'install', label: 'Install Funnel', keys: ['action', 'entity', 'status', 'budget', 'amountSpent', 'appInstalls', 'costPerAppInstall', 'cvrInstall', 'ctrInstall', 'impression', 'reach', 'frequency'], heatmaps: { appInstalls: 'green', costPerAppInstall: 'orange', cvrInstall: 'teal' } },
+    { id: 'purchase', label: 'Purchase', keys: ['action', 'entity', 'status', 'amountSpent', 'purchase', 'costPerPurchase', 'resultRoas', 'linkClicks', 'cpcLinkClick'], heatmaps: { purchase: 'green', costPerPurchase: 'orange', resultRoas: 'lime' } },
+  ],
+  adsets: [
+    { id: 'delivery', label: 'Delivery', keys: ['action', 'entity', 'status', 'account', 'budget', 'amountSpent', 'impression', 'reach', 'frequency', 'cpm', 'linkClicks', 'cpcLinkClick'], heatmaps: { frequency: 'coral', cpm: 'orange', reach: 'sky' } },
+    { id: 'install', label: 'Install Funnel', keys: ['action', 'entity', 'status', 'budget', 'amountSpent', 'appInstalls', 'costPerAppInstall', 'ctrAll', 'cvrInstall', 'ctrInstall'], heatmaps: { appInstalls: 'green', costPerAppInstall: 'orange', cvrInstall: 'teal' } },
+    { id: 'lead', label: 'Lead', keys: ['action', 'entity', 'status', 'amountSpent', 'leads', 'costPerLead', 'cvrLeads', 'linkClicks', 'cpcLinkClick'], heatmaps: { leads: 'green', costPerLead: 'orange', cvrLeads: 'teal' } },
+  ],
+  ads: [
+    { id: 'creative', label: 'Creative', keys: ['action', 'entity', 'status', 'amountSpent', 'impression', 'ctrAll', 'cpcAll', 'appInstalls', 'costPerAppInstall'], heatmaps: { ctrAll: 'green', cpcAll: 'orange', appInstalls: 'teal' } },
+    { id: 'purchase', label: 'Purchase', keys: ['action', 'entity', 'status', 'amountSpent', 'purchase', 'costPerPurchase', 'resultRoas', 'cpm'], heatmaps: { purchase: 'green', costPerPurchase: 'orange', resultRoas: 'lime' } },
+    { id: 'clicks', label: 'Clicks', keys: ['action', 'entity', 'status', 'amountSpent', 'linkClicks', 'cpcLinkClick', 'ctrAll', 'cpcAll', 'impression'], heatmaps: { linkClicks: 'green', cpcLinkClick: 'orange', ctrAll: 'sky' } },
+  ],
+};
+
+const createDefaultTablePreferences = (): Record<MetaEntity, TablePreference> => ({
+  campaigns: { visibleKeys: DEFAULT_VISIBLE_BY_ENTITY.campaigns, heatmapColors: {} },
+  adsets: { visibleKeys: DEFAULT_VISIBLE_BY_ENTITY.adsets, heatmapColors: {} },
+  ads: { visibleKeys: DEFAULT_VISIBLE_BY_ENTITY.ads, heatmapColors: {} },
+});
+
+const getInitialTablePreferences = () => {
+  if (typeof window === 'undefined') return createDefaultTablePreferences();
+  try {
+    const saved = window.localStorage.getItem(TABLE_PREF_STORAGE_KEY);
+    if (!saved) return createDefaultTablePreferences();
+    const parsed = JSON.parse(saved) as Partial<Record<MetaEntity, TablePreference>>;
+    const defaults = createDefaultTablePreferences();
+    return {
+      campaigns: { ...defaults.campaigns, ...parsed.campaigns },
+      adsets: { ...defaults.adsets, ...parsed.adsets },
+      ads: { ...defaults.ads, ...parsed.ads },
+    };
+  } catch {
+    return createDefaultTablePreferences();
+  }
+};
+
+const loadStoredArray = <T,>(storageKey: string): T[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = window.localStorage.getItem(storageKey);
+    return saved ? JSON.parse(saved) as T[] : [];
+  } catch {
+    return [];
+  }
 };
 
 const METRIC_POLARITY: Partial<Record<MetaColumnKey, 'higher' | 'lower'>> = {
@@ -480,10 +548,10 @@ const DraftCampaignsPanel: React.FC<{
               <span className="text-xs text_tertiary">{draft.updatedAt}</span>
             </div>
             <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-              <ProgressChip label="Campaign" count={draft.progress.campaign} total={1} />
-              <ProgressChip label="Adsets" count={draft.progress.adsets} total={1} />
-              <ProgressChip label="Creatives" count={draft.progress.creatives} total={1} />
-              <ProgressChip label="Ads" count={draft.progress.ads} total={1} />
+              <ProgressChip label="Campaign" count={draft.progress.campaign} total={draft.progress.campaignTotal ?? 1} />
+              <ProgressChip label="Adsets" count={draft.progress.adsets} total={draft.progress.adsetsTotal ?? 1} />
+              <ProgressChip label="Creatives" count={draft.progress.creatives} total={draft.progress.creativesTotal ?? 1} />
+              <ProgressChip label="Ads" count={draft.progress.ads} total={draft.progress.adsTotal ?? 1} />
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -560,6 +628,73 @@ const EntityTabs: React.FC<{
           </button>
         );
       })}
+    </div>
+  );
+};
+
+const SelectionInspector: React.FC<{
+  entity: MetaEntity;
+  selectedRows: MetaReportRow[];
+  campaigns: Campaign[];
+  adSets: AdSet[];
+  ads: Ad[];
+  onEdit: (row: MetaReportRow) => void;
+  onDrillDown: (row: MetaReportRow) => void;
+}> = ({ entity, selectedRows, campaigns, adSets, ads, onEdit, onDrillDown }) => {
+  if (selectedRows.length === 0) return null;
+
+  const first = selectedRows[0];
+  const level = ENTITY_META[entity].singular;
+  const amountSpent = getMetricValue(first, 'amountSpent');
+  const installs = getMetricValue(first, 'appInstalls');
+  const cpa = getMetricValue(first, 'costPerAppInstall');
+  const childAdSets = isCampaign(first) ? adSets.filter(adSet => adSet.campaignId === first.id).length : 0;
+  const childAds = isCampaign(first) ? ads.filter(ad => ad.campaignId === first.id).length : isAdSet(first) ? ads.filter(ad => ad.adSetId === first.id).length : 0;
+  const parentCampaignName = isAdSet(first) || isAd(first) ? campaigns.find(campaign => campaign.id === first.campaignId)?.name : undefined;
+  const warnings = [
+    first.status === 'DRAFT' ? 'Draft not launched' : '',
+    first.status === 'ERROR' || first.status === 'REJECTED' ? 'Needs review' : '',
+    !isAd(first) && first.budget <= 0 ? 'Missing budget' : '',
+    isAd(first) && !first.creativeName ? 'Missing creative' : '',
+  ].filter(Boolean);
+
+  return (
+    <div className="bg_primary border border_primary radius_8 p-3">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[11px] font-semibold uppercase text_tertiary">Selection Inspector</span>
+            <span className="text-[11px] font-semibold px-2 py-0.5 radius_round bg_blue_subtle fg_blue_strong border border_blue">{selectedRows.length} selected</span>
+            <span className="text-[11px] font-semibold px-2 py-0.5 radius_round bg_secondary border border_secondary text_secondary">{level}</span>
+          </div>
+          <div className="text-sm font-semibold text_primary mt-1 truncate">{first.name}</div>
+          <div className="text-xs text_tertiary mt-1">
+            Spend {formatMetricValue('amountSpent', amountSpent)} · Installs {formatMetricValue('appInstalls', installs)} · CPI {formatMetricValue('costPerAppInstall', cpa)}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {isCampaign(first) && <span className="text-xs text_secondary px-2 py-1 bg_secondary border border_secondary radius_4">{childAdSets} ad sets</span>}
+          {isCampaign(first) && <span className="text-xs text_secondary px-2 py-1 bg_secondary border border_secondary radius_4">{childAds} ads</span>}
+          {isAdSet(first) && <span className="text-xs text_secondary px-2 py-1 bg_secondary border border_secondary radius_4">{childAds} ads</span>}
+          {parentCampaignName && <span className="text-xs text_secondary px-2 py-1 bg_secondary border border_secondary radius_4">{parentCampaignName}</span>}
+          {warnings.length === 0 ? (
+            <span className="text-xs fg_emerald_strong px-2 py-1 bg_emerald_subtle border border_emerald radius_4">No obvious blockers</span>
+          ) : warnings.map(warning => (
+            <span key={warning} className="text-xs fg_amber_strong px-2 py-1 bg_amber_subtle border border_amber radius_4">{warning}</span>
+          ))}
+          <Button type="button" variant="border" size="s" className="gap-1.5" onClick={() => onEdit(first)}>
+            <Edit3 size={13} />
+            Edit
+          </Button>
+          {!isAd(first) && (
+            <Button type="button" variant="primary" size="s" className="gap-1.5" onClick={() => onDrillDown(first)}>
+              <GitBranch size={13} />
+              Drill down
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -1379,6 +1514,7 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
   const [pagesOpen, setPagesOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [bulkCreateOpen, setBulkCreateOpen] = useState(false);
   const [columnsOpen, setColumnsOpen] = useState(false);
   const [draftsCollapsed, setDraftsCollapsed] = useState(false);
   const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
@@ -1386,16 +1522,19 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
   const [ads, setAds] = useState<Ad[]>(initialAds);
   const [pages, setPages] = useState<MetaPage[]>(META_PAGES);
   const [templates, setTemplates] = useState<MetaTemplate[]>(META_TEMPLATES);
+  const [recipes, setRecipes] = useState<MetaCreationRecipe[]>(() => loadStoredArray<MetaCreationRecipe>(META_CREATION_RECIPES_STORAGE_KEY));
+  const [automationRuns, setAutomationRuns] = useState<MetaAutomationRun[]>(() => loadStoredArray<MetaAutomationRun>(META_CREATION_RUNS_STORAGE_KEY));
   const [drafts, setDrafts] = useState<DraftCampaign[]>(() => META_DRAFTS.map((draft, index) => ({ ...draft, campaignId: initialCampaigns[index]?.id ?? initialCampaigns[0]?.id })));
   const [draftFilters, setDraftFilters] = useState<FilterRule[]>([
     { id: 'filter-entity', field: 'entity', operator: 'contains', value: '' },
     { id: 'filter-status', field: 'status', operator: 'in', value: '' },
   ]);
   const [appliedFilters, setAppliedFilters] = useState<FilterRule[]>([]);
-  const [tablePreferences, setTablePreferences] = useState<Record<MetaEntity, TablePreference>>({
-    campaigns: { visibleKeys: DEFAULT_VISIBLE_BY_ENTITY.campaigns, heatmapColors: {} },
-    adsets: { visibleKeys: DEFAULT_VISIBLE_BY_ENTITY.adsets, heatmapColors: {} },
-    ads: { visibleKeys: DEFAULT_VISIBLE_BY_ENTITY.ads, heatmapColors: {} },
+  const [tablePreferences, setTablePreferences] = useState<Record<MetaEntity, TablePreference>>(getInitialTablePreferences);
+  const [activePresetByEntity, setActivePresetByEntity] = useState<Record<MetaEntity, string>>({
+    campaigns: 'custom',
+    adsets: 'custom',
+    ads: 'custom',
   });
   const [bulkAction, setBulkAction] = useState('actions');
   const [analysisOpen, setAnalysisOpen] = useState(false);
@@ -1410,6 +1549,18 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
     setSelectedAdSetId(null);
     setSelectedRowKeys([]);
   }, [initialAds, initialAdSets, initialCampaigns]);
+
+  useEffect(() => {
+    window.localStorage.setItem(TABLE_PREF_STORAGE_KEY, JSON.stringify(tablePreferences));
+  }, [tablePreferences]);
+
+  useEffect(() => {
+    window.localStorage.setItem(META_CREATION_RECIPES_STORAGE_KEY, JSON.stringify(recipes));
+  }, [recipes]);
+
+  useEffect(() => {
+    window.localStorage.setItem(META_CREATION_RUNS_STORAGE_KEY, JSON.stringify(automationRuns));
+  }, [automationRuns]);
 
   useEffect(() => {
     if (selectedCampaignId && !campaigns.some(campaign => campaign.id === selectedCampaignId)) {
@@ -1486,6 +1637,21 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
       [target]: {
         ...previous[target],
         ...patch,
+      },
+    }));
+    setActivePresetByEntity(previous => ({ ...previous, [target]: 'custom' }));
+  };
+
+  const applyTablePreset = (target: MetaEntity, presetId: string) => {
+    setActivePresetByEntity(previous => ({ ...previous, [target]: presetId }));
+    if (presetId === 'custom') return;
+    const preset = TABLE_VIEW_PRESETS[target].find(item => item.id === presetId);
+    if (!preset) return;
+    setTablePreferences(previous => ({
+      ...previous,
+      [target]: {
+        visibleKeys: preset.keys,
+        heatmapColors: preset.heatmaps,
       },
     }));
   };
@@ -1777,6 +1943,80 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
     setBulkAction('actions');
   };
 
+  const editInspectedRow = (row: MetaReportRow) => {
+    if (isCampaign(row)) openBuilder('campaigns', { mode: 'edit', campaign: row });
+    if (isAdSet(row)) openBuilder('adsets', { mode: 'edit', adSet: row, campaign: campaigns.find(campaign => campaign.id === row.campaignId) ?? null });
+    if (isAd(row)) openBuilder('ads', { mode: 'edit', ad: row, adSet: normalizedAdSets.find(adSet => adSet.id === row.adSetId) ?? null, campaign: campaigns.find(campaign => campaign.id === row.campaignId) ?? null });
+  };
+
+  const drillDownInspectedRow = (row: MetaReportRow) => {
+    if (isCampaign(row)) {
+      setSelectedCampaignId(row.id);
+      setSelectedAdSetId(null);
+      handleEntityChange('adsets');
+    }
+    if (isAdSet(row)) {
+      setSelectedCampaignId(row.campaignId);
+      setSelectedAdSetId(row.id);
+      handleEntityChange('ads');
+    }
+  };
+
+  const saveCreationRecipe = (recipe: MetaCreationRecipe) => {
+    setRecipes(items => {
+      const exists = items.some(item => item.id === recipe.id);
+      return exists ? items.map(item => item.id === recipe.id ? recipe : item) : [recipe, ...items];
+    });
+  };
+
+  const handleBulkDraftGeneration = (result: MetaBulkGenerationResult, criteria: MetaBulkCriteria) => {
+    const generatedCampaigns = result.campaigns.map(campaign => campaign.campaign);
+    const generatedAdSets = result.campaigns.flatMap(campaign => campaign.adSets.map(adSet => adSet.adSet));
+    const generatedAds = result.campaigns.flatMap(campaign => campaign.adSets.flatMap(adSet => adSet.ads.map(ad => ad.ad)));
+
+    setCampaigns(items => [...generatedCampaigns, ...items]);
+    setAdSets(items => [...generatedAdSets, ...items]);
+    setAds(items => [...generatedAds, ...items]);
+    setDrafts(items => [
+      {
+        id: result.runId,
+        name: `${criteria.name} batch`,
+        objective: criteria.objective,
+        budget: `$${result.summary.totalDailyBudget} / day`,
+        updatedAt: 'just now',
+        campaignId: generatedCampaigns[0]?.id,
+        progress: {
+          campaign: result.summary.campaigns,
+          adsets: result.summary.adSets,
+          creatives: Math.max(1, criteria.creativeGroups.length),
+          ads: result.summary.ads,
+          campaignTotal: result.summary.campaigns,
+          adsetsTotal: result.summary.adSets,
+          creativesTotal: Math.max(1, criteria.creativeGroups.length),
+          adsTotal: result.summary.ads,
+        },
+      },
+      ...items,
+    ]);
+    setAutomationRuns(items => [
+      {
+        id: result.runId,
+        recipeName: criteria.name || 'Untitled Meta recipe',
+        createdAt: result.createdAt,
+        summary: result.summary,
+        status: 'drafted',
+      },
+      ...items,
+    ]);
+    setSelectedCampaignId(null);
+    setSelectedAdSetId(null);
+    setSelectedRowKeys([]);
+    setEntity('campaigns');
+    setDraftsCollapsed(false);
+    setBulkCreateOpen(false);
+    toast.success(`Generated ${result.summary.campaigns} campaign draft(s), ${result.summary.adSets} ad set(s), ${result.summary.ads} ad(s)`);
+  };
+
   const discardDrafts = () => {
     if (drafts.length === 0) {
       toast.info('No drafts to discard');
@@ -1848,6 +2088,7 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
             <MetaToolbarButton icon={<RefreshCcw size={14} />} label="Sync page" onClick={() => toast.success('Meta pages synced')} />
             <MetaToolbarButton icon={<Settings size={14} />} label="Manage Pages" onClick={() => setPagesOpen(true)} />
             <MetaToolbarButton icon={<FileText size={14} />} label="Templates" onClick={() => setTemplatesOpen(true)} />
+            <MetaToolbarButton icon={<WandSparkles size={14} />} label="AI Bulk Create" onClick={() => setBulkCreateOpen(true)} active={bulkCreateOpen} />
             <Button type="button" variant="border" size="s" className="gap-1.5 fg_accent_primary border_accent_primary_contrast" onClick={() => toast.info('API warm-up is mocked')}>
               <Zap size={14} />
               API Warm-up
@@ -1979,9 +2220,23 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
           </div>
           <div className="flex items-center gap-2 justify-end flex-wrap">
             <Button type="button" variant="border" size="s" className="gap-1.5" onClick={discardDrafts}><Trash2 size={14} /> Discard Drafts ({drafts.length})</Button>
+            <Select
+              size="small"
+              className="w-44"
+              value={activePresetByEntity[entity]}
+              options={[
+                { value: 'custom', label: 'Custom view' },
+                ...TABLE_VIEW_PRESETS[entity].map(preset => ({ value: preset.id, label: preset.label })),
+              ]}
+              onChange={value => applyTablePreset(entity, value)}
+            />
             <Button type="button" variant="border" size="s" className="gap-1.5" onClick={() => setColumnsOpen(true)}>
               <Columns3 size={14} />
               Columns
+            </Button>
+            <Button type="button" variant="border" size="s" className="gap-1.5" onClick={() => setBulkCreateOpen(true)}>
+              <WandSparkles size={14} />
+              AI Bulk
             </Button>
             <Button type="button" variant="primary" size="s" className="gap-1.5" onClick={() => openBuilder(entity)}>
               <Plus size={14} />
@@ -2024,6 +2279,16 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
           adCount={visibleAds.length}
           selectedCampaign={selectedCampaign}
           selectedAdSet={selectedAdSet}
+        />
+
+        <SelectionInspector
+          entity={entity}
+          selectedRows={selectedRows}
+          campaigns={campaigns}
+          adSets={normalizedAdSets}
+          ads={normalizedAds}
+          onEdit={editInspectedRow}
+          onDrillDown={drillDownInspectedRow}
         />
 
         <div className="bg_primary border border_primary radius_8 overflow-hidden">
@@ -2138,6 +2403,19 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
         onHeatmapColorsChange={colors => updateTablePreferences(entity, { heatmapColors: colors })}
       />
       <MetaBuilderDrawer open={builderOpen} onClose={() => setBuilderOpen(false)} context={builderContext} pages={pages} templates={templates} />
+      <MetaBulkCreateDrawer
+        open={bulkCreateOpen}
+        onClose={() => setBulkCreateOpen(false)}
+        appName={activeApp?.name ?? 'Meta App'}
+        projectId={activeApp?.id ?? appId ?? 'p1'}
+        accountName={META_ACCOUNT_OPTIONS.find(account => account.value === accountId)?.label ?? 'Clean2'}
+        pages={pages}
+        existingCampaignNames={campaigns.map(campaign => campaign.name)}
+        recipes={recipes}
+        runs={automationRuns}
+        onSaveRecipe={saveCreationRecipe}
+        onGenerate={handleBulkDraftGeneration}
+      />
     </div>
   );
 };
