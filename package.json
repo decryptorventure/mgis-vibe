@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@frontend-team/ui-kit": "^1.1.7",
+    "@frontend-team/ui-kit": "file:./packages/frontend-team-ui-kit-1.1.7.tgz",
     "@radix-ui/themes": "^3.3.0",
     "@reduxjs/toolkit": "^2.12.0",
     "@tailwindcss/vite": "^4.3.0",
