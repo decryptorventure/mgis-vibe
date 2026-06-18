@@ -13,6 +13,7 @@ import {
   Switch,
   Table,
   Tabs,
+  Tooltip,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -20,6 +21,7 @@ import {
   Bot,
   CalendarDays,
   CheckCircle2,
+  CircleAlert,
   ChevronDown,
   Columns3,
   Copy,
@@ -268,6 +270,39 @@ const META_REPORT_COLUMNS: MetaColumnConfig[] = [
   { key: 'linkClicks', label: 'Link clicks', width: 130, metric: true, defaultVisible: true },
   { key: 'cpcLinkClick', label: 'CPC(cost per link click)', width: 220, metric: true, defaultVisible: true },
 ];
+
+const META_COLUMN_HELP: Partial<Record<MetaColumnKey, string>> = {
+  action: 'Bat hoac tat nhanh trang thai phan phoi cua campaign, ad set hoac ad.',
+  entity: 'Ten doi tuong dang duoc hien thi trong bang. Tuy theo tang hien tai se la Campaign, Ad Set hoac Ad.',
+  status: 'Trang thai van hanh hien tai cua doi tuong tren Meta nhu Active, Paused, Draft hoac Error.',
+  account: 'Tai khoan quang cao Meta dang so huu va phan phoi doi tuong nay.',
+  createdAt: 'Thoi diem campaign duoc tao. Ad set va ad co the khong co du lieu tao trong mock hien tai.',
+  bidStrategy: 'Chien luoc dau gia Meta dang ap dung de toi uu phan phoi cho muc tieu da chon.',
+  budget: 'Ngan sach duoc cap cho campaign hoac ad set trong chu ky van hanh.',
+  amountSpent: 'Tong chi tieu da ghi nhan trong khoang thoi gian dang xem.',
+  resultRoas: 'Ty le doanh thu tren chi tieu quang cao. Gia tri cao hon thuong tot hon.',
+  appInstalls: 'So luot cai dat app duoc quy ve cho doi tuong nay.',
+  costPerAppInstall: 'Chi phi trung binh de tao ra mot luot cai dat app.',
+  cpm: 'Chi phi trung binh cho moi 1.000 lan hien thi.',
+  results: 'Tong so ket qua chinh theo muc tieu toi uu hien tai. Trong mock nay dang map voi installs.',
+  costPerResults: 'Chi phi trung binh cho moi ket qua chinh duoc ghi nhan.',
+  ctrAll: 'Ty le nhap chuot tren tong so lan hien thi, tinh tren tat ca click.',
+  cpcAll: 'Chi phi trung binh cho moi click, tinh tren tat ca click.',
+  cvrInstall: 'Ty le chuyen doi tu click thanh install.',
+  ctrInstall: 'Ty le install tren tong so impression.',
+  costPerLead: 'Chi phi trung binh de tao ra mot lead.',
+  leads: 'Tong so lead ghi nhan duoc tu doi tuong nay.',
+  cvrLeads: 'Ty le chuyen doi tu click thanh lead.',
+  impression: 'Tong so lan quang cao duoc hien thi.',
+  reach: 'Tong so nguoi dung duy nhat da nhin thay quang cao.',
+  frequency: 'So lan hien thi trung binh tren moi nguoi da duoc reach.',
+  completedRegistration: 'So luot dang ky hoan tat sau khi nguoi dung tuong tac voi quang cao.',
+  costPerCompletedRegistration: 'Chi phi trung binh cho moi luot dang ky hoan tat.',
+  purchase: 'So luot mua hang hoac giao dich mua duoc ghi nhan.',
+  costPerPurchase: 'Chi phi trung binh de tao ra mot purchase.',
+  linkClicks: 'So click vao lien ket dich den.',
+  cpcLinkClick: 'Chi phi trung binh cho moi click vao lien ket dich den.',
+};
 
 const HEATMAP_COLORS: HeatmapColor[] = [
   { id: 'sand', label: 'Sand', rgb: '213, 154, 128' },
@@ -1682,19 +1717,33 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = ({ network }) => {
 
   const renderColumnTitle = (column: MetaColumnConfig, label = column.label) => (
     <div className="flex items-center justify-between gap-1 min-w-0">
-      <span className="truncate">{label}</span>
-      {column.metric && (
-        <HeatmapColorPicker
-          column={column}
-          selectedColor={HEATMAP_COLORS.find(color => color.id === heatmapColors[column.key])}
-          onSelect={colorId => updateTablePreferences(entity, { heatmapColors: { ...heatmapColors, [column.key]: colorId } })}
-          onRemove={() => {
-            const next = { ...heatmapColors };
-            delete next[column.key];
-            updateTablePreferences(entity, { heatmapColors: next });
-          }}
-        />
+      {META_COLUMN_HELP[column.key] ? (
+        <Tooltip
+          placement="top"
+          title={<div className="max-w-[280px] text-xs leading-5">{META_COLUMN_HELP[column.key]}</div>}
+        >
+          <span className="inline-flex items-center gap-1 min-w-0 cursor-help">
+            <span className="truncate">{label}</span>
+            <CircleAlert size={13} className="text_tertiary shrink-0" />
+          </span>
+        </Tooltip>
+      ) : (
+        <span className="truncate">{label}</span>
       )}
+      <div className="shrink-0">
+        {column.metric && (
+          <HeatmapColorPicker
+            column={column}
+            selectedColor={HEATMAP_COLORS.find(color => color.id === heatmapColors[column.key])}
+            onSelect={colorId => updateTablePreferences(entity, { heatmapColors: { ...heatmapColors, [column.key]: colorId } })}
+            onRemove={() => {
+              const next = { ...heatmapColors };
+              delete next[column.key];
+              updateTablePreferences(entity, { heatmapColors: next });
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 
