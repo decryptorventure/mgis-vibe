@@ -1,19 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Tag, Typography, Row, Col, Divider } from 'antd';
 import { PlayCircle, Image as ImageIcon, Layout, Sparkles } from 'lucide-react';
-import { mockMetaCreativeAssets } from '@/shared/mock-data';
+import { mockMetaCreativeAssets, type MetaCreativeAsset } from '@/shared/mock-data';
+import { MetaCreativeDetailDrawer } from './meta-creative-detail-drawer';
 
 const { Text } = Typography;
 
 export const MetaCreativeLabTab: React.FC = () => {
-  const data = mockMetaCreativeAssets;
+  const [creatives, setCreatives] = useState<MetaCreativeAsset[]>(mockMetaCreativeAssets);
+  const [selected, setSelected] = useState<MetaCreativeAsset | null>(null);
+
+  const handleStatusChange = (id: string, status: MetaCreativeAsset['status']) => {
+    setCreatives(prev => prev.map(c => c.id === id ? { ...c, status } : c));
+    setSelected(prev => prev?.id === id ? { ...prev, status } : prev);
+  };
 
   const renderIcon = (format: string) => {
     switch (format) {
-      case 'VIDEO': return <PlayCircle size={14} className="text-blue-500" />;
-      case 'IMAGE': return <ImageIcon size={14} className="text-green-500" />;
+      case 'VIDEO':    return <PlayCircle size={14} className="text-blue-500" />;
+      case 'IMAGE':    return <ImageIcon size={14} className="text-green-500" />;
       case 'CAROUSEL': return <Layout size={14} className="text-purple-500" />;
-      default: return <Sparkles size={14} className="text-orange-500" />;
+      default:         return <Sparkles size={14} className="text-orange-500" />;
     }
   };
 
@@ -27,9 +34,10 @@ export const MetaCreativeLabTab: React.FC = () => {
       </div>
 
       <Row gutter={[16, 16]}>
-        {data.map((creative) => (
+        {creatives.map((creative) => (
           <Col xs={24} sm={12} lg={8} key={creative.id}>
-            <Card 
+            <Card
+              onClick={() => setSelected(creative)}
               className="rounded-xl border border-[var(--border-default)] shadow-none h-full hover:border-[var(--brand-primary)] transition-colors cursor-pointer overflow-hidden flex flex-col"
               styles={{ body: { padding: 0, flex: 1, display: 'flex', flexDirection: 'column' } }}
             >
@@ -46,14 +54,14 @@ export const MetaCreativeLabTab: React.FC = () => {
                   </div>
                 )}
               </div>
-              
+
               <div className="p-3 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                   <Text strong className="text-sm truncate pr-2" title={creative.name}>{creative.name}</Text>
-                  <Tag 
+                  <Tag
                     color={
-                      creative.status === 'ACTIVE' ? 'success' : 
-                      creative.status === 'PAUSED' ? 'default' : 
+                      creative.status === 'ACTIVE' ? 'success' :
+                      creative.status === 'PAUSED' ? 'default' :
                       creative.status === 'IN_REVIEW' ? 'processing' : 'error'
                     }
                     className="m-0 border-none shrink-0"
@@ -61,7 +69,7 @@ export const MetaCreativeLabTab: React.FC = () => {
                     {creative.status.replace('_', ' ')}
                   </Tag>
                 </div>
-                
+
                 <div className="mt-auto">
                   <Divider className="my-2" />
                   <div className="grid grid-cols-3 gap-2 text-center">
@@ -84,6 +92,12 @@ export const MetaCreativeLabTab: React.FC = () => {
           </Col>
         ))}
       </Row>
+
+      <MetaCreativeDetailDrawer
+        creative={selected}
+        onClose={() => setSelected(null)}
+        onStatusChange={handleStatusChange}
+      />
     </div>
   );
 };
