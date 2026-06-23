@@ -1,14 +1,15 @@
 // ─── NetworkWorkspaceShell — shared layout shell for all network workspaces ───
 import React, { useState } from 'react';
-import { Card, Tabs, Input, Drawer, Select, DatePicker, Switch } from 'antd';
+import { Card, Tabs, Input, Drawer, Select, DatePicker, Switch, Dropdown } from 'antd';
 import { Button, toast } from '@frontend-team/ui-kit';
-import { Search, Filter, Download, Plus, ListFilter } from 'lucide-react';
+import { Search, Filter, Download, Plus, ListFilter, ChevronDown } from 'lucide-react';
 import { FilterBar, PageHeader } from '@/components/ui';
 import { NetworkCampaignTable } from './network-campaign-table';
 import { NetworkInsightsTab } from './network-insights-tab';
 import { NetworkSettingsTab } from './network-settings-tab';
 import type { NetworkConfig } from '@/shared/network-config';
 import { mockProjects, type Campaign } from '@/shared/mock-data';
+import { usePersistentFilter } from '@/shared/hooks/use-persistent-filter';
 import { useParams } from 'react-router-dom';
 import { NetworkWorkspaceAutomationRules } from './NetworkWorkspaceAutomationRules';
 
@@ -26,11 +27,15 @@ export const NetworkWorkspaceShell: React.FC<NetworkWorkspaceShellProps> = ({
   campaigns,
   expandable,
 }) => {
-  const [searchText, setSearchText] = useState('');
   const [wizardOpen, setWizardOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [activeTabKey, setActiveTabKey] = useState('campaigns');
+  const [activeOverflowKey, setActiveOverflowKey] = useState('');
 
   const { appId } = useParams<{ appId?: string }>();
+  // Persist search text per network+app context so it survives navigation
+  const filterKey = `${appId ?? 'global'}-${config.key}`;
+  const [searchText, setSearchText, clearSearchText] = usePersistentFilter(filterKey, '');
   const activeApp = mockProjects.find((p) => p.id === appId);
   const connectedAppsCount = new Set(campaigns.map(campaign => campaign.projectId)).size;
 
@@ -109,6 +114,42 @@ export const NetworkWorkspaceShell: React.FC<NetworkWorkspaceShellProps> = ({
     allTabs = config.extraTabs ? [...standardTabs, ...config.extraTabs] : standardTabs;
   }
 
+  // ─── Tab overflow: extraTabs go into "More" dropdown, primary 4 always visible ─
+  const ALWAYS_PRIMARY = new Set(['campaigns', 'automation-rules', 'insights', 'settings']);
+  const primaryTabs = allTabs.filter(t => ALWAYS_PRIMARY.has(t.key as string));
+  const overflowTabs = allTabs.filter(t => !ALWAYS_PRIMARY.has(t.key as string));
+  const activeOverflowTab = overflowTabs.find(t => t.key === activeOverflowKey);
+
+  const tabsToRender = overflowTabs.length > 0
+    ? [
+        ...primaryTabs,
+        {
+          key: '__overflow__',
+          label: (
+            <Dropdown
+              menu={{
+                items: overflowTabs.map(t => ({ key: t.key as string, label: t.label })),
+                onClick: ({ key }) => {
+                  setActiveOverflowKey(key);
+                  setActiveTabKey('__overflow__');
+                },
+                selectedKeys: activeOverflowKey ? [activeOverflowKey] : [],
+              }}
+              trigger={['click']}
+            >
+              <span className="flex items-center gap-1.5 select-none">
+                {activeTabKey === '__overflow__' && activeOverflowTab
+                  ? activeOverflowTab.label
+                  : 'More'}
+                <ChevronDown size={12} />
+              </span>
+            </Dropdown>
+          ),
+          children: activeOverflowTab?.children ?? overflowTabs[0]?.children ?? null,
+        },
+      ]
+    : allTabs;
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -173,7 +214,15 @@ export const NetworkWorkspaceShell: React.FC<NetworkWorkspaceShellProps> = ({
 
       {/* Main content card */}
       <Card className="rounded-lg overflow-hidden" styles={{ body: { padding: 0 } }}>
-        <Tabs items={allTabs} className="px-4 pt-2" />
+        <Tabs
+          items={tabsToRender}
+          activeKey={activeTabKey}
+          onChange={key => {
+            setActiveTabKey(key);
+            if (key !== '__overflow__') setActiveOverflowKey('');
+          }}
+          className="px-4 pt-2"
+        />
       </Card>
 
       {/* Advanced Filters Drawer */}
@@ -186,7 +235,7 @@ export const NetworkWorkspaceShell: React.FC<NetworkWorkspaceShellProps> = ({
         styles={{ header: { padding: '16px 20px' }, body: { padding: '20px', background: 'var(--surface-subtle)' } }}
         footer={
           <div className="flex justify-between items-center w-full">
-            <Button variant="subtle" size="m" onClick={() => setFilterOpen(false)}>Reset</Button>
+            <Button variant="subtle" size="m" onClick={() => { clearSearchText(); setFilterOpen(false); }}>Reset</Button>
             <Button variant="primary" size="m" onClick={() => { setFilterOpen(false); toast.success('Filters applied'); }}>Apply Filters</Button>
           </div>
         }

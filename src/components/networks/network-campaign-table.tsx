@@ -4,9 +4,11 @@ import { Tag, Button, Drawer, Statistic, Row, Col, Descriptions, Popover, InputN
 import { toast } from '@frontend-team/ui-kit';
 import type { TableProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { Play, Pause, Settings, ArrowUp, ArrowDown } from 'lucide-react';
+import { Play, Pause, Pencil, Settings, ArrowUp, ArrowDown } from 'lucide-react';
 import { StatusBadge, statusToVariant } from '@/components/ui/StatusBadge';
 import { DataTable } from '@/components/ui/DataTable';
+import { InlineEditCell } from './inline-edit-cell';
+import { CampaignEditDrawer } from './campaign-edit-drawer';
 import type { NetworkConfig } from '@/shared/network-config';
 import type { Campaign } from '@/shared/mock-data';
 
@@ -27,15 +29,38 @@ export const NetworkCampaignTable: React.FC<NetworkCampaignTableProps> = ({
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [bulkBudgetVal, setBulkBudgetVal] = useState<number>(10);
   const [budgetPopoverOpen, setBudgetPopoverOpen] = useState(false);
+  // Optimistic local overrides (mock — real app would call API)
+  const [localStatuses, setLocalStatuses] = useState<Record<string, Campaign['status']>>({});
+  const [localBudgets, setLocalBudgets] = useState<Record<string, number>>({});
+  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
 
   const openDetail = (campaign: Campaign) => {
     setSelectedCampaign(campaign);
     setDrawerOpen(true);
   };
 
+  const getStatus = (campaign: Campaign): Campaign['status'] =>
+    localStatuses[campaign.id] ?? campaign.status;
+
+  const handleStatusToggle = (campaign: Campaign) => {
+    const current = getStatus(campaign);
+    if (current !== 'ACTIVE' && current !== 'PAUSED') return;
+    const next: Campaign['status'] = current === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+    setLocalStatuses(prev => ({ ...prev, [campaign.id]: next }));
+    // Simple success toast — click badge again to revert
+    toast.success(`${next === 'ACTIVE' ? 'Resumed' : 'Paused'}: ${campaign.name}`);
+  };
+
   const handleBulkStatus = (status: 'ACTIVE' | 'PAUSED') => {
+    const updates = Object.fromEntries(selectedRowKeys.map(k => [k as string, status]));
+    setLocalStatuses(prev => ({ ...prev, ...updates }));
     toast.success(`Updated ${selectedRowKeys.length} campaigns to ${status === 'ACTIVE' ? 'Active' : 'Paused'}`);
     setSelectedRowKeys([]);
+  };
+
+  const handleCampaignSave = (id: string, updates: Partial<Campaign>) => {
+    if (updates.status) setLocalStatuses(prev => ({ ...prev, [id]: updates.status as Campaign['status'] }));
+    if (updates.budget !== undefined) setLocalBudgets(prev => ({ ...prev, [id]: updates.budget as number }));
   };
 
   const handleBulkBudget = (dir: 'up' | 'down') => {
@@ -63,9 +88,39 @@ export const NetworkCampaignTable: React.FC<NetworkCampaignTableProps> = ({
       dataIndex: 'status',
       key: 'status',
       width: 110,
-      render: (s: string) => <StatusBadge label={s} variant={statusToVariant(s)} />,
+      render: (_: string, record: Campaign) => {
+        const status = getStatus(record);
+        const canToggle = status === 'ACTIVE' || status === 'PAUSED';
+        return (
+          <div
+            className={canToggle
+              ? 'inline-block cursor-pointer hover:opacity-75 transition-opacity'
+              : 'inline-block'}
+            onClick={canToggle ? () => handleStatusToggle(record) : undefined}
+            title={canToggle ? 'Click to toggle status' : undefined}
+          >
+            <StatusBadge label={status} variant={statusToVariant(status)} />
+          </div>
+        );
+      },
     },
-    { title: 'Budget', dataIndex: 'budget', key: 'budget', width: 100, render: (v: number) => `$${v.toLocaleString()}` },
+    {
+      title: 'Budget',
+      dataIndex: 'budget',
+      key: 'budget',
+      width: 130,
+      render: (v: number, record: Campaign) => (
+        <InlineEditCell
+          value={localBudgets[record.id] ?? v}
+          format={val => `$${Number(val).toLocaleString()}`}
+          onSave={newVal => {
+            setLocalBudgets(prev => ({ ...prev, [record.id]: Number(newVal) }));
+            toast.success(`Budget updated: $${Number(newVal).toLocaleString()}`);
+          }}
+          min={1}
+        />
+      ),
+    },
     { title: 'Spend', dataIndex: 'spend', key: 'spend', width: 100, render: (v: number) => `$${v.toLocaleString()}` },
     { title: 'Impressions', dataIndex: 'impressions', key: 'impressions', width: 120, render: (v: number) => v.toLocaleString() },
     { title: 'Clicks', dataIndex: 'clicks', key: 'clicks', width: 90, render: (v: number) => v.toLocaleString() },
@@ -75,16 +130,24 @@ export const NetworkCampaignTable: React.FC<NetworkCampaignTableProps> = ({
     {
       title: 'Actions',
       key: 'actions',
-      width: 90,
-      render: (_: unknown, record: Campaign) => (
-        <div className="flex gap-1">
-          {record.status === 'ACTIVE' ? (
-            <Button size="small" icon={<Pause size={12} />} onClick={() => toast.info(`Pausing ${record.name}`)} />
-          ) : (
-            <Button size="small" type="primary" icon={<Play size={12} />} onClick={() => toast.info(`Resuming ${record.name}`)} />
-          )}
-        </div>
-      ),
+      width: 110,
+      render: (_: unknown, record: Campaign) => {
+        const status = getStatus(record);
+        return (
+          <div className="flex gap-1">
+            <Button
+              size="small"
+              icon={<Pencil size={12} />}
+              onClick={e => { e.stopPropagation(); setEditingCampaign(record); }}
+            />
+            {status === 'ACTIVE' ? (
+              <Button size="small" icon={<Pause size={12} />} onClick={() => handleStatusToggle(record)} />
+            ) : (
+              <Button size="small" type="primary" icon={<Play size={12} />} onClick={() => handleStatusToggle(record)} />
+            )}
+          </div>
+        );
+      },
     },
   ], []);
 
@@ -138,6 +201,15 @@ export const NetworkCampaignTable: React.FC<NetworkCampaignTableProps> = ({
           <button onClick={() => setSelectedRowKeys([])} className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] bg-transparent border-0 cursor-pointer underline">Cancel</button>
         </div>
       )}
+
+      {/* Edit Drawer — 50% slide-in, keeps table context visible */}
+      <CampaignEditDrawer
+        campaign={editingCampaign}
+        networkKey={config.key}
+        open={Boolean(editingCampaign)}
+        onClose={() => setEditingCampaign(null)}
+        onSave={handleCampaignSave}
+      />
 
       {/* Detail Drawer */}
       <Drawer title={selectedCampaign?.name} width={520} open={drawerOpen} onClose={() => setDrawerOpen(false)}>

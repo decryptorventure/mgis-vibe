@@ -6,8 +6,9 @@ priority: P1
 effort: 40h
 tags: [ui, ux, redesign, navigation, analytics, campaign-wizard, automation]
 blockedBy: []
-blocks: []
+blocks: [260623-1530-nms-uiux-optimization]
 created: 2026-06-10
+supersededBy: 260623-1530-nms-uiux-optimization
 ---
 
 # NMS-FE UI/UX Full Upgrade

@@ -128,15 +128,23 @@ nms/
 ├── docs/
 ├── nms-fe/
 │   ├── src/assets/app-data/   # Redux store and persisted slices
-│   ├── src/components/        # Shared UI components
+│   ├── src/components/
+│   │   ├── networks/          # Network-specific UI: InlineEditCell, CampaignEditDrawer, etc.
+│   │   ├── ui/                # Shared UI atoms: StatCard, StatusBadge, etc.
+│   │   ├── layout/            # Layout components: NetworkContextBar, etc.
+│   │   └── analytics/         # Analytics-scoped components
 │   ├── src/core/              # Keycloak/auth bootstrap, base helpers
 │   ├── src/features/          # Main FE feature modules
 │   ├── src/modules/           # Legacy/isolated FE modules (notably ASA)
 │   ├── src/domains/           # FE domain entities used by some modules
 │   ├── src/pages/             # Route-level pages
 │   ├── src/routes/            # Router tree
-│   ├── src/shared/            # Constants, baseQuery, helpers
-│   └── src/hooks/             # App-wide hooks
+│   ├── src/shared/
+│   │   ├── hooks/             # App-wide hooks (usePersistentFilter, etc.)
+│   │   ├── tokens.ts          # Semantic CSS tokens
+│   │   ├── navigation.ts       # Route/page metadata
+│   │   └── mock-data.ts       # Prototype data fixtures
+│   └── src/index.css          # Global styles and token definitions
 └── nms-be/
     ├── src/infrastructure/    # Auth, config, websocket, logger, cache, queue
     ├── src/modules/           # Runtime business modules
@@ -219,13 +227,40 @@ Redux store hiện gồm:
 - Hầu hết page đang dùng `src/shared/mock-data.ts`
 - API/RTK Query layer trong prototype hiện tại chưa phải source dữ liệu chính
 - FE giữ một số account context trong browser storage, ví dụ Google Ads, Meta, Moloco account id
+- UI-specific state (table filters, form drafts, drawer open/close) mục đích short-lived hoặc session-scoped nên dùng `usePersistentFilter` hook cho localStorage-backed filters, hoặc component-level state cho transient UI state
 
 Security note:
 
 - Tất cả `VITE_*` và `GOOGLE_CLIENT_ID` ở FE là public runtime config
 - Secret thật không được đặt trong FE bundle
+- localStorage chỉ dùng cho non-sensitive filter preferences, không giữ token, credentials hoặc PII
 
-### 6.4 Realtime Patterns
+### 6.4 UI Component Patterns
+
+Shared UI components live in `src/components/` with network-specific variants under `src/components/networks/`:
+
+**Core reusable patterns:**
+
+| Component | Purpose | Path |
+|---|---|---|
+| `InlineEditCell` | Click-to-edit numeric/text table cells with async save support | `src/components/networks/inline-edit-cell.tsx` |
+| `CampaignEditDrawer` | 50%-width slide-in form drawer for editing campaign fields (preserves table context) | `src/components/networks/campaign-edit-drawer.tsx` |
+| `StatCard` | Dashboard stat card with trend indicator, now supports `positiveIsGood` prop for metric direction logic | `src/components/ui/StatCard.tsx` |
+| `StatusBadge` | Status indicator badge with network-aware styling | `src/components/ui/StatusBadge.tsx` |
+
+**Form patterns:**
+
+- Multi-field forms use Ant Design `<Form>` with `layout="vertical"`
+- Network-specific fields render conditionally (e.g., `targetCpa` for Google Ads, `optimizationGoal` for Meta)
+- Save handler validates all fields then persists via parent callback
+
+**Hook patterns:**
+
+| Hook | Purpose | Path |
+|---|---|---|
+| `usePersistentFilter` | localStorage-backed state hook with JSON serialization and quota fallback | `src/shared/hooks/use-persistent-filter.ts` |
+
+### 6.5 Realtime Patterns
 
 FE hiện dùng `socket.io-client` cho các luồng dài hoặc background progress:
 
@@ -464,5 +499,6 @@ Khi có thay đổi kiến trúc trong tương lai, file này nên được cậ
 
 | Version | Ngày | Người | Thay đổi |
 |---|---|---|---|
+| 0.2.1 | 2026-06-23 | docs-manager | Thêm UI component patterns (InlineEditCell, CampaignEditDrawer, usePersistentFilter, StatCard enhancements), cập nhật folder structure chi tiết, localStorage pattern guidelines |
 | 0.2.0 | 2026-06-04 | Codex | Refresh toàn bộ theo source hiện tại: thêm Moloco, Meta V2, websocket/queue flows, upload monitor, change logs, security/observability và sửa lại mô hình BE thực tế |
 | 0.1.0 | 2026-05-24 | Codex | Initial root-level architecture draft |

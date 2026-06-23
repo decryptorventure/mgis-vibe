@@ -1,5 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import { Dropdown } from 'antd';
 import { cn } from '@frontend-team/ui-kit';
+import { ChevronDown } from 'lucide-react';
 import { NETWORK_LOGOS } from '@/shared/network-config';
 import {
   ACTIVE_NETWORKS,
@@ -35,19 +37,36 @@ export const NetworkContextBar: React.FC<NetworkContextBarProps> = ({ activeNetw
 
   return (
     <div className="h-10 flex items-center justify-between px-5 flex-shrink-0 bg_primary border-b border_secondary">
-      {/* Active network badge */}
-      <div className="flex items-center gap-2">
-        <span className="w-5 h-5 radius_round border border_secondary bg_primary p-0.5 flex items-center justify-center flex-shrink-0 shadow-sm">
-          <img
-            src={NETWORK_LOGOS[activeNetwork]}
-            alt={activeNetwork}
-            className="w-full h-full object-contain"
-          />
-        </span>
-        <span className="text-xs font-bold text_primary">
-          {activeApp?.name ?? `${ACTIVE_NETWORKS[activeNetwork].label} report`}
-        </span>
-      </div>
+      {/* App switcher dropdown — click to switch app while keeping current network */}
+      <Dropdown
+        trigger={['click']}
+        menu={{
+          selectedKeys: appId ? [appId] : [],
+          items: mockProjects.map(p => ({
+            key: p.id,
+            label: (
+              <div className="flex items-center gap-2 min-w-[160px]">
+                <span className="text-base leading-none">{p.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-semibold text_primary truncate">{p.name}</div>
+                  <div className="text-[10px] text_tertiary font-mono truncate">{p.package}</div>
+                </div>
+              </div>
+            ),
+            onClick: () => navigate(getAppNetworkPath(p.id, activeNetwork)),
+          })),
+        }}
+      >
+        <button className="flex items-center gap-2 cursor-pointer hover:bg_button_tertiary px-2 py-1 radius_6 transition-colors">
+          <span className="w-5 h-5 radius_round border border_secondary bg_primary p-0.5 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <img src={NETWORK_LOGOS[activeNetwork]} alt={activeNetwork} className="w-full h-full object-contain" />
+          </span>
+          <span className="text-xs font-bold text_primary">
+            {activeApp?.name ?? `${ACTIVE_NETWORKS[activeNetwork].label} report`}
+          </span>
+          <ChevronDown size={11} className="text_tertiary" />
+        </button>
+      </Dropdown>
 
       {/* Quick-switch tabs */}
       <div className="flex items-center gap-1.5">

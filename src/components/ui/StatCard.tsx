@@ -9,7 +9,7 @@ interface StatCardProps {
   value: string | number;
   icon?: React.ReactNode;
   description?: string;
-  trend?: { value: number; label: string };
+  trend?: { value: number; label: string; positiveIsGood?: boolean };
   footer?: React.ReactNode;
   loading?: boolean;
   variant?: StatCardVariant;
@@ -80,16 +80,21 @@ export const StatCard: React.FC<StatCardProps> = ({
 
     {trend && (
       <div className="flex items-center gap-1.5 mt-0.5">
-        {trend.value >= 0 ? (
-          <TrendingUp size={14} className="fg_emerald_accent" />
-        ) : (
-          <TrendingDown size={14} className="fg_red_accent" />
-        )}
-        <span className={cn('text-xs font-semibold', trend.value >= 0 ? 'fg_emerald_accent' : 'fg_red_accent')}>
-          {trend.value >= 0 ? '+' : ''}
-          {trend.value}%
-        </span>
-        <span className="text-[11px] text_tertiary">{trend.label}</span>
+        {(() => {
+          const isPositive = trend.value >= 0;
+          const isGood = trend.positiveIsGood === false ? !isPositive : isPositive;
+          return (
+            <>
+              {isPositive
+                ? <TrendingUp size={14} className={isGood ? 'fg_emerald_accent' : 'fg_red_accent'} />
+                : <TrendingDown size={14} className={isGood ? 'fg_emerald_accent' : 'fg_red_accent'} />}
+              <span className={cn('text-xs font-semibold', isGood ? 'fg_emerald_accent' : 'fg_red_accent')}>
+                {isPositive ? '+' : ''}{trend.value}%
+              </span>
+              <span className="text-[11px] text_tertiary">{trend.label}</span>
+            </>
+          );
+        })()}
       </div>
     )}
 

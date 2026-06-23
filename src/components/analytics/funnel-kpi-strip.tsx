@@ -48,7 +48,7 @@ export const FunnelKpiStrip: React.FC<FunnelKpiStripProps> = ({ campaigns }) => 
         value={`$${avgCpa.toFixed(2)}`}
         icon={<Target size={14} />}
         variant="warning"
-        trend={{ value: -4.7, label: 'vs last period' }}
+        trend={{ value: -4.7, label: 'vs last period', positiveIsGood: false }}
       />
       <StatCard
         title="Avg ROAS"

@@ -54,6 +54,9 @@ Khi cần nắm context cấp project, đọc theo thứ tự:
 Bộ docs này hiện phản ánh các phần runtime chính sau:
 
 - FE: React/Vite SPA, Redux Toolkit, redux-persist, Ant Design/Tailwind, Socket.IO client dependency
+  - UI patterns: reusable components (InlineEditCell, CampaignEditDrawer, StatCard), localStorage-backed filters via hooks
+  - Component structure: `src/components/{networks,ui,layout,analytics}` for organized UI reuse
+  - State management: Redux for app/auth, component-level state for transient UI, localStorage for filter preferences
 - BE: NestJS modular monolith, Redis, Bull + BullMQ, Socket.IO gateway, PostgreSQL, MongoDB
 - Active network/workflow areas: Google Ads, Meta, Meta V2, ASA, Axon/AppLovin, Moloco, YouTube, Adjust
 - Cross-cutting flows: permissions, vault key status, media libraries, upload monitor, notifications, activity logs, change logs, dashboard

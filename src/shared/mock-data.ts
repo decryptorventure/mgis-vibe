@@ -886,6 +886,38 @@ export interface MolocoMLStats {
   dailyStats: { date: string; winRate: number; cvr: number; spend: number; installs: number }[];
 }
 
+export type MolocoAdjustSyncStatus = 'SYNCED' | 'SYNCING' | 'ERROR';
+export type MolocoAdjustMetricMaturity = 'DIRECT' | 'MODELED' | 'REVIEW';
+
+export interface MolocoAdjustMetric {
+  id: string;
+  campaignId: string;
+  campaignName: string;
+  appName: string;
+  country: string;
+  os: 'iOS' | 'Android';
+  spend: number;
+  installs: number;
+  cpi: number;
+  conversionRate: number;
+  roas: number;
+  ltv: number;
+  paybackPeriodDays: number;
+  maturity: MolocoAdjustMetricMaturity;
+  methodology: string;
+  lastSyncedAt: string;
+  syncStatus: MolocoAdjustSyncStatus;
+  errorMessage?: string;
+}
+
+export interface MolocoAdjustSyncState {
+  source: 'Adjust';
+  status: MolocoAdjustSyncStatus;
+  lastSyncedAt: string;
+  nextSyncAt: string;
+  errorMessage?: string;
+}
+
 export const mockMolocoCreativeGroups: MolocoCreativeGroup[] = [
   { id: 'mcg1', name: 'US_Install_Video_Pack', campaignId: 'c11', creatives: [
     { name: 'gameplay_30s.mp4', format: 'VIDEO', size: '12.4 MB' },
@@ -933,3 +965,71 @@ export const mockMolocoMLStats: MolocoMLStats = {
   ],
 };
 
+export const mockMolocoAdjustSyncState: MolocoAdjustSyncState = {
+  source: 'Adjust',
+  status: 'ERROR',
+  lastSyncedAt: '2026-06-04 10:20:00',
+  nextSyncAt: '2026-06-04 11:20:00',
+  errorMessage: 'JP Android D7 revenue cohort failed to refresh; ROAS, LTV and payback use the previous Adjust pull.',
+};
+
+export const mockMolocoAdjustMetrics: MolocoAdjustMetric[] = [
+  {
+    id: 'mam1',
+    campaignId: 'c11',
+    campaignName: 'Moloco_US_ROAS',
+    appName: 'iG_Hot_Pot_IOS',
+    country: 'US',
+    os: 'iOS',
+    spend: 4800,
+    installs: 7100,
+    cpi: 0.68,
+    conversionRate: 14.8,
+    roas: 3.6,
+    ltv: 2.42,
+    paybackPeriodDays: 7.4,
+    maturity: 'MODELED',
+    methodology: 'Spend from Moloco, installs and cohorts from Adjust. CPI is modeled because Moloco traffic is impression and auction driven.',
+    lastSyncedAt: '2026-06-04 10:20:00',
+    syncStatus: 'SYNCED',
+  },
+  {
+    id: 'mam2',
+    campaignId: 'c12',
+    campaignName: 'Moloco_JP_Install',
+    appName: 'iG_Hot_Pot',
+    country: 'JP',
+    os: 'Android',
+    spend: 1200,
+    installs: 1200,
+    cpi: 1.00,
+    conversionRate: 6.1,
+    roas: 1.5,
+    ltv: 1.48,
+    paybackPeriodDays: 19.0,
+    maturity: 'REVIEW',
+    methodology: 'Install volume is current; revenue cohorts are stale until Adjust sync recovers.',
+    lastSyncedAt: '2026-06-04 08:10:00',
+    syncStatus: 'ERROR',
+    errorMessage: 'Adjust cohort export timed out for tracker moloco_jp_install_android.',
+  },
+  {
+    id: 'mam3',
+    campaignId: 'c11',
+    campaignName: 'Moloco_KR_Playable_Test',
+    appName: 'iG_Hot_Pot_IOS',
+    country: 'KR',
+    os: 'iOS',
+    spend: 800,
+    installs: 650,
+    cpi: 1.23,
+    conversionRate: 9.7,
+    roas: 2.1,
+    ltv: 1.92,
+    paybackPeriodDays: 12.6,
+    maturity: 'MODELED',
+    methodology: 'Creative-group test uses Adjust install cohorts with modeled Moloco spend allocation.',
+    lastSyncedAt: '2026-06-04 10:18:00',
+    syncStatus: 'SYNCED',
+  },
+];

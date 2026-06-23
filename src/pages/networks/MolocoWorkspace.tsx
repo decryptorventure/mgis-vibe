@@ -1,7 +1,7 @@
 // ─── Moloco DSP Workspace — thin plugin ──────────────────────────────────────
 // Publisher/exchange management is preserved as an extraTab.
 // Shell handles header, toolbar, Campaigns/Insights/Settings tabs.
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Table, Tag, Button } from 'antd';
 import { toast } from '@frontend-team/ui-kit';
 import { Ban, CheckCircle } from 'lucide-react';
@@ -11,11 +11,7 @@ import { NETWORK_CONFIGS } from '@/shared/network-config';
 
 // ─── Publisher & Exchange management tab (Moloco-specific) ────────────────────
 const PublisherManagementTab: React.FC = () => {
-  const [publishers, setPublishers] = useState<MolocoPublisher[]>([]);
-
-  useEffect(() => {
-    setPublishers(mockMolocoPublishers);
-  }, []);
+  const [publishers, setPublishers] = useState<MolocoPublisher[]>(mockMolocoPublishers);
 
   const togglePublisher = (id: string, bundleId: string, current: MolocoPublisher['status']) => {
     const next = current === 'ALLOWED' ? 'BLOCKED' : 'ALLOWED';
@@ -77,6 +73,7 @@ const PublisherManagementTab: React.FC = () => {
 };
 
 import { useParams } from 'react-router-dom';
+import { MolocoAdjustMetricsTab } from '@/components/networks/moloco/moloco-adjust-metrics-tab';
 import { MolocoCreativeGroupsTab } from '@/components/networks/moloco/moloco-creative-groups-tab';
 import { MolocoExchangeTab } from '@/components/networks/moloco/moloco-exchange-tab';
 import { MolocoMLTab } from '@/components/networks/moloco/moloco-ml-tab';
@@ -91,6 +88,11 @@ export const MolocoWorkspace: React.FC<{ network: string; networkLabel: string }
   const config = {
     ...NETWORK_CONFIGS['moloco'],
     extraTabs: [
+      {
+        key: 'adjust-performance',
+        label: 'Adjust Performance',
+        children: <MolocoAdjustMetricsTab />
+      },
       {
         key: 'publisher-management',
         label: 'Publisher Management',
