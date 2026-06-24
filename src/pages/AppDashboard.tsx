@@ -401,7 +401,7 @@ export const AppDashboard: React.FC = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full border border-[var(--border-subtle)] bg-white p-0.5 flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <span className="w-5 h-5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-base)] p-0.5 flex items-center justify-center flex-shrink-0 shadow-sm">
                         <img
                           src={NETWORK_LOGOS[netKey]}
                           alt={netKey}
@@ -537,7 +537,7 @@ export const AppDashboard: React.FC = () => {
               {STOREFRONTS_DATA[selectedCountry].competitors.map((comp, idx) => (
                 <Tooltip key={idx} title={comp.name}>
                   <span
-                    className="w-6 h-6 rounded-md flex items-center justify-center font-bold text-[10px] text-white shadow-sm transition-all duration-200 hover:scale-110 hover:-translate-y-0.5 cursor-help"
+                    className="w-6 h-6 rounded-md flex items-center justify-center font-bold text-[10px] text-[var(--text-inverse)] shadow-sm transition-all duration-200 hover:scale-110 hover:-translate-y-0.5 cursor-help"
                     style={{ background: comp.bg }}
                   >
                     {comp.letter}
@@ -747,7 +747,7 @@ export const AppDashboard: React.FC = () => {
                     color: NETWORK_COLORS[net],
                   }}
                 >
-                  <span className="w-3.5 h-3.5 rounded-full bg-white p-0.5 flex items-center justify-center overflow-hidden border border-[var(--border-subtle)] shrink-0">
+                  <span className="w-3.5 h-3.5 rounded-full bg-[var(--surface-base)] p-0.5 flex items-center justify-center overflow-hidden border border-[var(--border-subtle)] shrink-0">
                     <img src={NETWORK_LOGOS[net]} alt={net} className="w-full h-full object-contain" />
                   </span>
                   <span>{NETWORK_LABELS[net] || net}</span>

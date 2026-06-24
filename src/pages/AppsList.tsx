@@ -199,7 +199,7 @@ export const AppsList: React.FC = () => {
                   {p.networks.length > 0 ? (
                     p.networks.map((net) => (
                       <Tooltip key={net} title={isActiveNetworkKey(net) ? ACTIVE_NETWORKS[net].label : net}>
-                        <span className="w-5.5 h-5.5 rounded-full border border-[var(--border-subtle)] bg-white p-0.5 flex items-center justify-center cursor-help transition-transform hover:scale-110 shadow-sm">
+                        <span className="w-5.5 h-5.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-base)] p-0.5 flex items-center justify-center cursor-help transition-transform hover:scale-110 shadow-sm">
                           <img
                             src={NETWORK_LOGOS[net]}
                             alt={net}

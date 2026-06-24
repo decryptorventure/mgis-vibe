@@ -74,7 +74,7 @@ export const NetworksList: React.FC = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white p-1.5 border border-[var(--border-subtle)]"
+                      className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-[var(--surface-base)] p-1.5 border border-[var(--border-subtle)]"
                     >
                       <img
                         src={NETWORK_LOGOS[net.key]}
@@ -163,16 +163,7 @@ export const NetworksList: React.FC = () => {
                     <Key size={11} /> {net.keysCount} API keys configured
                   </span>
                   <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="border"
-                      size="s"
-                      onClick={() => navigate('/automation-settings')}
-                      className="text-xs gap-1"
-                    >
-                      <Zap size={11} />
-                      Automation Rules
-                    </Button>
+
                     <Button
                       type="button"
                       variant="primary"

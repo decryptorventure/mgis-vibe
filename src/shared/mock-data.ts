@@ -86,6 +86,15 @@ export interface MediaItem {
   installs?: number;
   ctr?: number;
   ipm?: number;
+  // Performance metrics (Task 4)
+  roas?: number;
+  cvr?: number;
+  ir?: number;
+  rr?: number;
+  // Google quality mark (Task 5)
+  googleMark?: 'low' | 'good';
+  // Campaign usage (Task 4)
+  campaigns?: string[];
 }
 
 export interface UploadTask {
@@ -213,12 +222,14 @@ export const mockAds: Ad[] = [
 ];
 
 export const mockMediaItems: MediaItem[] = [
-  { id: 'm1', name: 'gameplay_30s_v1.mp4', type: 'video', url: '', thumbnail: '', size: '12.4 MB', dimensions: '1920x1080', uploadedBy: 'Trần Đức Trọng', uploadedAt: '2026-05-28', projectId: 'p1', network: 'meta', status: 'READY', spend: 4500, installs: 8200, ctr: 2.1, ipm: 8.5 },
-  { id: 'm2', name: 'banner_1200x628.png', type: 'image', url: '', thumbnail: '', size: '245 KB', dimensions: '1200x628', uploadedBy: 'Trần Đức Trọng', uploadedAt: '2026-05-29', projectId: 'p1', network: 'meta', status: 'READY', spend: 1200, installs: 1500, ctr: 1.2, ipm: 3.2 },
-  { id: 'm3', name: 'playable_demo_v2.html', type: 'video', url: '', thumbnail: '', size: '3.8 MB', dimensions: '1080x1920', uploadedBy: 'Phạm Khánh Toàn', uploadedAt: '2026-05-30', projectId: 'p5', network: 'axon', status: 'READY', spend: 3800, installs: 9100, ctr: 3.4, ipm: 12.1 },
-  { id: 'm4', name: 'intro_60s_jp.mp4', type: 'video', url: '', thumbnail: '', size: '24.1 MB', dimensions: '1920x1080', uploadedBy: 'Mạc Văn Hiệp', uploadedAt: '2026-06-01', projectId: 'p2', network: 'google-ads', status: 'PROCESSING', spend: 0, installs: 0, ctr: 0, ipm: 0 },
-  { id: 'm5', name: 'icon_app_512.png', type: 'image', url: '', thumbnail: '', size: '89 KB', dimensions: '512x512', uploadedBy: 'Đặng Thị Bắc', uploadedAt: '2026-06-02', projectId: 'p4', network: 'asa', status: 'READY', spend: 850, installs: 400, ctr: 0.8, ipm: 1.5 },
-  { id: 'm6', name: 'endcard_landscape.png', type: 'image', url: '', thumbnail: '', size: '320 KB', dimensions: '1920x1080', uploadedBy: 'Tô Đình Tùng', uploadedAt: '2026-06-03', projectId: 'p1', network: 'moloco', status: 'ERROR', spend: 0, installs: 0, ctr: 0, ipm: 0 },
+  { id: 'm1', name: 'gameplay_30s_v1.mp4', type: 'video', url: '', thumbnail: '', size: '12.4 MB', dimensions: '1920x1080', uploadedBy: 'Trần Đức Trọng', uploadedAt: '2026-05-28', projectId: 'p1', network: 'meta', status: 'READY', spend: 4500, installs: 8200, ctr: 2.1, ipm: 8.5, roas: 1.8, cvr: 3.2, ir: 0.8, rr: 42, campaigns: ['iGHP_US_Install_v1', 'iGHP_JP_Install_v2'] },
+  { id: 'm2', name: 'banner_1200x628.png', type: 'image', url: '', thumbnail: '', size: '245 KB', dimensions: '1200x628', uploadedBy: 'Trần Đức Trọng', uploadedAt: '2026-05-29', projectId: 'p1', network: 'meta', status: 'READY', spend: 1200, installs: 1500, ctr: 1.2, ipm: 3.2, roas: 0.9, cvr: 1.5, ir: 0.4, rr: 28, campaigns: ['iGHP_US_Install_v1'] },
+  { id: 'm3', name: 'playable_demo_v2.html', type: 'video', url: '', thumbnail: '', size: '3.8 MB', dimensions: '1080x1920', uploadedBy: 'Phạm Khánh Toàn', uploadedAt: '2026-05-30', projectId: 'p5', network: 'axon', status: 'READY', spend: 3800, installs: 9100, ctr: 3.4, ipm: 12.1, roas: 2.4, cvr: 4.1, ir: 1.2, rr: 56, campaigns: ['DramaOn_AU_Video', 'DramaOn_US_CPI'] },
+  { id: 'm4', name: 'intro_60s_jp.mp4', type: 'video', url: '', thumbnail: '', size: '24.1 MB', dimensions: '1920x1080', uploadedBy: 'Mạc Văn Hiệp', uploadedAt: '2026-06-01', projectId: 'p2', network: 'google-ads', status: 'PROCESSING', spend: 820, installs: 310, ctr: 0.6, ipm: 2.1, roas: 0.4, cvr: 0.9, ir: 0.3, rr: 18, googleMark: 'low', campaigns: ['iGHP_UAC_JP_Q2'] },
+  { id: 'm5', name: 'icon_app_512.png', type: 'image', url: '', thumbnail: '', size: '89 KB', dimensions: '512x512', uploadedBy: 'Đặng Thị Bắc', uploadedAt: '2026-06-02', projectId: 'p4', network: 'asa', status: 'READY', spend: 850, installs: 400, ctr: 0.8, ipm: 1.5, roas: 1.1, cvr: 2.0, ir: 0.6, rr: 35, campaigns: ['ASA_US_Brand_iOS'] },
+  { id: 'm6', name: 'endcard_landscape.png', type: 'image', url: '', thumbnail: '', size: '320 KB', dimensions: '1920x1080', uploadedBy: 'Tô Đình Tùng', uploadedAt: '2026-06-03', projectId: 'p1', network: 'moloco', status: 'ERROR', spend: 0, installs: 0, ctr: 0, ipm: 0, campaigns: [] },
+  { id: 'm7', name: 'uac_banner_low.jpg', type: 'image', url: '', thumbnail: '', size: '180 KB', dimensions: '1200x628', uploadedBy: 'Nguyễn Văn A', uploadedAt: '2026-06-04', projectId: 'p2', network: 'google-ads', status: 'READY', spend: 1540, installs: 210, ctr: 0.4, ipm: 1.1, roas: 0.3, cvr: 0.7, ir: 0.2, rr: 12, googleMark: 'low', campaigns: ['iGHP_UAC_US_Q2', 'iGHP_UAC_KR_Q2'] },
+  { id: 'm8', name: 'uac_video_winner.mp4', type: 'video', url: '', thumbnail: '', size: '18.2 MB', dimensions: '1080x1920', uploadedBy: 'Trần Đức Trọng', uploadedAt: '2026-06-05', projectId: 'p2', network: 'google-ads', status: 'READY', spend: 6200, installs: 4100, ctr: 3.8, ipm: 14.2, roas: 2.1, cvr: 4.5, ir: 1.5, rr: 61, googleMark: 'good', campaigns: ['iGHP_UAC_US_Q2'] },
 ];
 
 export const mockUploadTasks: UploadTask[] = [

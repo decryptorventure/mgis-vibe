@@ -8,9 +8,6 @@ export type NavIconKey =
   | 'apps'
   | 'networks'
   | 'creatives'
-  | 'network-rules'
-  | 'automation'
-  | 'insights'
   | 'change-logs';
 
 export interface NavigationItem {
@@ -70,9 +67,6 @@ export const GLOBAL_NAV_ITEMS: NavigationItem[] = [
   { key: 'apps', path: '/apps', label: 'Apps', title: 'Apps', icon: 'apps' },
   { key: 'networks', path: '/networks', label: 'Networks', title: 'Networks', icon: 'networks' },
   { key: 'creatives', path: '/creatives', label: 'Creatives', title: 'Creative Library', icon: 'creatives' },
-  { key: 'network-rules', path: '/network-rules', label: 'Network Rules', title: 'Network Rules', icon: 'network-rules' },
-  { key: 'automation', path: '/automation-settings', label: 'Automation', title: 'Automation Settings', icon: 'automation' },
-  { key: 'insights', path: '/insight-settings', label: 'Insights', title: 'Insights', icon: 'insights' },
   { key: 'change-logs', path: '/change-logs', label: 'Change Logs', title: 'Change Logs', icon: 'change-logs' },
 ];
 
@@ -124,7 +118,7 @@ export function getPageTitle(pathname: string): string {
   if (SUPPORTING_ROUTE_TITLES[pathname]) return SUPPORTING_ROUTE_TITLES[pathname];
 
   if (/^\/apps\/[^/]+\/dashboard$/.test(pathname)) return 'App Dashboard';
-  if (/^\/apps\/[^/]+\/(automation-rules|network-rules)$/.test(pathname)) return 'App Network Rules';
+  if (/^\/apps\/[^/]+\/automation-rules$/.test(pathname)) return 'App Network Rules';
 
   const globalNetworkMatch = pathname.match(/^\/networks\/([^/]+)$/);
   const globalNetworkMeta = getNetworkMeta(globalNetworkMatch?.[1]);
@@ -151,8 +145,8 @@ export function getBreadcrumbItems(
       crumbs.push('Networks');
       if (context.networkLabel) crumbs.push(context.networkLabel);
     }
-    if (pathname.includes('/network-rules') || pathname.includes('/automation-rules')) {
-      crumbs.push('Network Rules');
+    if (pathname.includes('/automation-rules')) {
+      crumbs.push('Automation Rules');
     }
     return crumbs;
   }

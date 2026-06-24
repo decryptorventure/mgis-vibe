@@ -3,7 +3,6 @@ import React from 'react';
 import { DatePicker, Input, Select, Segmented } from 'antd';
 import { ChevronDown, Columns3, FileText, Play, Plus, RefreshCcw, Settings, Trash2, WandSparkles, Zap } from 'lucide-react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
-import { useNavigate } from 'react-router-dom';
 import { MetaBulkCreateDrawer } from './meta-bulk-create-drawer';
 import { MetaReportTable } from '@/components/networks/meta/meta-report-table';
 import type { MetaWorkspaceProps, MetaEntity, FilterOperator } from '@/components/networks/meta/meta-types';
@@ -26,18 +25,12 @@ const MetaToolbarButton: React.FC<{ icon: React.ReactNode; label: string; onClic
 );
 
 export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
-  const navigate = useNavigate();
   const ws = useMetaWorkspace(props);
   const { entity, activeApp, accountId, setAccountId } = ws;
   const currentTitle = ENTITY_META[entity].title;
 
   const handleOpenBuilderOrNavigate = (targetEntity?: MetaEntity) => {
-    const resolved = targetEntity ?? entity;
-    if (resolved === 'campaigns' && ws.appId) {
-      navigate(`/apps/${ws.appId}/networks/meta/campaigns/new`);
-    } else {
-      ws.openBuilder(resolved);
-    }
+    ws.openBuilder(targetEntity ?? entity);
   };
 
   return (

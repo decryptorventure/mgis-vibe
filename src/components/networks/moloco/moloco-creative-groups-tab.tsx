@@ -11,11 +11,11 @@ export const MolocoCreativeGroupsTab: React.FC = () => {
 
   const renderIcon = (format: string) => {
     switch (format) {
-      case 'VIDEO': return <Play size={14} className="text-blue-500" />;
-      case 'BANNER': return <ImageIcon size={14} className="text-green-500" />;
-      case 'NATIVE': return <Layout size={14} className="text-orange-500" />;
-      case 'PLAYABLE': return <Box size={14} className="text-purple-500" />;
-      default: return <Folder size={14} className="text-gray-500" />;
+      case 'VIDEO': return <Play size={14} className="text-[var(--status-info)]" />;
+      case 'BANNER': return <ImageIcon size={14} className="text-[var(--status-success)]" />;
+      case 'NATIVE': return <Layout size={14} className="text-[var(--status-warning)]" />;
+      case 'PLAYABLE': return <Box size={14} className="text-[var(--status-purple)]" />;
+      default: return <Folder size={14} className="text-[var(--text-tertiary)]" />;
     }
   };
 

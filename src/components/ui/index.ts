@@ -14,3 +14,4 @@ export { NetworkBadge } from './NetworkBadge';
 export { ChartContainer } from './ChartContainer';
 export { ConfirmModal } from './ConfirmModal';
 export { AiAssistantWidget } from './AiAssistantWidget';
+export { DataFreshnessIndicator } from './data-freshness-indicator';

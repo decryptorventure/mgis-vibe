@@ -148,11 +148,7 @@ export const Automation: React.FC<AutomationProps> = ({ hideHeader }) => {
           iconBg="var(--status-warning)"
           title="Automation"
           subtitle="Track rule execution history across all networks"
-          actions={
-            <Button icon={<Settings size={14} />} onClick={() => navigate('/network-rules')} className="font-bold h-9 cursor-pointer">
-              Manage Rules
-            </Button>
-          }
+
         />
       )}
 
@@ -212,8 +208,8 @@ export const Automation: React.FC<AutomationProps> = ({ hideHeader }) => {
               icon={<Bot size={32} className="stroke-[1.5]" />}
               title="No runs for this network"
               description="No automation rules have been executed for this network yet."
-              actionLabel="Manage Rules"
-              onAction={() => navigate('/network-rules')}
+              actionLabel="Go back"
+              onAction={() => navigate(-1)}
             />
           </div>
         )}
@@ -223,7 +219,7 @@ export const Automation: React.FC<AutomationProps> = ({ hideHeader }) => {
       <Card className="rounded-xl border-[var(--status-warning-border)] bg-[var(--status-warning-bg)]" styles={{ body: { padding: '12px 16px' } }}>
         <div className="flex items-center gap-2 text-[var(--status-warning)] text-xs font-semibold">
           <Pause size={14} />
-          <span>1 rule is currently paused. <button onClick={() => navigate('/network-rules')} className="underline cursor-pointer font-bold bg-transparent border-0 text-[var(--status-warning)]">View in Network Rules →</button></span>
+          <span>1 rule is currently paused.</span>
         </div>
       </Card>
     </div>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from 'antd';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
+import { CommandPalette } from '@/components/ui/command-palette';
 import { mockProjects, mockNotifications } from '../../shared/mock-data';
 import type { Notification } from '../../shared/mock-data';
 import { AppSidebar } from './AppSidebar';
@@ -29,6 +30,18 @@ export const AppLayout: React.FC = () => {
   const [notifOpen, setNotifOpen]                = useState(false);
   const [notifications, setNotifications]        = useState<Notification[]>(mockNotifications);
   const [mobileDrawerOpen, setMobileDrawerOpen]  = useState(false);
+  const [paletteOpen, setPaletteOpen]            = useState(false);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -83,6 +96,9 @@ export const AppLayout: React.FC = () => {
 
       {/* ── AI Assistant Widget ─────────────────────────────────────────── */}
       <AiAssistantWidget />
+
+      {/* ── Command Palette ⌘K ──────────────────────────────────────────── */}
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </Layout>
   );
 };

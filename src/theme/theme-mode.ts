@@ -13,6 +13,11 @@ export function getInitialTheme(): ThemeMode {
 export function applyThemeMode(themeMode: ThemeMode): void {
   if (typeof document === 'undefined') return;
   document.documentElement.setAttribute('data-theme', themeMode);
+  if (themeMode === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
 }
 
 export function setStoredThemeMode(themeMode: ThemeMode): void {

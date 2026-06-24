@@ -172,6 +172,36 @@ body {
 .nms-status-badge.info    { color: var(--status-info);    background: var(--status-info-bg);    }
 .nms-status-badge.neutral { color: var(--text-secondary); background: var(--surface-muted);     }
 
+/* ─── UI Kit Class Overrides for Theme Consistency ─── */
+/* These ensure that old UI Kit utility classes respect our data-theme="dark" variables */
+.bg_canvas_secondary { background-color: var(--surface-subtle) !important; }
+.bg_primary { background-color: var(--surface-base) !important; }
+.bg_secondary { background-color: var(--surface-muted) !important; }
+.bg_tertiary { background-color: var(--surface-muted) !important; }
+.bg_quaternary { background-color: var(--surface-subtle) !important; }
+.bg_button_tertiary { background-color: var(--surface-base) !important; }
+
+.text_primary, .fg_primary { color: var(--text-primary) !important; }
+.text_secondary, .fg_secondary, .icon_secondary { color: var(--text-secondary) !important; }
+.text_tertiary, .fg_tertiary { color: var(--text-tertiary) !important; }
+.text_disabled, .fg_disabled { color: var(--text-disabled) !important; }
+
+.border_primary { border-color: var(--border-default) !important; }
+.border_secondary { border-color: var(--border-subtle) !important; }
+.border_button { border-color: var(--border-strong) !important; }
+
+/* Map status/accent colors */
+.bg_emerald_subtle { background-color: var(--status-success-bg) !important; }
+.fg_emerald_strong, .fg_emerald_accent { color: var(--status-success) !important; }
+.bg_red_subtle { background-color: var(--status-error-bg) !important; }
+.fg_red_strong, .fg_red_accent { color: var(--status-error) !important; }
+.bg_amber_subtle { background-color: var(--status-warning-bg) !important; }
+.fg_amber_strong { color: var(--status-warning) !important; }
+.bg_blue_subtle { background-color: var(--status-info-bg) !important; }
+.fg_blue_strong { color: var(--status-info) !important; }
+.bg_accent_primary_subtle { background-color: rgba(255, 79, 10, 0.1) !important; }
+.fg_accent_primary, .bg_accent_primary { color: var(--color-primary-500) !important; }
+
 /* ─── Core DS 1.1 Typography scale ──────────────────────────────────── */
 /* body_s = 13px  →  baseline for all UI component text                  */
 /* body_m = 16px  →  long-form reading only                              */

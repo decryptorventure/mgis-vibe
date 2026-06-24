@@ -64,7 +64,7 @@ export const MolocoMLTab: React.FC = () => {
         <Col span={6}>
           <Card className="rounded-xl border border-[var(--border-default)] shadow-none" styles={{ body: { padding: '16px' } }}>
             <Statistic 
-              title={<span className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]"><Zap size={14} className="text-yellow-500" /> Overall Win Rate</span>} 
+              title={<span className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]"><Zap size={14} className="text-[var(--status-warning)]" /> Overall Win Rate</span>} 
               value={data.overallWinRate} 
               suffix="%" 
               valueStyle={{ fontSize: 24, fontWeight: 700 }}
@@ -74,7 +74,7 @@ export const MolocoMLTab: React.FC = () => {
         <Col span={6}>
           <Card className="rounded-xl border border-[var(--border-default)] shadow-none" styles={{ body: { padding: '16px' } }}>
             <Statistic 
-              title={<span className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]"><Activity size={14} className="text-blue-500" /> Avg Bid Price</span>} 
+              title={<span className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]"><Activity size={14} className="text-[var(--status-info)]" /> Avg Bid Price</span>} 
               value={data.avgBidPrice} 
               prefix="$"
               precision={4}
@@ -85,7 +85,7 @@ export const MolocoMLTab: React.FC = () => {
         <Col span={6}>
           <Card className="rounded-xl border border-[var(--border-default)] shadow-none" styles={{ body: { padding: '16px' } }}>
             <div className="flex items-center justify-between mb-2">
-               <span className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]"><Target size={14} className="text-green-500" /> CVR Accuracy</span>
+               <span className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]"><Target size={14} className="text-[var(--status-success)]" /> CVR Accuracy</span>
             </div>
             <div className="flex justify-between items-end mt-1">
                <div>

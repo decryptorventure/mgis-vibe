@@ -11,10 +11,10 @@ interface MetaCreativeDetailDrawerProps {
 }
 
 const FORMAT_ICON: Record<string, React.ReactNode> = {
-  VIDEO:    <PlayCircle size={16} className="text-blue-500" />,
-  IMAGE:    <ImageIcon size={16} className="text-green-500" />,
-  CAROUSEL: <Layout size={16} className="text-purple-500" />,
-  PLAYABLE: <Sparkles size={16} className="text-orange-500" />,
+  VIDEO:    <PlayCircle size={16} className="text-[var(--status-info)]" />,
+  IMAGE:    <ImageIcon size={16} className="text-[var(--status-success)]" />,
+  CAROUSEL: <Layout size={16} className="text-[var(--status-info)]" />,
+  PLAYABLE: <Sparkles size={16} className="text-[var(--status-warning)]" />,
 };
 
 const MetricRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (

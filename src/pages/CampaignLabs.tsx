@@ -173,16 +173,16 @@ export const CampaignLabs: React.FC = () => {
           </svg>
         );
       case 'asa':
-        return <Apple size={18} className="text-black" />;
+        return <Apple size={18} className="text-[var(--text-primary)]" />;
       case 'axon':
         return (
-          <div className="w-[18px] h-[18px] rounded-[4px] bg-[#000000] text-white flex justify-center items-center font-bold text-[10px]">
+          <div className="w-[18px] h-[18px] rounded-[4px] bg-[#000000] text-[var(--text-inverse)] flex justify-center items-center font-bold text-[10px]">
             AL
           </div>
         );
       case 'moloco':
         return (
-          <div className="w-[18px] h-[18px] rounded-[4px] bg-[#FA2B56] text-white flex justify-center items-center font-bold text-[10px]">
+          <div className="w-[18px] h-[18px] rounded-[4px] bg-[#FA2B56] text-[var(--text-inverse)] flex justify-center items-center font-bold text-[10px]">
             M
           </div>
         );

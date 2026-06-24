@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Select, Radio, Checkbox, Card } from 'antd';
+import { Form, Input, Select, Checkbox, Card } from 'antd';
 import { mockProjects } from '@/shared/mock-data';
 import { ACTIVE_NETWORKS, ACTIVE_NETWORK_KEYS } from '@/shared/navigation';
 
@@ -48,21 +48,34 @@ export const WizardStepBasics: React.FC<WizardStepBasicsProps> = ({
       </Form.Item>
 
       <Form.Item label="Campaign Objective" required>
-        <Radio.Group
-          value={state.objective}
-          onChange={(e) => onChange({ objective: e.target.value })}
-          className="flex gap-4"
-        >
-          <Radio value="installs">
-            <span className="text-xs font-semibold">Maximize Installs</span>
-          </Radio>
-          <Radio value="roas">
-            <span className="text-xs font-semibold">Optimize Revenue (ROAS)</span>
-          </Radio>
-          <Radio value="events">
-            <span className="text-xs font-semibold">Optimize In-App Events</span>
-          </Radio>
-        </Radio.Group>
+        <div className="grid grid-cols-3 gap-2 mt-1">
+          {[
+            { value: 'installs', label: 'Maximize Installs', desc: 'Drive maximum app downloads', icon: '📲' },
+            { value: 'roas', label: 'Optimize ROAS', desc: 'Maximize return on ad spend', icon: '💰' },
+            { value: 'events', label: 'In-App Events', desc: 'Optimize for specific actions', icon: '🎯' },
+          ].map(obj => {
+            const isSelected = state.objective === obj.value;
+            return (
+              <button
+                key={obj.value}
+                type="button"
+                onClick={() => onChange({ objective: obj.value })}
+                className={[
+                  'flex flex-col items-start gap-1.5 p-3 rounded-lg border-2 cursor-pointer text-left transition-colors',
+                  isSelected
+                    ? 'border-[var(--accent-primary)] bg-[var(--accent-primary-bg,#fff3ec)]'
+                    : 'border-[var(--border-default)] bg-transparent hover:border-[var(--border-strong)]',
+                ].join(' ')}
+              >
+                <span className="text-base">{obj.icon}</span>
+                <div className="text-xs font-bold" style={{ color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)' }}>
+                  {obj.label}
+                </div>
+                <div className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{obj.desc}</div>
+              </button>
+            );
+          })}
+        </div>
       </Form.Item>
 
       <Form.Item label="Ad Networks (multi-select)" required>

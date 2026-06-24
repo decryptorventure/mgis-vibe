@@ -4,13 +4,14 @@ import { Card, Tabs, Input, Drawer, Select, DatePicker, Switch, Dropdown } from 
 import { Button, toast } from '@frontend-team/ui-kit';
 import { Search, Filter, Download, Plus, ListFilter, ChevronDown } from 'lucide-react';
 import { FilterBar, PageHeader } from '@/components/ui';
+import { DataFreshnessIndicator } from '@/components/ui/data-freshness-indicator';
 import { NetworkCampaignTable } from './network-campaign-table';
 import { NetworkInsightsTab } from './network-insights-tab';
 import { NetworkSettingsTab } from './network-settings-tab';
 import type { NetworkConfig } from '@/shared/network-config';
 import { mockProjects, type Campaign } from '@/shared/mock-data';
 import { usePersistentFilter } from '@/shared/hooks/use-persistent-filter';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { NetworkWorkspaceAutomationRules } from './NetworkWorkspaceAutomationRules';
 
 import { CampaignWizardModal } from '../campaign-wizard/campaign-wizard-modal';
@@ -33,6 +34,7 @@ export const NetworkWorkspaceShell: React.FC<NetworkWorkspaceShellProps> = ({
   const [activeOverflowKey, setActiveOverflowKey] = useState('');
 
   const { appId } = useParams<{ appId?: string }>();
+  const navigate = useNavigate();
   // Persist search text per network+app context so it survives navigation
   const filterKey = `${appId ?? 'global'}-${config.key}`;
   const [searchText, setSearchText, clearSearchText] = usePersistentFilter(filterKey, '');
@@ -161,6 +163,15 @@ export const NetworkWorkspaceShell: React.FC<NetworkWorkspaceShellProps> = ({
           : `Detailed performance across ${connectedAppsCount} app(s) running on ${config.label}`}
       />
 
+      {/* Task 2 — data freshness per network */}
+      <DataFreshnessIndicator
+        lastSyncedAt="2026-06-24T12:45:00"
+        sourceName={`${config.label} API`}
+        syncCadence="Every 1 hour"
+        staleThresholdMinutes={90}
+        criticalThresholdMinutes={360}
+      />
+
       <FilterBar
         title="Workspace filters"
         actions={
@@ -190,7 +201,10 @@ export const NetworkWorkspaceShell: React.FC<NetworkWorkspaceShellProps> = ({
               variant="primary"
               size="m"
               style={{ background: config.color, borderColor: config.color }}
-              onClick={() => setWizardOpen(true)}
+              onClick={() => appId
+                ? navigate(`/apps/${appId}/networks/${config.key}/campaigns/new`)
+                : setWizardOpen(true)
+              }
               className="gap-1.5"
             >
               <Plus size={14} />

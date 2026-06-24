@@ -993,19 +993,7 @@ export const NetworkPortfolioWorkspace: React.FC = () => {
                       </button>
                     )}
 
-                    <button
-                      type="button"
-                      className="w-full text-left border border_primary radius_8 px-3 py-3 bg_secondary cursor-pointer"
-                      onClick={() => navigate('/network-rules')}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <div className="text-sm font-semibold text_primary">Check automation guardrails</div>
-                          <div className="text-xs text_tertiary mt-1">Review rules if the network is scaling unevenly or carrying too many drafts.</div>
-                        </div>
-                        <ArrowRight size={16} className="icon_secondary" />
-                      </div>
-                    </button>
+
                   </div>
                 </Card>
 

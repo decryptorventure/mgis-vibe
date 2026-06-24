@@ -1,58 +1,83 @@
-// MetaBuilderDrawer — full-screen campaign creation/edit drawer with tab navigation
+// MetaBuilderDrawer — full-screen Meta campaign wizard with step sidebar + form content
 import React, { useEffect, useState } from 'react';
-import { Drawer, Select, Tabs } from 'antd';
-import { CheckCircle2, Layers3, Megaphone, PanelRightOpen, Plus, Sparkles } from 'lucide-react';
+import { Drawer, Select } from 'antd';
+import { ArrowLeft, ArrowRight, CheckCircle2, Layers3, Megaphone, PanelRightOpen, Plus, Rocket, Sparkles, X } from 'lucide-react';
 import { Button, cn } from '@frontend-team/ui-kit';
-import { Progress } from 'antd';
 import type { MetaPage, MetaTemplate, BuilderContext } from './meta-types';
-import {
-  BuilderTreeItem,
-  CampaignSettingsForm,
-  AdsetSettingsForm,
-  AdCreativeForm,
-} from './meta-builder-forms';
+import { CampaignSettingsForm, AdsetSettingsForm, AdCreativeForm } from './meta-builder-forms';
 
-// Sidebar checklist showing required fields completion status
-const RequiredChecklist: React.FC<{ context: BuilderContext }> = ({ context }) => {
-  const campaignTitle = context.campaign?.name ?? context.draft?.name ?? 'Campaign';
-  const adSetTitle = context.adSet?.name ?? 'Ad Set';
-  const adTitle = context.ad?.name ?? 'Ad';
-  const groups = [
-    { title: campaignTitle, progress: '6/6', complete: true, items: ['Campaign Name', 'Objective', 'Budget Strategy', 'Bid Strategy'] },
-    { title: adSetTitle, progress: '7/9', complete: false, items: ['Ad Set Name', 'Performance Goal', 'Attribution', 'Locations', 'Age Range', 'Gender', 'Platforms', 'Conversion Event'] },
-    { title: adTitle, progress: '4/8', complete: false, items: ['Ad Name', 'Headlines', 'Primary Texts', 'Call to Action', 'Facebook Page', 'Media', 'Website URL'] },
-  ];
+type StepKey = 'campaign' | 'adset' | 'creative';
+
+const WIZARD_STEPS: { key: StepKey; icon: React.ElementType; label: string; desc: string }[] = [
+  { key: 'campaign', icon: Megaphone, label: 'Campaign', desc: 'Objective & budget' },
+  { key: 'adset', icon: Layers3, label: 'Ad Set', desc: 'Audience & placements' },
+  { key: 'creative', icon: PanelRightOpen, label: 'Ad Creative', desc: 'Media & copy' },
+];
+
+interface WizardNavProps {
+  active: StepKey;
+  onSelect: (k: StepKey) => void;
+  context: BuilderContext;
+}
+
+const WizardNav: React.FC<WizardNavProps> = ({ active, onSelect, context }) => {
+  const activeIdx = WIZARD_STEPS.findIndex(s => s.key === active);
+  const names: Record<StepKey, string> = {
+    campaign: context.campaign?.name ?? context.draft?.name ?? 'New Campaign',
+    adset: context.adSet?.name ?? 'New Ad Set',
+    creative: context.ad?.name ?? 'New Ad',
+  };
 
   return (
-    <aside className="w-full xl:w-80 shrink-0 bg_primary border border_primary radius_8 p-4 h-fit sticky top-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-base font-semibold text_primary">Required Fields</div>
-          <div className="text-xs text_tertiary">17/23 completed</div>
+    <aside className="w-64 shrink-0 bg_primary border-r border_primary p-4 flex flex-col">
+      {/* Brand header */}
+      <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border_secondary">
+        <div className="w-9 h-9 radius_8 bg_secondary border border_secondary flex items-center justify-center">
+          <img src="/logo/meta.png" alt="Meta" className="w-5 h-5 object-contain" />
         </div>
-        <Progress type="circle" size={48} percent={74} />
+        <div>
+          <div className="text-sm font-bold text_primary leading-tight">Meta Ads</div>
+          <div className="text-[11px] text_tertiary">Campaign Builder</div>
+        </div>
       </div>
-      <Progress percent={74} showInfo={false} className="mt-4" />
-      <div className="mt-4 divide-y divide-[var(--ds-border-secondary)]">
-        {groups.map(group => (
-          <div key={group.title} className="py-3">
-            <div className="flex items-center justify-between">
-              <span className={cn('text-sm font-semibold', group.complete ? 'fg_emerald_accent' : 'text_primary')}>{group.title}</span>
-              <span className={cn('text-[11px] font-semibold px-2 py-0.5 radius_round', group.complete ? 'bg_emerald_subtle fg_emerald_strong' : 'bg_red_subtle fg_red_strong')}>{group.progress}</span>
-            </div>
-            <div className="mt-2 space-y-1.5">
-              {group.items.map((item, index) => {
-                const done = group.complete || index < 5;
-                return (
-                  <div key={item} className={cn('flex items-center gap-2 text-xs', done ? 'text_tertiary line-through' : 'text_primary')}>
-                    <span className={cn('w-3 h-3 radius_round flex items-center justify-center', done ? 'bg_emerald_medium' : 'bg_red_medium')} />
-                    {item}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+
+      {/* Step list */}
+      <div className="space-y-1 flex-1">
+        {WIZARD_STEPS.map(({ key, desc, label }, idx) => {
+          const isActive = key === active;
+          const isDone = idx < activeIdx;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => onSelect(key)}
+              className={cn(
+                'w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-lg border cursor-pointer transition-colors',
+                isActive ? 'bg_blue_subtle border_blue' : 'border-transparent hover:bg_secondary',
+              )}
+            >
+              <div className={cn('w-7 h-7 radius_round flex items-center justify-center text-[10px] font-bold z-10',
+                isDone ? 'bg-[var(--status-success)] text-[var(--text-inverse)]' : isActive ? 'bg-[var(--status-info)] text-[var(--text-inverse)]' : 'bg_secondary text_tertiary',
+              )}>
+                {isDone ? '✓' : idx + 1}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className={cn('text-sm font-semibold leading-tight truncate', isActive ? 'fg_blue_strong' : isDone ? 'text-[var(--status-success)]' : 'text_primary')}>
+                  {names[key]}
+                </div>
+                <div className="text-[11px] text_tertiary mt-0.5">{label} · {desc}</div>
+              </div>
+              {isDone && <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Add Ad Set */}
+      <div className="mt-4 pt-3 border-t border_secondary">
+        <Button type="button" variant="border" size="s" className="w-full gap-1.5 text-xs justify-center">
+          <Plus size={12} />Add Ad Set
+        </Button>
       </div>
     </aside>
   );
@@ -67,19 +92,21 @@ interface MetaBuilderDrawerProps {
 }
 
 export const MetaBuilderDrawer: React.FC<MetaBuilderDrawerProps> = ({ open, onClose, context, pages, templates }) => {
-  const initialTab = context.entity === 'campaigns' ? 'campaign' : context.entity === 'adsets' ? 'adset' : 'creative';
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const toStep = (entity: string): StepKey =>
+    entity === 'campaigns' ? 'campaign' : entity === 'adsets' ? 'adset' : 'creative';
+
+  const [activeTab, setActiveTab] = useState<StepKey>(toStep(context.entity));
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    setActiveTab(context.initialStep ?? initialTab);
+    setActiveTab((context.initialStep as StepKey | undefined) ?? toStep(context.entity));
     setSelectedTemplateId(undefined);
-  }, [initialTab, context.initialStep, open]);
+  }, [context.entity, context.initialStep, open]);
 
-  const campaignLabel = context.campaign?.name ?? context.draft?.name ?? 'New Campaign';
-  const adSetLabel = context.adSet?.name ?? 'New Ad Set';
-  const adLabel = context.ad?.name ?? 'New Ad';
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+  const activeIdx = WIZARD_STEPS.findIndex(s => s.key === activeTab);
+  const prevKey = activeIdx > 0 ? WIZARD_STEPS[activeIdx - 1].key : null;
+  const nextKey = activeIdx < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[activeIdx + 1].key : null;
 
   return (
     <Drawer
@@ -87,55 +114,71 @@ export const MetaBuilderDrawer: React.FC<MetaBuilderDrawerProps> = ({ open, onCl
       onClose={onClose}
       placement="right"
       width="calc(100vw - 72px)"
-      title={<span className="text-base font-semibold text_primary">Meta Campaign Builder</span>}
-      styles={{ body: { padding: 0, background: 'var(--ds-bg-canvas-secondary)' }, footer: { padding: 12 } }}
+      title={null}
+      closable={false}
+      styles={{
+        body: { padding: 0, display: 'flex', background: 'var(--ds-bg-canvas-secondary)', overflow: 'hidden', height: '100%' },
+        header: { display: 'none' },
+        footer: { padding: '10px 16px' },
+      }}
       footer={
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text_secondary">
-            <CheckCircle2 size={14} className="fg_emerald_accent" />
-            Auto-saved draft at 04:51:31 PM
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="border" size="s" className="gap-1.5" onClick={onClose}>
+              <X size={13} />Close
+            </Button>
+            {prevKey && (
+              <Button type="button" variant="border" size="m" className="gap-1.5" onClick={() => setActiveTab(prevKey)}>
+                <ArrowLeft size={14} />Back
+              </Button>
+            )}
           </div>
-          <Button type="button" variant="primary" size="m" disabled>Launch Campaign</Button>
+          <div className="flex items-center gap-1.5 text-xs text_secondary">
+            <CheckCircle2 size={13} className="fg_emerald_accent" />Auto-saved draft
+          </div>
+          <div>
+            {nextKey ? (
+              <Button type="button" variant="primary" size="m" className="gap-1.5" onClick={() => setActiveTab(nextKey)}>
+                Next <ArrowRight size={14} />
+              </Button>
+            ) : (
+              <Button type="button" variant="primary" size="m" className="gap-1.5">
+                <Rocket size={14} />Launch Campaign
+              </Button>
+            )}
+          </div>
         </div>
       }
     >
-      <div className="grid grid-cols-[280px_1fr] min-h-full">
-        <div className="bg_primary border-r border_primary p-4">
-          <div className="flex items-center gap-2 text-base font-semibold text_primary mb-4">
-            <img src="/logo/meta.png" alt="Meta" className="w-7 h-7 object-contain" />
-            Meta
+      <WizardNav active={activeTab} onSelect={setActiveTab} context={context} />
+
+      {/* Form content area */}
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-2xl mx-auto p-6 space-y-4">
+          {/* Template picker */}
+          <div className="border border_blue bg_blue_subtle radius_8 px-3 py-2.5 flex items-center gap-3">
+            <Sparkles size={15} className="fg_blue_accent shrink-0" />
+            <span className="text-sm font-semibold text_primary whitespace-nowrap">Apply Template</span>
+            <Select
+              size="small"
+              className="flex-1"
+              placeholder="Choose a template to auto-fill..."
+              value={selectedTemplateId}
+              onChange={setSelectedTemplateId}
+              allowClear
+              options={templates.map(t => ({ value: t.id, label: t.name }))}
+            />
           </div>
-          <div className="space-y-2">
-            <BuilderTreeItem active={activeTab === 'campaign'} icon={<Megaphone size={15} />} label={campaignLabel} onClick={() => setActiveTab('campaign')} />
-            <BuilderTreeItem active={activeTab === 'adset'} icon={<Layers3 size={15} />} label={adSetLabel} onClick={() => setActiveTab('adset')} />
-            <BuilderTreeItem active={activeTab === 'creative'} icon={<PanelRightOpen size={15} />} label={adLabel} onClick={() => setActiveTab('creative')} />
-            <Button type="button" variant="border" size="m" className="w-full gap-1.5 mt-2">
-              <Plus size={14} /> Add Ad Set
-            </Button>
-          </div>
-        </div>
-        <div className="p-6 overflow-auto">
-          <div className="max-w-[1180px] mx-auto">
-            <Tabs activeKey={activeTab} onChange={setActiveTab} items={[
-              { key: 'campaign', label: 'Campaign Settings' },
-              { key: 'adset', label: 'Ad Set' },
-              { key: 'creative', label: 'Ad Creative' },
-            ]} />
-            <div className="flex flex-col xl:flex-row gap-6 mt-4">
-              <div className="flex-1 space-y-4">
-                <div className="border border_blue bg_blue_subtle radius_8 p-3 flex items-center gap-3">
-                  <Sparkles size={16} className="fg_blue_accent" />
-                  <span className="text-sm font-semibold text_primary">Apply Template</span>
-                  <Select className="flex-1" placeholder="Select a template..." value={selectedTemplateId} onChange={setSelectedTemplateId} allowClear options={templates.map(t => ({ value: t.id, label: t.name }))} />
-                  <Button type="button" variant="border" size="m" onClick={() => setSelectedTemplateId(undefined)}>Reset Template Fields</Button>
-                </div>
-                {activeTab === 'campaign' && <CampaignSettingsForm key={`campaign-${selectedTemplate?.id ?? 'default'}`} context={context} template={selectedTemplate} />}
-                {activeTab === 'adset' && <AdsetSettingsForm key={`adset-${selectedTemplate?.id ?? 'default'}`} context={context} template={selectedTemplate} />}
-                {activeTab === 'creative' && <AdCreativeForm key={`creative-${selectedTemplate?.id ?? 'default'}`} context={context} pages={pages} template={selectedTemplate} />}
-              </div>
-              <RequiredChecklist context={context} />
-            </div>
-          </div>
+
+          {activeTab === 'campaign' && (
+            <CampaignSettingsForm key={`campaign-${selectedTemplate?.id ?? 'none'}`} context={context} template={selectedTemplate} />
+          )}
+          {activeTab === 'adset' && (
+            <AdsetSettingsForm key={`adset-${selectedTemplate?.id ?? 'none'}`} context={context} template={selectedTemplate} />
+          )}
+          {activeTab === 'creative' && (
+            <AdCreativeForm key={`creative-${selectedTemplate?.id ?? 'none'}`} context={context} pages={pages} template={selectedTemplate} />
+          )}
         </div>
       </div>
     </Drawer>

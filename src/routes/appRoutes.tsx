@@ -10,13 +10,14 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const AppsList = lazy(() => import('@/pages/AppsList'));
 const NetworksList = lazy(() => import('@/pages/NetworksList'));
 const MediaLibraries = lazy(() => import('@/pages/MediaLibraries'));
-const AutomationSettingsPage = lazy(() => import('@/pages/AutomationSettingsPage'));
-const InsightSettingsPage = lazy(() => import('@/pages/InsightSettingsPage'));
+
 
 // App Workspace Pages
 const AppDashboard = lazy(() => import('@/pages/AppDashboard'));
 const AppAutomationRules = lazy(() => import('@/pages/AppAutomationRules'));
 const NetworkWorkspace = lazy(() => import('@/pages/NetworkWorkspace'));
+const CampaignCreatePage = lazy(() => import('@/pages/campaign-create-page'));
+
 
 // Supporting Operations (remained paths)
 const AxonReports = lazy(() => import('@/pages/AxonReports'));
@@ -24,7 +25,7 @@ const Predictions = lazy(() => import('@/pages/Predictions'));
 const ChangeLogs = lazy(() => import('@/pages/ChangeLogs'));
 const MetaErrors = lazy(() => import('@/pages/MetaErrors'));
 const UploadMonitor = lazy(() => import('@/pages/UploadMonitor'));
-const NetworkRules = lazy(() => import('@/pages/NetworkRules'));
+
 const KeyManagement = lazy(() => import('@/pages/KeyManagement'));
 const Permissions = lazy(() => import('@/pages/Permissions'));
 const Automation = lazy(() => import('@/pages/Automation'));
@@ -58,14 +59,15 @@ export const appRouter = createBrowserRouter([
       { path: 'networks', element: <SuspenseWrap><NetworksList /></SuspenseWrap> },
       { path: 'networks/:networkId', element: <SuspenseWrap><NetworkWorkspace /></SuspenseWrap> },
       { path: 'creatives', element: <SuspenseWrap><MediaLibraries /></SuspenseWrap> },
-      { path: 'automation-settings', element: <SuspenseWrap><AutomationSettingsPage /></SuspenseWrap> },
-      { path: 'insight-settings', element: <SuspenseWrap><InsightSettingsPage /></SuspenseWrap> },
+
 
       // App Workspace Sitemap (Vòng tiếp theo)
       { path: 'apps/:appId/dashboard', element: <SuspenseWrap><AppDashboard /></SuspenseWrap> },
       { path: 'apps/:appId/automation-rules', element: <SuspenseWrap><AppAutomationRules /></SuspenseWrap> },
-      { path: 'apps/:appId/network-rules', element: <SuspenseWrap><AppAutomationRules /></SuspenseWrap> },
+
       { path: 'apps/:appId/networks/:networkId', element: <SuspenseWrap><NetworkWorkspace /></SuspenseWrap> },
+      { path: 'apps/:appId/networks/:networkId/campaigns/new', element: <SuspenseWrap><CampaignCreatePage /></SuspenseWrap> },
+
 
       // Supporting Operations
       { path: 'media-libraries', element: <SuspenseWrap><MediaLibraries /></SuspenseWrap> },
@@ -76,7 +78,7 @@ export const appRouter = createBrowserRouter([
       { path: 'upload-monitor', element: <SuspenseWrap><UploadMonitor /></SuspenseWrap> },
 
       // Settings
-      { path: 'network-rules', element: <SuspenseWrap><NetworkRules /></SuspenseWrap> },
+
       { path: 'key-management', element: <SuspenseWrap><KeyManagement /></SuspenseWrap> },
       { path: 'permissions', element: <SuspenseWrap><Permissions /></SuspenseWrap> },
       { path: 'automation', element: <SuspenseWrap><Automation /></SuspenseWrap> },

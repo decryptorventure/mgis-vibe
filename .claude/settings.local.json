@@ -4,7 +4,15 @@
       "Bash(grep -E \"\\\\.tsx$\")",
       "Bash(node \"%USERPROFILE%/.claude/scripts/set-active-plan.cjs\" \"plans/260610-1705-nms-fe-uiux-upgrade\")",
       "Bash(node \"C:\\\\Users\\\\iKame\\\\.claude\\\\scripts\\\\set-active-plan.cjs\" \"plans/260610-1705-nms-fe-uiux-upgrade\")",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(node \"%USERPROFILE%/.claude/scripts/set-active-plan.cjs\" \"plans/260623-1530-nms-uiux-optimization\")",
+      "PowerShell(node \"$env:USERPROFILE/.claude/scripts/set-active-plan.cjs\" \"plans/260623-1530-nms-uiux-optimization\")",
+      "Bash(npm run *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(grep -v \"^[0-9]*:import\\\\|^[0-9]*://\\\\|MetaColumnKey\")",
+      "Bash(awk 'NR>100' src/pages/networks/MetaWorkspace.tsx)",
+      "Bash(awk 'NR==1,/^export const MetaWorkspace/' src/pages/networks/MetaWorkspace.tsx)"
     ]
   }
 }

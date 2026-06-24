@@ -4,7 +4,7 @@ import { Layout, Menu, Drawer, Input } from 'antd';
 import { useNavigate, useLocation, useParams, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Library,
-  Zap, BarChart3, Network, LayoutGrid, ArrowLeft, Search, Bot, FileText
+  Zap, BarChart3, Network, LayoutGrid, ArrowLeft, Search, Bot, FileText, PieChart
 } from 'lucide-react';
 import { mockProjects } from '../../shared/mock-data';
 import { NETWORK_LOGOS } from '../../shared/network-config';
@@ -25,9 +25,6 @@ const GLOBAL_NAV_ICONS: Record<NavIconKey, React.ReactNode> = {
   apps: <LayoutGrid size={15} />,
   networks: <Network size={15} />,
   creatives: <Library size={15} />,
-  'network-rules': <Bot size={15} />,
-  automation: <Zap size={15} />,
-  insights: <BarChart3 size={15} />,
   'change-logs': <FileText size={15} />,
 };
 
@@ -107,9 +104,9 @@ const SidebarContent: React.FC<{
           })),
       },
       {
-        key: `/apps/${activeAppId}/network-rules`,
+        key: `/apps/${activeAppId}/automation-rules`,
         icon: <Zap size={15} />,
-        label: 'Network Rules',
+        label: 'Automation Rules',
       },
     ];
 

@@ -17,10 +17,11 @@ export const MetaCreativeLabTab: React.FC = () => {
 
   const renderIcon = (format: string) => {
     switch (format) {
-      case 'VIDEO':    return <PlayCircle size={14} className="text-blue-500" />;
-      case 'IMAGE':    return <ImageIcon size={14} className="text-green-500" />;
+      case 'VIDEO':    return <PlayCircle size={14} className="text-[var(--status-info)]" />;
+      case 'IMAGE':    return <ImageIcon size={14} className="text-[var(--status-success)]" />;
       case 'CAROUSEL': return <Layout size={14} className="text-purple-500" />;
-      default:         return <Sparkles size={14} className="text-orange-500" />;
+      case 'PLAYABLE':
+      default:         return <Sparkles size={14} className="text-[var(--status-warning)]" />;
     }
   };
 
