@@ -33,10 +33,28 @@ export interface BatchJob {
   error?: string;
 }
 
-// Phase state for the drawer shell
-export type BatchGeneratorPhase = 'setup' | 'matrix' | 'progress';
+// Phase state for the drawer shell — 2-phase: setup (with live preview) → progress
+export type BatchGeneratorPhase = 'setup' | 'progress';
 
 // Name pattern string with substitution tokens: {template} {theme} {account} {date}
 export type NamePattern = string;
 
 export const DEFAULT_NAME_PATTERN: NamePattern = '[{template}] {theme} | {account}';
+
+// Ad copy shared across all generated campaigns in one batch run
+export interface BatchAdCopy {
+  primaryText: string;
+  headline: string;
+  cta: string;
+}
+
+export const DEFAULT_AD_COPY: BatchAdCopy = {
+  primaryText: '',
+  headline: '',
+  cta: 'DOWNLOAD',
+};
+
+export const CTA_OPTIONS = [
+  'DOWNLOAD', 'INSTALL_NOW', 'LEARN_MORE', 'SHOP_NOW',
+  'SIGN_UP', 'GET_QUOTE', 'BOOK_NOW', 'APPLY_NOW',
+];

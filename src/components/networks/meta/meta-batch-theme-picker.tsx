@@ -1,7 +1,7 @@
-// meta-batch-theme-picker.tsx — auto-detected theme multi-select for batch generator
-import React from 'react';
+// meta-batch-theme-picker.tsx — auto-detected theme multi-select with inline media file expand
+import React, { useState } from 'react';
 import { cn } from '@frontend-team/ui-kit';
-import { Film, Layers3 } from 'lucide-react';
+import { ChevronDown, FileImage, Film, Layers3 } from 'lucide-react';
 import type { BatchTheme } from './meta-batch-types';
 
 interface Props {
@@ -17,6 +17,7 @@ const CheckMark = () => (
 );
 
 export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }) => {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const allSelected = themes.length > 0 && selected.length === themes.length;
 
   const toggleAll = () => {
@@ -46,36 +47,54 @@ export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }
       <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
         {themes.map(t => {
           const isSelected = selected.includes(t.id);
-          const videoCount = t.files.filter(f => f.type === 'video').length;
+          const isOpen = expandedId === t.id;
           return (
-            <button key={t.id} type="button" onClick={() => onToggle(t.id)}
+            <div key={t.id}
               className={cn(
-                'w-full text-left border radius_8 px-3 py-2.5 transition-colors',
-                isSelected
-                  ? 'border_accent_secondary bg_info'
-                  : 'border_primary bg_primary hover:bg_secondary'
+                'border radius_8 transition-colors',
+                isSelected ? 'border_accent_secondary bg_info' : 'border_primary bg_primary'
               )}>
-              <div className="flex items-center gap-2">
-                <span className={cn(
-                  'w-4 h-4 radius_8 border shrink-0 flex items-center justify-center',
-                  isSelected
-                    ? 'border-[var(--status-info)] bg-[var(--status-info)]'
-                    : 'border_secondary bg_primary'
-                )}>
-                  {isSelected && <CheckMark />}
-                </span>
-                <span className="body_s font-medium text_primary truncate">{t.name}</span>
+              <div className="flex items-center gap-1.5 px-3 py-2">
+                {/* Selection button */}
+                <button type="button" onClick={() => onToggle(t.id)}
+                  className="flex items-center gap-2 flex-1 text-left min-w-0">
+                  <span className={cn(
+                    'w-4 h-4 radius_8 border shrink-0 flex items-center justify-center',
+                    isSelected ? 'border-[var(--status-info)] bg-[var(--status-info)]' : 'border_secondary bg_primary'
+                  )}>
+                    {isSelected && <CheckMark />}
+                  </span>
+                  <span className="body_s font-medium text_primary truncate">{t.name}</span>
+                </button>
+                {/* File count + expand toggle */}
+                <button type="button" aria-label="Preview media files in this theme"
+                  onClick={() => setExpandedId(isOpen ? null : t.id)}
+                  className={cn(
+                    'flex items-center gap-1 shrink-0 p-0.5 transition-colors',
+                    isOpen ? 'fg_info' : 'text_tertiary hover:text_secondary'
+                  )}>
+                  <span className="text-[10px]">{t.files.length} file{t.files.length !== 1 ? 's' : ''}</span>
+                  <ChevronDown size={12} className={cn('transition-transform duration-150', isOpen && 'rotate-180')} />
+                </button>
               </div>
-              <div className="mt-1 pl-6 flex items-center gap-2">
-                <Film size={10} className="text_tertiary shrink-0" />
-                <span className="text-[11px] text_tertiary">
-                  {videoCount} video{videoCount !== 1 ? 's' : ''}
-                </span>
-                {t.files.length !== videoCount && (
-                  <span className="text-[10px] text_tertiary">({t.files.length} total)</span>
-                )}
-              </div>
-            </button>
+
+              {/* Inline media file list */}
+              {isOpen && (
+                <div className="px-3 pb-2 border-t border_secondary pt-1.5 space-y-1 max-h-28 overflow-y-auto">
+                  {t.files.map(f => (
+                    <div key={f.id} className="flex items-center gap-1.5 min-w-0">
+                      {f.type === 'video'
+                        ? <Film size={10} className="fg_info shrink-0" />
+                        : <FileImage size={10} className="text_secondary shrink-0" />}
+                      <span className="text-[10px] text_secondary truncate flex-1">{f.name}</span>
+                      {f.duration !== undefined && (
+                        <span className="text-[10px] text_tertiary shrink-0">{f.duration}s</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           );
         })}
         {themes.length === 0 && (
