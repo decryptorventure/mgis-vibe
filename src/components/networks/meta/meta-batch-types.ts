@@ -9,6 +9,12 @@ export interface BatchTheme {
   files: MediaFile[];
 }
 
+// Account selection type
+export interface BatchAccount {
+  id: string;
+  name: string;
+}
+
 // One cell in the Templates × Themes matrix.
 // A combination may produce multiple campaigns (slices) based on minCreatives config.
 export interface BatchCombination {
