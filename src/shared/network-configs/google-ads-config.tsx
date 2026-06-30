@@ -1,10 +1,10 @@
-// ─── Google Ads (UAC) network config ─────────────────────────────────────────
+﻿// ─── Google Ads (UAC) network config ─────────────────────────────────────────
 import React from 'react';
-import { Tag } from 'antd';
+import { Tag } from '@/components/ui-kit-compat';
 import { Video } from 'lucide-react';
 import type { NetworkConfig } from './types';
 import { mockGoogleAssetGroups } from '@/shared/mock-data';
-import { Card, Statistic, Divider, Row, Col } from 'antd';
+import { Card, Statistic, Divider, Row, Col } from '@/components/ui-kit-compat';
 import { FileText, Image as ImageIcon } from 'lucide-react';
 import { networkConfig } from '@/shared/tokens';
 import { stableInt } from '@/shared/stable-metrics';

@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Table, Select, Button } from 'antd';
+﻿import React, { useState, useMemo } from 'react';
+import { Table, Select, Button } from '@/components/ui-kit-compat';
 import { Download } from 'lucide-react';
 import type { Campaign } from '@/shared/mock-data';
 

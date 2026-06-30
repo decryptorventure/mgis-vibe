@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, Table, Tag, Progress, Select, DatePicker, Row, Col, Skeleton } from 'antd';
+import { Card, Table, Tag, Progress, Select, DatePicker, Row, Col, Skeleton } from '@/components/ui-kit-compat';
 import { Button, toast } from '@frontend-team/ui-kit';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid,

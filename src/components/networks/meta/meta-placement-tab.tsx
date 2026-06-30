@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Typography, Progress } from 'antd';
+﻿import React from 'react';
+import { Table, Typography, Progress } from '@/components/ui-kit-compat';
 import { mockMetaPlacements } from '@/shared/mock-data';
 import type { MetaPlacement } from '@/shared/mock-data';
 

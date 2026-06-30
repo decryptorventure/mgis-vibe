@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Select, Radio, Checkbox } from 'antd';
+import { Form, Select, Radio, Checkbox } from '@/components/ui-kit-compat';
 
 interface MetaTargetingSectionProps {
   value: Record<string, any>;

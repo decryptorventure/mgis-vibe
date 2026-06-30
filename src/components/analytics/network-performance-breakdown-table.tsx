@@ -1,7 +1,7 @@
-// ─── NetworkPerformanceBreakdownTable — sortable cross-network metrics table ─
+﻿// ─── NetworkPerformanceBreakdownTable — sortable cross-network metrics table ─
 import React, { useState } from 'react';
-import { Table, Tag } from 'antd';
-import type { ColumnsType, SortOrder } from 'antd/es/table/interface';
+import { Table, Tag } from '@/components/ui-kit-compat';
+import type { ColumnsType, SortOrder } from '@/components/ui-kit-compat';
 
 interface NetworkRow {
   key: string;

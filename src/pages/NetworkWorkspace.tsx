@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Skeleton } from 'antd';
+﻿import React, { useState, useEffect } from 'react';
+import { Skeleton } from '@/components/ui-kit-compat';
 import { GoogleAdsWorkspace } from './networks/GoogleAdsWorkspace';
 import { MetaWorkspace } from './networks/MetaWorkspace';
 import { AsaWorkspace } from './networks/AsaWorkspace';
 import { AxonWorkspace } from './networks/AxonWorkspace';
 import { MolocoWorkspace } from './networks/MolocoWorkspace';
-import { NetworkPortfolioWorkspace } from './NetworkPortfolioWorkspace';
+import { NetworkPortfolioWorkspace } from './network-portfolio';
 
 import { useParams } from 'react-router-dom';
 

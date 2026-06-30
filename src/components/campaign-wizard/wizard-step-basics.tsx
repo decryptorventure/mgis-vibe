@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Select, Checkbox, Card } from 'antd';
+import { Form, Input, Select, Checkbox, Card } from '@/components/ui-kit-compat';
 import { mockProjects } from '@/shared/mock-data';
 import { ACTIVE_NETWORKS, ACTIVE_NETWORK_KEYS } from '@/shared/navigation';
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Modal } from 'antd';
+﻿import React from 'react';
+import { Modal } from '@/components/ui-kit-compat';
 import { Button } from '@frontend-team/ui-kit';
 import { AlertTriangle } from 'lucide-react';
 

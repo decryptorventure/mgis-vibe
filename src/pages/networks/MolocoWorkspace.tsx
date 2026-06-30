@@ -1,8 +1,8 @@
-// ─── Moloco DSP Workspace — thin plugin ──────────────────────────────────────
+﻿// ─── Moloco DSP Workspace — thin plugin ──────────────────────────────────────
 // Publisher/exchange management is preserved as an extraTab.
 // Shell handles header, toolbar, Campaigns/Insights/Settings tabs.
 import React, { useState } from 'react';
-import { Table, Tag, Button } from 'antd';
+import { Table, Tag, Button } from '@/components/ui-kit-compat';
 import { toast } from '@frontend-team/ui-kit';
 import { Ban, CheckCircle } from 'lucide-react';
 import { mockCampaigns, mockMolocoPublishers, type MolocoPublisher } from '@/shared/mock-data';

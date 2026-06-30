@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Descriptions, Tag, Alert } from 'antd';
+import { Card, Descriptions, Tag, Alert } from '@/components/ui-kit-compat';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { mockProjects } from '@/shared/mock-data';
 import { ACTIVE_NETWORKS, isActiveNetworkKey } from '@/shared/navigation';

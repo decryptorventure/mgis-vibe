@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Tag, Typography, Row, Col, Divider } from 'antd';
+﻿import React, { useState } from 'react';
+import { Card, Tag, Typography, Row, Col, Divider } from '@/components/ui-kit-compat';
 import { PlayCircle, Image as ImageIcon, Layout, Sparkles } from 'lucide-react';
 import { mockMetaCreativeAssets, type MetaCreativeAsset } from '@/shared/mock-data';
 import { MetaCreativeDetailDrawer } from './meta-creative-detail-drawer';

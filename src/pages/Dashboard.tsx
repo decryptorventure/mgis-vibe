@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Card, Row, Col, Skeleton } from 'antd';
+import { Card, Row, Col, Skeleton } from '@/components/ui-kit-compat';
 import { ChartContainer, PageHeader } from '../components/ui';
 import { FunnelKpiStrip } from '@/components/analytics/funnel-kpi-strip';
 import { NetworkComparisonCards } from '@/components/analytics/network-comparison-cards';

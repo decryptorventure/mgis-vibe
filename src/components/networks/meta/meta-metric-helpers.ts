@@ -165,7 +165,7 @@ export function getPacingStatus(row: MetaReportRow): PacingStatus {
 }
 
 export const PACING_META: Record<PacingStatus, { label: string; cls: string }> = {
-  on:    { label: '✓ On Track',   cls: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+  on:    { label: '✓ On Track',   cls: 'fg_success bg_emerald_subtle border_emerald' },
   over:  { label: '⚠ Over Pace',  cls: 'text-amber-600 bg-amber-50 border-amber-200' },
   under: { label: '↓ Under Pace', cls: 'text-sky-600 bg-sky-50 border-sky-200' },
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Radio, InputNumber, Card, Slider, Row, Col } from 'antd';
+import { Form, Radio, InputNumber, Card, Slider, Row, Col } from '@/components/ui-kit-compat';
 
 interface WizardStepBudgetProps {
   state: any;

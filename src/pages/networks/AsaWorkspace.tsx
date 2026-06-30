@@ -1,8 +1,8 @@
-// ─── ASA (Apple Search Ads) Workspace — thin plugin ──────────────────────────
+﻿// ─── ASA (Apple Search Ads) Workspace — thin plugin ──────────────────────────
 // All shared shell/table/settings/insights logic lives in NetworkWorkspaceShell.
 // ASA-specific keyword management tabs are preserved as extraTabs in asaConfig.
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Button, Modal, InputNumber, Select, Tooltip, Space } from 'antd';
+import { Table, Tag, Button, Modal, InputNumber, Select, Tooltip, Space } from '@/components/ui-kit-compat';
 import { toast } from '@frontend-team/ui-kit';
 import { Check, X, Ban, Star, Edit } from 'lucide-react';
 import {
@@ -140,7 +140,7 @@ const AsaKeywordTabs: React.FC = () => {
             </div>
             <div className="flex-1">
               <div className="text-xs font-semibold mb-1">Match Type</div>
-              <Select className="w-full" value={targetMatchType} onChange={setTargetMatchType} options={[{ value: 'EXACT', label: 'Exact Match' }, { value: 'BROAD', label: 'Broad Match' }]} />
+              <Select className="w-full" value={targetMatchType} onChange={(v) => setTargetMatchType(v as 'EXACT' | 'BROAD')} options={[{ value: 'EXACT', label: 'Exact Match' }, { value: 'BROAD', label: 'Broad Match' }]} />
             </div>
           </div>
         </div>

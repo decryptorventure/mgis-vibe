@@ -1,10 +1,10 @@
-/* eslint-disable react-refresh/only-export-components */
+﻿/* eslint-disable react-refresh/only-export-components */
 import React, { useEffect } from 'react';
-import { Layout, Menu, Drawer, Input } from 'antd';
+import { Layout, Menu, Drawer, Input } from '@/components/ui-kit-compat';
 import { useNavigate, useLocation, useParams, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Library,
-  Zap, BarChart3, Network, LayoutGrid, ArrowLeft, Search, Bot, FileText, PieChart
+  Zap, Network, LayoutGrid, ArrowLeft, Search, FileText
 } from 'lucide-react';
 import { mockProjects } from '../../shared/mock-data';
 import { NETWORK_LOGOS } from '../../shared/network-config';
@@ -213,6 +213,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, [collapsed, onCollapse]);
+
+  // Body scroll lock when mobile drawer is open
+  useEffect(() => {
+    document.body.style.overflow = mobileDrawerOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileDrawerOpen]);
 
   const handleNavigate = (key: string) => {
     navigate(key);

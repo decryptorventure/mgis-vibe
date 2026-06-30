@@ -1,6 +1,6 @@
-// Axon campaign creation wizard — 2-column layout (steps sidebar + form area)
+﻿// Axon campaign creation wizard — 2-column layout (steps sidebar + form area)
 import React from 'react';
-import { Drawer, Input, Select, Segmented } from 'antd';
+import { Drawer, Input, Select, Segmented } from '@/components/ui-kit-compat';
 import { AlertTriangle, ArrowLeft, CheckCircle2, Copy, Download, Gauge, Globe2, MousePointerClick, Rocket, Target, WandSparkles, Zap } from 'lucide-react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
 import type { Project } from '@/shared/mock-data';
@@ -14,7 +14,7 @@ const StepsSidebar: React.FC<{ mode: CampaignBuilderMode }> = ({ mode }) => {
     return <span className="text-sm font-bold">{idx + 1}</span>;
   };
   const stateBg = (state: 'done' | 'warn' | 'pending') => {
-    if (state === 'done') return 'bg-emerald-500';
+    if (state === 'done') return 'bg-[var(--status-success)]';
     if (state === 'warn') return 'bg-amber-500';
     return 'bg_tertiary text_secondary';
   };

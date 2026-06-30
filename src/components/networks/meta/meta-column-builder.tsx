@@ -1,7 +1,7 @@
-// Column builder — pure factory for Ant Design ColumnsType for Meta report tables.
+﻿// Column builder â€” pure factory for Ant Design ColumnsType for Meta report tables.
 // All state deps passed explicitly; no closures over component state.
-import { Switch, Tooltip } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Switch, Tooltip } from '@/components/ui-kit-compat';
+import type { ColumnsType } from '@/components/ui-kit-compat';
 import { CircleAlert, Edit3, Folder, Play } from 'lucide-react';
 import { StatusBadge, statusToVariant } from '@/components/ui/StatusBadge';
 import type { MetaEntity, MetaReportRow, MetaColumnKey, MetaColumnConfig, HeatmapColor } from './meta-types';

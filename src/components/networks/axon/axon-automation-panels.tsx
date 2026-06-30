@@ -1,9 +1,9 @@
 // Axon automation panels — rule drawer, draft drawer, evaluation modal + shared column configs
 import React, { useState } from 'react';
-import { Checkbox, Drawer, Input, Modal, Select, Segmented, Switch } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Checkbox, Drawer, Input, Modal, Select, Segmented, Switch } from '@/components/ui-kit-compat';
+import type { ColumnsType } from '@/components/ui-kit-compat';
 import { AlertTriangle, BookOpen, CalendarDays, Eye, FlaskConical, Info, Plus, X, Zap } from 'lucide-react';
-import { Button, cn, toast } from '@frontend-team/ui-kit';
+import { Button, toast } from '@frontend-team/ui-kit';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CountBadge, PoolTag } from './axon-ui-atoms';
 import type { AxonAutomationRule, AxonDraftRule, AxonRunHistory, EvaluationItem } from './axon-types';
@@ -79,7 +79,7 @@ export const EvaluationModal: React.FC<EvalModalProps> = ({ run, onClose }) => {
               Copy Bulk Names
             </Button>
             <Button type="button" variant="primary" size="m"
-              style={{ backgroundColor: '#ef4444', borderColor: '#ef4444' }}
+              className="bg_error_contrast border_error_button"
               onClick={() => { onClose(); toast.success(`${selected.size} creative sets paused`); }}
             >
               Pause Selected ({selected.size})
@@ -316,9 +316,9 @@ export const makeHistoryColumns = (onView: (row: AxonRunHistory) => void): Colum
     title: 'Totals', key: 'totals', width: 160,
     render: (_v, row) => (
       <div className="flex items-center gap-1.5">
-        <CountBadge value={row.totalActive} color="#f97316" />
-        <CountBadge value={row.evaluated} color="#3b82f6" />
-        <CountBadge value={row.matched} color="#ef4444" />
+        <CountBadge value={row.totalActive} color="var(--status-warning)" />
+        <CountBadge value={row.evaluated} color="var(--status-info)" />
+        <CountBadge value={row.matched} color="var(--status-error)" />
       </div>
     ),
   },

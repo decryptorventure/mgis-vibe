@@ -1,6 +1,6 @@
-// Task 6 — Enhanced creative preview modal: image / video / HTML playable with fallback
+﻿// Task 6 — Enhanced creative preview modal: image / video / HTML playable with fallback
 import React, { useState } from 'react';
-import { Modal, Tag } from 'antd';
+import { Modal, Tag } from '@/components/ui-kit-compat';
 import { AlertTriangle, ExternalLink, Maximize2 } from 'lucide-react';
 import { statusConfig, type MediaItem } from '@/shared/mock-data';
 
@@ -94,7 +94,7 @@ export const CreativePreviewModal: React.FC<Props> = ({ item, open, onClose }) =
             <Tag style={{ color: statusConfig[item.status]?.color, backgroundColor: statusConfig[item.status]?.bg, borderColor: 'transparent' }}
               className="rounded text-[10px] font-bold border-0 m-0">{item.status}</Tag>
             {item.googleMark === 'low' && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 radius_6 bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 radius_6 bg_red_subtle fg_error border border_error text-[10px] font-bold">
                 Google Mark: LOW
               </span>
             )}

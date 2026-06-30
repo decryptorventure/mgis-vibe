@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Card, Row, Col, Tag, Input, Skeleton } from 'antd';
+import { Card, Row, Col, Tag, Input, Skeleton } from '@/components/ui-kit-compat';
 import { Button, toast } from '@frontend-team/ui-kit';
 import {
   RefreshCw, Search, X, Check, Copy, ExternalLink,

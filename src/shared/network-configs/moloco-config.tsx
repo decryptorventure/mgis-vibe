@@ -1,6 +1,6 @@
-// ─── Moloco DSP network config ────────────────────────────────────────────────
+﻿// ─── Moloco DSP network config ────────────────────────────────────────────────
 import React from 'react';
-import { Tag, Card, Statistic, Table, Switch } from 'antd';
+import { Tag, Card, Statistic, Table, Switch } from '@/components/ui-kit-compat';
 import { ShieldAlert } from 'lucide-react';
 import type { NetworkConfig } from './types';
 import { mockMolocoPublishers, mockMolocoExchanges } from '@/shared/mock-data';

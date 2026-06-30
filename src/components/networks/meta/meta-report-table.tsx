@@ -1,7 +1,7 @@
-// Report table panel — toolbar + DataTable for campaigns/adsets/ads entity view
+﻿// Report table panel â€” toolbar + DataTable for campaigns/adsets/ads entity view
 import React from 'react';
-import { Input, Table } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Input, Table } from '@/components/ui-kit-compat';
+import type { ColumnsType } from '@/components/ui-kit-compat';
 import { BarChart3, Copy, Edit3, Filter, MoreHorizontal, Plus, Search } from 'lucide-react';
 import { Button } from '@frontend-team/ui-kit';
 import { DataTable } from '@/components/ui/DataTable';

@@ -1,6 +1,6 @@
 // Creative upload modal — extracted from MediaLibraries for modularization
 import React from 'react';
-import { Modal, Select, Upload } from 'antd';
+import { Modal, Select, Upload } from '@/components/ui-kit-compat';
 import { Upload as UploadIcon } from 'lucide-react';
 import { Button, toast } from '@frontend-team/ui-kit';
 
@@ -28,7 +28,7 @@ export const CreativeUploadModal: React.FC<Props> = ({ open, onClose }) => (
         className="group border-2 border-dashed border-[var(--color-primary-300)] rounded-2xl bg-[var(--color-primary-50)] hover:bg-[var(--color-primary-100)] hover:border-[var(--color-primary-500)] transition-all p-8 text-center cursor-pointer shadow-inner"
       >
         <div className="flex flex-col items-center">
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition-transform duration-300">
+          <div className="w-16 h-16 bg_primary rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition-transform duration-300">
             <UploadIcon size={28} className="text-[var(--color-primary-500)]" />
           </div>
           <p className="text-sm font-extrabold text-[var(--color-primary-800)] mb-1">Kéo thả file hoặc click để chọn</p>

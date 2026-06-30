@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Input, Button, Checkbox, Tag, Skeleton, Card } from 'antd';
+import { Input, Button, Checkbox, Tag, Skeleton, Card } from '@/components/ui-kit-compat';
 import { Search, Plus, Trash2, Smartphone, Apple, Hexagon, Shield } from 'lucide-react';
 import { PageHeader, EmptyState } from '../components/ui';
 

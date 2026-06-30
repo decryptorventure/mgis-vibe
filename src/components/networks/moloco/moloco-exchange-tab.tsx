@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Typography, Switch, Tag, Tooltip } from 'antd';
+﻿import React from 'react';
+import { Table, Typography, Switch, Tag, Tooltip } from '@/components/ui-kit-compat';
 import { ShieldAlert, Globe } from 'lucide-react';
 import { mockMolocoExchangePerfs } from '@/shared/mock-data';
 import type { MolocoExchangePerf } from '@/shared/mock-data';

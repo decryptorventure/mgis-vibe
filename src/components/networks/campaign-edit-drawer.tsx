@@ -1,7 +1,7 @@
-// ─── CampaignEditDrawer — slide-in 50% drawer for editing campaign fields ────
+﻿// ─── CampaignEditDrawer — slide-in 50% drawer for editing campaign fields ────
 // Keeps the campaign table visible alongside the form (context preserved).
 import React, { useEffect } from 'react';
-import { Drawer, Form, Input, InputNumber, Select } from 'antd';
+import { Drawer, Form, Input, InputNumber, Select } from '@/components/ui-kit-compat';
 import { Button, toast } from '@frontend-team/ui-kit';
 import { Pencil } from 'lucide-react';
 import { StatusBadge, statusToVariant } from '@/components/ui/StatusBadge';

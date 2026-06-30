@@ -1,5 +1,5 @@
-import React from 'react';
-import { Drawer, List } from 'antd';
+﻿import React from 'react';
+import { Drawer, List } from '@/components/ui-kit-compat';
 import { cn } from '@frontend-team/ui-kit';
 import {
   CheckCircle2, XCircle, AlertTriangle, Info,

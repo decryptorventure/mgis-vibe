@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Badge, Dropdown } from 'antd';
+﻿import React, { useEffect, useState } from 'react';
+import { Badge, Dropdown } from '@/components/ui-kit-compat';
 import { Avatar, Button, toast } from '@frontend-team/ui-kit';
 import { useNavigate } from 'react-router-dom';
 import {
   Bell, ChevronDown, LogOut, User, MessageSquarePlus,
-  Sun, Moon, Menu as MenuIcon,
+  Sun, Moon, Menu as MenuIcon, Search,
 } from 'lucide-react';
 import { mockUser } from '../../shared/mock-data';
 import { applyThemeMode, getInitialTheme, setStoredThemeMode, type ThemeMode } from '@/theme/theme-mode';
@@ -26,6 +26,8 @@ interface AppHeaderProps {
   onNotificationClick: () => void;
   /** Toggle mobile sidebar drawer */
   onMobileMenuClick?: () => void;
+  /** Open command palette (triggered by ⌘K) */
+  onSearchClick?: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
@@ -34,6 +36,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   notificationCount,
   onNotificationClick,
   onMobileMenuClick,
+  onSearchClick,
 }) => {
   const navigate = useNavigate();
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme);
@@ -99,6 +102,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
       {/* Right actions */}
       <div className="flex items-center gap-2">
+        {/* ⌘K search hint — visible at lg+ */}
+        <button
+          type="button"
+          onClick={onSearchClick}
+          aria-label="Open command palette (⌘K)"
+          className="hidden lg:flex items-center gap-1.5 px-2 py-1 rounded border border_secondary text_tertiary hover:text_secondary hover:border_button transition-colors cursor-pointer bg-transparent"
+          style={{ fontSize: 11 }}
+        >
+          <Search size={12} />
+          <span className="font-medium">Search</span>
+          <kbd className="ml-1 px-1 py-px rounded bg_secondary text_tertiary font-mono leading-none" style={{ fontSize: 9 }}>⌘K</kbd>
+        </button>
+
         {/* Dark mode toggle */}
         <Button
           type="button"

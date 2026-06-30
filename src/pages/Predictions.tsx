@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Select, Tag, Skeleton, Row, Col, Statistic } from 'antd';
+import { Card, Table, Select, Tag, Skeleton, Row, Col, Statistic } from '@/components/ui-kit-compat';
 import { TrendingUp, BarChart2, AlertCircle, Sparkles } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceArea } from 'recharts';
 import { PageHeader } from '../components/ui';

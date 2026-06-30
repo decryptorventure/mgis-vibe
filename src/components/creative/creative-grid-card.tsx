@@ -1,31 +1,41 @@
-// Task 6 — Creative grid card with inline performance metrics and preview affordance
+﻿// Task 6 — Creative grid card with inline performance metrics and preview affordance
 import React from 'react';
-import { Tag, Tooltip } from 'antd';
-import { Button as AntButton } from 'antd';
-import { Download, Eye, Play, Trash2 } from 'lucide-react';
-import { toast } from '@frontend-team/ui-kit';
+import { Tag, Tooltip } from '@/components/ui-kit-compat';
+import { Button as AntButton } from '@/components/ui-kit-compat';
+import { Check, Download, Eye, Play, Trash2 } from 'lucide-react';
+import { toast, cn } from '@frontend-team/ui-kit';
 import { statusConfig, type MediaItem } from '@/shared/mock-data';
 
 interface Props {
   item: MediaItem;
   onPreview: (item: MediaItem) => void;
+  selected?: boolean;
+  onSelect?: (id: string, selected: boolean) => void;
 }
 
 const GOOGLE_LOW_TAG = (
-  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 radius_4 bg-red-50 text-red-600 border border-red-200 text-[9px] font-bold">
+  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 radius_4 bg_red_subtle fg_error border border_error text-[9px] font-bold">
     ↓ LOW
   </span>
 );
 
-export const CreativeGridCard: React.FC<Props> = ({ item, onPreview }) => {
+export const CreativeGridCard: React.FC<Props> = ({ item, onPreview, selected = false, onSelect }) => {
   const isHtml = item.name.endsWith('.html') || item.name.endsWith('.zip');
   const hasPerf = item.spend !== undefined && item.spend > 0;
 
+  const handleCheckbox = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onSelect?.(item.id, !selected);
+  };
+
   return (
-    <div className="rounded-xl overflow-hidden cursor-pointer group bg-[var(--surface-base)] border border-[var(--border-default)]">
+    <div className={cn(
+      'rounded-xl overflow-hidden cursor-pointer group bg-[var(--surface-base)] border transition-colors',
+      selected ? 'border-[var(--ds-color-primary-500)] ring-2 ring-[var(--ds-color-primary-200)]' : 'border-[var(--border-default)]'
+    )}>
       {/* Thumbnail */}
       <div className="relative h-36 bg-[var(--surface-muted)] flex items-center justify-center overflow-hidden"
-        onClick={() => onPreview(item)}>
+        onClick={() => onSelect ? onSelect(item.id, !selected) : onPreview(item)}>
         {isHtml ? (
           <div className="absolute inset-0 bg-indigo-50/50 flex flex-col items-center justify-center p-4">
             <span className="text-2xl font-black text-indigo-500 font-mono tracking-widest uppercase">HTML5</span>
@@ -39,6 +49,23 @@ export const CreativeGridCard: React.FC<Props> = ({ item, onPreview }) => {
           <img src={`https://picsum.photos/seed/${item.id}/400/300`} alt={item.name} className="w-full h-full object-cover" />
         )}
 
+        {/* Checkbox — top-right, visible on hover or when selected */}
+        {onSelect && (
+          <button
+            type="button"
+            aria-label={selected ? 'Deselect' : 'Select'}
+            onClick={handleCheckbox}
+            className={cn(
+              'absolute top-2 right-2 z-10 w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer',
+              selected
+                ? 'bg-[var(--ds-color-primary-500)] border-[var(--ds-color-primary-500)]'
+                : 'bg-[var(--surface-base)]/80 border-[var(--border-strong)] opacity-0 group-hover:opacity-100'
+            )}
+          >
+            {selected && <Check size={11} className="text-white" />}
+          </button>
+        )}
+
         {/* Status + Google mark badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           <Tag style={{ color: statusConfig[item.status]?.color, backgroundColor: statusConfig[item.status]?.bg, borderColor: 'transparent' }}
@@ -46,9 +73,13 @@ export const CreativeGridCard: React.FC<Props> = ({ item, onPreview }) => {
           {item.googleMark === 'low' && GOOGLE_LOW_TAG}
         </div>
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-          <AntButton aria-label="Preview" size="small" shape="circle" icon={<Eye size={14} />} className="bg-[var(--surface-base)]/90" />
+        {/* Hover overlay — only shows when not in select mode */}
+        <div className={cn(
+          'absolute inset-0 bg-black/40 transition-opacity flex items-center justify-center gap-2',
+          onSelect ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
+        )}>
+          <AntButton aria-label="Preview" size="small" shape="circle" icon={<Eye size={14} />} className="bg-[var(--surface-base)]/90"
+            onClick={e => { e.stopPropagation(); onPreview(item); }} />
           <AntButton aria-label="Download" size="small" shape="circle" icon={<Download size={14} />} className="bg-[var(--surface-base)]/90"
             onClick={e => { e.stopPropagation(); toast.info('Download started'); }} />
           <AntButton aria-label="Delete" size="small" shape="circle" icon={<Trash2 size={14} />} danger className="bg-[var(--surface-base)]/90"
@@ -71,7 +102,7 @@ export const CreativeGridCard: React.FC<Props> = ({ item, onPreview }) => {
             <div className="flex justify-between text-[var(--text-tertiary)] mt-0.5">
               <span>CTR {item.ctr}%</span>
               {item.roas !== undefined && (
-                <span className={item.roas < 1 ? 'text-red-500 font-semibold' : 'text-emerald-600 font-semibold'}>
+                <span className={item.roas < 1 ? 'fg_error font-semibold' : 'fg_success font-semibold'}>
                   ROAS {item.roas.toFixed(1)}×
                 </span>
               )}

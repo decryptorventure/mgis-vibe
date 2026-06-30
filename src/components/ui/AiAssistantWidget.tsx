@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Input } from 'antd';
+import { Input } from '@/components/ui-kit-compat';
 import { cn } from '@frontend-team/ui-kit';
 import { Bot, Send, Sparkles, ChevronDown } from 'lucide-react';
 

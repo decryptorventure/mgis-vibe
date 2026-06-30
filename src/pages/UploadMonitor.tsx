@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Card, Input, Select, Tabs, Modal, Row, Col, Skeleton } from 'antd';
+import { Card, Input, Select, Tabs, Modal, Row, Col, Skeleton } from '@/components/ui-kit-compat';
 import { Button, toast } from '@frontend-team/ui-kit';
 import { Search, Info, AlertTriangle, Upload } from 'lucide-react';
 import { DataTable, FilterBar, PageHeader, StatCard, StatusBadge, type StatusVariant } from '../components/ui';

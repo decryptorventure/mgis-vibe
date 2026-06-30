@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, Row, Col, Progress } from 'antd';
+import { Card, Row, Col, Progress } from '@/components/ui-kit-compat';
 import { Badge, Button } from '@frontend-team/ui-kit';
-import { Network, ShieldCheck, ShieldAlert, Key, Zap, ChevronRight } from 'lucide-react';
+import { Network, ShieldCheck, ShieldAlert, Key, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, StatCard } from '@/components/ui';
 import { mockCampaigns, mockVaultKeys, mockProjects } from '@/shared/mock-data';

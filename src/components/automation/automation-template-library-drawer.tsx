@@ -1,6 +1,6 @@
-// Task 9 — Automation rule template library: browse approved/draft templates and apply one
+﻿// Task 9 — Automation rule template library: browse approved/draft templates and apply one
 import React, { useState } from 'react';
-import { Drawer, Tag } from 'antd';
+import { Drawer, Tag } from '@/components/ui-kit-compat';
 import { AlertTriangle, BookOpen, CheckCircle2, ChevronRight, Clock } from 'lucide-react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
 
@@ -118,7 +118,7 @@ export const AutomationTemplateLibraryDrawer: React.FC<Props> = ({ open, onClose
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     {t.status === 'approved'
-                      ? <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                      ? <CheckCircle2 size={14} className="fg_success shrink-0" />
                       : <Clock size={14} className="text-amber-500 shrink-0" />}
                     <span className="font-semibold text_primary text-sm truncate">{t.name}</span>
                   </div>

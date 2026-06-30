@@ -1,9 +1,8 @@
-// Google UAC builder — Objective, Campaign Settings, Budget sections
+﻿// Google UAC builder — Objective, Campaign Settings, Budget sections
 import React from 'react';
-import { Input, Select } from 'antd';
+import { Input, Select } from '@/components/ui-kit-compat';
 import { Download, Gauge, MousePointerClick, TrendingUp, WandSparkles } from 'lucide-react';
 import { Button, cn } from '@frontend-team/ui-kit';
-import { toast } from '@frontend-team/ui-kit';
 import { BuilderSection } from '@/components/networks/axon/axon-ui-atoms';
 import type { Project } from '@/shared/mock-data';
 import { GOOGLE_COLOR, GOOGLE_ACCOUNTS, BIDDING_GOALS, type GoogleBuilderState, type GoogleLocationMode, type GoogleBiddingFocus } from './google-types';
@@ -73,7 +72,7 @@ export const GoogleObjectiveSection: React.FC<ObjectiveProps> = ({ activeApp, st
       {/* Campaign name */}
       <div>
         <label className="text-xs font-semibold text_secondary block mb-1.5">
-          Campaign name <span className="text-red-500">*</span>
+          Campaign name <span className="fg_error">*</span>
         </label>
         <div className="flex">
           <Input value={state.campaignName} onChange={e => onChange({ campaignName: e.target.value })}
@@ -87,7 +86,7 @@ export const GoogleObjectiveSection: React.FC<ObjectiveProps> = ({ activeApp, st
 
       {/* OS */}
       <div>
-        <label className="text-xs font-semibold text_secondary block mb-1.5">OS <span className="text-red-500">*</span></label>
+        <label className="text-xs font-semibold text_secondary block mb-1.5">OS <span className="fg_error">*</span></label>
         <div className="grid grid-cols-2 gap-3">
           <GSelectTile active={state.os === 'ios'} title="iOS" subtitle="App Store tracking"
             onClick={() => onChange({ os: 'ios' })} />
@@ -115,8 +114,8 @@ export const GoogleSettingsSection: React.FC<SettingsProps> = ({ state, onChange
     subtitle="Account, location targeting, and location options.">
     <div className="space-y-4">
       <div>
-        <label className="text-xs font-semibold text_secondary block mb-1.5">Account <span className="text-red-500">*</span></label>
-        <Select value={state.account} onChange={v => onChange({ account: v })} className="w-full"
+        <label className="text-xs font-semibold text_secondary block mb-1.5">Account <span className="fg_error">*</span></label>
+        <Select value={state.account} onChange={v => onChange({ account: v as string })} className="w-full"
           options={GOOGLE_ACCOUNTS} />
       </div>
 
@@ -193,7 +192,7 @@ export const GoogleBudgetSection: React.FC<BudgetProps> = ({ state, onChange }) 
       <div className="space-y-4">
         <div>
           <label className="text-xs font-semibold text_secondary block mb-1.5">
-            Budget <span className="text-red-500">*</span>
+            Budget <span className="fg_error">*</span>
           </label>
           <Input addonBefore="$" value={state.budget} onChange={e => onChange({ budget: e.target.value })}
             placeholder="0.00" type="number" min={1} />
@@ -202,7 +201,7 @@ export const GoogleBudgetSection: React.FC<BudgetProps> = ({ state, onChange }) 
 
         <div>
           <label className="text-xs font-semibold text_secondary block mb-2">
-            What do you want to focus on? <span className="text-red-500">*</span>
+            What do you want to focus on? <span className="fg_error">*</span>
           </label>
           <div className="grid grid-cols-3 gap-2">
             {BIDDING_GOALS.map(g => (
@@ -216,7 +215,7 @@ export const GoogleBudgetSection: React.FC<BudgetProps> = ({ state, onChange }) 
         {activeGoal && activeGoal.value !== 'installs' && (
           <div>
             <label className="text-xs font-semibold text_secondary block mb-1.5">
-              {activeGoal.hint} <span className="text-red-500">*</span>
+              {activeGoal.hint} <span className="fg_error">*</span>
             </label>
             <Input addonBefore={activeGoal.value === 'roas' ? '×' : '$'} value={state.targetValue}
               onChange={e => onChange({ targetValue: e.target.value })} placeholder="e.g. 0.50" />

@@ -1,9 +1,61 @@
-// Template form sub-components — shared field primitives and the full template edit form
+﻿// Template form sub-components — shared field primitives and the full template edit form
 import React from 'react';
-import { Checkbox, Drawer as _Drawer, Input, Radio, Select } from 'antd';
+import { Checkbox, Input, Radio, Select } from '@/components/ui-kit-compat';
 import { Bot, CalendarDays, Layers3, MousePointerClick, Plus, RefreshCcw, Settings, Zap } from 'lucide-react';
 import { Button, toast } from '@frontend-team/ui-kit';
 import type { MetaPage, MetaTemplate } from './meta-types';
+
+// ─── Shared option lists (mirror the builder forms for consistency) ───────────
+
+const BID_STRATEGY_OPTIONS = [
+  { value: 'highest_volume', label: 'Highest volume or value' },
+  { value: 'cost_cap', label: 'Cost per result goal' },
+  { value: 'roas_goal', label: 'ROAS goal' },
+  { value: 'other', label: 'Other option' },
+];
+
+const PERFORMANCE_GOAL_OPTIONS = [
+  { label: 'App promotion goals', options: [
+    { value: 'app_events', label: 'Maximize number of app events' },
+    { value: 'app_installs', label: 'Maximize number of app installs' },
+    { value: 'value_conversions', label: 'Maximize value of conversions' },
+  ]},
+  { label: 'Other goals', options: [
+    { value: 'link_clicks', label: 'Maximize number of link clicks' },
+    { value: 'reach', label: 'Maximize reach of ads' },
+    { value: 'impressions', label: 'Maximize ad impressions' },
+  ]},
+];
+
+const CONVERSION_EVENT_OPTIONS = [
+  { value: 'install', label: 'App install' },
+  { value: 'purchase', label: 'Purchase' },
+  { value: 'add_to_cart', label: 'Add to cart' },
+  { value: 'view_content', label: 'View content' },
+  { value: 'complete_registration', label: 'Complete registration' },
+  { value: 'start_trial', label: 'Start trial' },
+  { value: 'subscribe', label: 'Subscribe' },
+  { value: 'level_achieved', label: 'Level achieved' },
+  { value: 'spent_credits', label: 'Spent credits' },
+];
+
+const CTA_OPTIONS = [
+  { value: 'download', label: 'Download' },
+  { value: 'install_now', label: 'Install Now' },
+  { value: 'get_offer', label: 'Get Offer' },
+  { value: 'get_quote', label: 'Get Quote' },
+  { value: 'open_link', label: 'Open Link' },
+  { value: 'shop_now', label: 'Shop Now' },
+  { value: 'play_game', label: 'Play Game' },
+  { value: 'learn_more', label: 'Learn More' },
+  { value: 'sign_up', label: 'Sign Up' },
+];
+
+const PLATFORM_OPTIONS = [
+  { value: 'all', label: 'All Platforms' },
+  { value: 'ios', label: 'iOS' },
+  { value: 'android', label: 'Android' },
+];
 
 // Labelled form field wrapper
 export const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
@@ -61,13 +113,13 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ activeTempla
 
     <TemplateSection icon={<Zap size={16} className="fg_blue_accent" />} title="Optimization & Bidding">
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Bid Strategy"><Select placeholder="Select bid strategy" options={[{ value: 'highest_volume', label: 'Highest volume or value' }, { value: 'cost_cap', label: 'Cost cap' }]} /></Field>
-        <Field label="Performance Goal"><Select placeholder="Select goal" options={[{ value: 'installs', label: 'Maximize installs' }, { value: 'value', label: 'Maximize value' }]} /></Field>
+        <Field label="Bid Strategy"><Select defaultValue="highest_volume" options={BID_STRATEGY_OPTIONS} /></Field>
+        <Field label="Performance Goal"><Select defaultValue="app_installs" options={PERFORMANCE_GOAL_OPTIONS} /></Field>
       </div>
     </TemplateSection>
 
     <TemplateSection icon={<MousePointerClick size={16} className="fg_accent_primary" />} title="Conversion Event">
-      <Field label="Conversion Event"><Select placeholder="Select an event" options={[{ value: 'install', label: 'App install' }, { value: 'purchase', label: 'Purchase' }]} /></Field>
+      <Field label="Conversion Event"><Select defaultValue="install" options={CONVERSION_EVENT_OPTIONS} /></Field>
     </TemplateSection>
 
     <TemplateSection icon={<CalendarDays size={16} className="fg_blue_accent" />} title="Attribution Setting">
@@ -102,8 +154,8 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ activeTempla
 
     <TemplateSection icon={<Layers3 size={16} className="fg_blue_accent" />} title="Placements">
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Platform"><Select placeholder="Select platform" /></Field>
-        <Field label="Device"><Select defaultValue="all" options={[{ value: 'all', label: 'All Devices' }, { value: 'ios', label: 'iOS' }, { value: 'android', label: 'Android' }]} /></Field>
+        <Field label="Platform"><Select defaultValue="ios" options={PLATFORM_OPTIONS} /></Field>
+        <Field label="Devices & OS"><Select defaultValue="mobile" options={[{ value: 'all', label: 'All devices (Mobile + Desktop)' }, { value: 'mobile', label: 'Mobile' }, { value: 'desktop', label: 'Desktop' }]} /></Field>
       </div>
       <div className="flex items-center justify-between mt-2">
         <div className="text-xs font-semibold text_secondary uppercase">Platforms</div>
@@ -133,7 +185,7 @@ export const TemplateEditForm: React.FC<TemplateEditFormProps> = ({ activeTempla
       <TextAssetField label="Headlines" count="0 of 5" />
       <TextAssetField label="Descriptions" count="0 of 5" />
       <Field label="Call to Action">
-        <Select defaultValue="download" options={[{ value: 'download', label: 'Download' }, { value: 'install_now', label: 'Install Now' }, { value: 'learn_more', label: 'Learn More' }]} />
+        <Select defaultValue="install_now" options={CTA_OPTIONS} />
       </Field>
     </TemplateSection>
   </div>

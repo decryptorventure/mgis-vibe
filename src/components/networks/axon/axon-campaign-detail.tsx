@@ -1,7 +1,7 @@
-// Axon campaign detail view — country/creative tabs with Tier badges + inline bid editing
+﻿// Axon campaign detail view — country/creative tabs with Tier badges + inline bid editing
 import React, { useState } from 'react';
-import { Input, Progress, Tabs, Tooltip } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Input, Progress, Tabs, Tooltip } from '@/components/ui-kit-compat';
+import type { ColumnsType } from '@/components/ui-kit-compat';
 import { Activity, AlertTriangle, ArrowLeft, Bot, CalendarDays, Copy, FileText, FlaskConical, Gauge, Globe2, Layers3, Lightbulb, Plus, Zap } from 'lucide-react';
 import { Button, Card, cn, toast } from '@frontend-team/ui-kit';
 import { DataTable, StatCard } from '@/components/ui';
@@ -118,7 +118,7 @@ const creativeColumns: ColumnsType<AxonCreativePerf> = [
   { title: 'Status', dataIndex: 'status', key: 'status', width: 110, render: v => <StatusBadge label={v} variant={statusToVariant(v)} /> },
   {
     title: 'AI Score', dataIndex: 'aiScore', key: 'aiScore', width: 140,
-    render: v => <Progress percent={v} size="small" strokeColor={v >= 80 ? '#16a34a' : v >= 60 ? '#f59e0b' : '#ef4444'} />,
+    render: v => <Progress percent={v} size="small" strokeColor={v >= 80 ? 'var(--status-success)' : v >= 60 ? 'var(--status-warning)' : 'var(--status-error)'} />,
   },
   { title: 'IPM', dataIndex: 'ipm', key: 'ipm', width: 100, render: v => v.toFixed(1) },
   { title: 'CTR', dataIndex: 'ctr', key: 'ctr', width: 100, render: v => formatPercent(v) },

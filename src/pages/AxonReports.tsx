@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Table, Button, Select, Statistic, Row, Col, Skeleton, Segmented } from 'antd';
+import { Card, Table, Button, Select, Statistic, Row, Col, Skeleton, Segmented } from '@/components/ui-kit-compat';
 import { Download, Filter, BarChart3 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { PageHeader } from '../components/ui';

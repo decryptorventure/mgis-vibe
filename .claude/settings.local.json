@@ -12,7 +12,12 @@
       "Bash(git commit -m ' *)",
       "Bash(grep -v \"^[0-9]*:import\\\\|^[0-9]*://\\\\|MetaColumnKey\")",
       "Bash(awk 'NR>100' src/pages/networks/MetaWorkspace.tsx)",
-      "Bash(awk 'NR==1,/^export const MetaWorkspace/' src/pages/networks/MetaWorkspace.tsx)"
+      "Bash(awk 'NR==1,/^export const MetaWorkspace/' src/pages/networks/MetaWorkspace.tsx)",
+      "Bash(node -e \"const m = require\\('@frontend-team/ui-kit'\\); const keys = Object.keys\\(m\\).sort\\(\\); console.log\\(keys.filter\\(k => /select|table|datatable/i.test\\(k\\)\\).join\\('\\\\n'\\)\\);\")",
+      "Bash(grep -o \"\\\\\\\\.body_[a-zA-Z_]*\" \"C:/Users/iKame/Desktop/MGIS/nms-fe/node_modules/@frontend-team/ui-kit/dist/ui-kit.css\")",
+      "Bash(grep -o \"\\\\\\\\.divide_[a-zA-Z_]*\" \"C:/Users/iKame/Desktop/MGIS/nms-fe/node_modules/@frontend-team/ui-kit/dist/ui-kit.css\")",
+      "Bash(python3 -c ' *)",
+      "Bash(C:/Users/iKame/.claude/skills/.venv/Scripts/python.exe -c ' *)"
     ]
   }
 }

@@ -1,9 +1,9 @@
-// ─── NetworkCampaignTable — shared campaign table with configurable columns ───
+﻿// ─── NetworkCampaignTable — shared campaign table with configurable columns ───
 import React, { useState, useMemo } from 'react';
-import { Tag, Button, Drawer, Statistic, Row, Col, Descriptions, Popover, InputNumber } from 'antd';
+import { Tag, Button, Drawer, Statistic, Row, Col, Descriptions, Popover, InputNumber } from '@/components/ui-kit-compat';
 import { toast } from '@frontend-team/ui-kit';
-import type { TableProps } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { TableProps } from '@/components/ui-kit-compat';
+import type { ColumnsType } from '@/components/ui-kit-compat';
 import { Play, Pause, Pencil, Settings, ArrowUp, ArrowDown } from 'lucide-react';
 import { StatusBadge, statusToVariant } from '@/components/ui/StatusBadge';
 import { DataTable } from '@/components/ui/DataTable';
@@ -24,9 +24,14 @@ export const NetworkCampaignTable: React.FC<NetworkCampaignTableProps> = ({
   campaigns,
   expandable,
 }) => {
+  const SORT_KEY = `${config.key}_sort_v1`;
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [sortInfo, setSortInfo] = useState<{ columnKey: string; order: 'ascend' | 'descend' } | null>(() => {
+    try { return JSON.parse(localStorage.getItem(SORT_KEY) ?? 'null'); } catch { return null; }
+  });
   const [bulkBudgetVal, setBulkBudgetVal] = useState<number>(10);
   const [budgetPopoverOpen, setBudgetPopoverOpen] = useState(false);
   // Optimistic local overrides (mock — real app would call API)
@@ -121,12 +126,12 @@ export const NetworkCampaignTable: React.FC<NetworkCampaignTableProps> = ({
         />
       ),
     },
-    { title: 'Spend', dataIndex: 'spend', key: 'spend', width: 100, render: (v: number) => `$${v.toLocaleString()}` },
-    { title: 'Impressions', dataIndex: 'impressions', key: 'impressions', width: 120, render: (v: number) => v.toLocaleString() },
-    { title: 'Clicks', dataIndex: 'clicks', key: 'clicks', width: 90, render: (v: number) => v.toLocaleString() },
-    { title: 'Installs', dataIndex: 'installs', key: 'installs', width: 90, render: (v: number) => v.toLocaleString() },
-    { title: 'CPA', dataIndex: 'cpa', key: 'cpa', width: 80, render: (v: number) => `$${v.toFixed(2)}` },
-    { title: 'ROAS', dataIndex: 'roas', key: 'roas', width: 80, render: (v: number) => `${v.toFixed(1)}x` },
+    { title: 'Spend', dataIndex: 'spend', key: 'spend', width: 100, sorter: (a: Campaign, b: Campaign) => a.spend - b.spend, sortOrder: sortInfo?.columnKey === 'spend' ? sortInfo.order : null, render: (v: number) => `$${v.toLocaleString()}` },
+    { title: 'Impressions', dataIndex: 'impressions', key: 'impressions', width: 120, sorter: (a: Campaign, b: Campaign) => a.impressions - b.impressions, sortOrder: sortInfo?.columnKey === 'impressions' ? sortInfo.order : null, render: (v: number) => v.toLocaleString() },
+    { title: 'Clicks', dataIndex: 'clicks', key: 'clicks', width: 90, sorter: (a: Campaign, b: Campaign) => a.clicks - b.clicks, sortOrder: sortInfo?.columnKey === 'clicks' ? sortInfo.order : null, render: (v: number) => v.toLocaleString() },
+    { title: 'Installs', dataIndex: 'installs', key: 'installs', width: 90, sorter: (a: Campaign, b: Campaign) => a.installs - b.installs, sortOrder: sortInfo?.columnKey === 'installs' ? sortInfo.order : null, render: (v: number) => v.toLocaleString() },
+    { title: 'CPA', dataIndex: 'cpa', key: 'cpa', width: 80, sorter: (a: Campaign, b: Campaign) => a.cpa - b.cpa, sortOrder: sortInfo?.columnKey === 'cpa' ? sortInfo.order : null, render: (v: number) => `$${v.toFixed(2)}` },
+    { title: 'ROAS', dataIndex: 'roas', key: 'roas', width: 80, sorter: (a: Campaign, b: Campaign) => a.roas - b.roas, sortOrder: sortInfo?.columnKey === 'roas' ? sortInfo.order : null, render: (v: number) => `${v.toFixed(1)}x` },
     {
       title: 'Actions',
       key: 'actions',
@@ -158,6 +163,18 @@ export const NetworkCampaignTable: React.FC<NetworkCampaignTableProps> = ({
     return [...before, ...config.extraColumns, ...after] as ColumnsType<Campaign>;
   }, [baseColumns, config.extraColumns]);
 
+  const handleTableChange = (_pagination: unknown, _filters: unknown, sorter: unknown) => {
+    const s = sorter as { columnKey?: React.Key; order?: 'ascend' | 'descend' | null };
+    if (s?.columnKey && s?.order) {
+      const next = { columnKey: String(s.columnKey), order: s.order as 'ascend' | 'descend' };
+      setSortInfo(next);
+      localStorage.setItem(SORT_KEY, JSON.stringify(next));
+    } else {
+      setSortInfo(null);
+      localStorage.removeItem(SORT_KEY);
+    }
+  };
+
   return (
     <>
       <DataTable<Campaign>
@@ -167,6 +184,7 @@ export const NetworkCampaignTable: React.FC<NetworkCampaignTableProps> = ({
         rowKey="id"
         rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
         expandable={expandable as TableProps<Campaign>['expandable']}
+        onChange={handleTableChange}
         pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (t) => `${t} campaigns` }}
         scroll={{ x: 1100 }}
         emptyTitle="No campaigns"

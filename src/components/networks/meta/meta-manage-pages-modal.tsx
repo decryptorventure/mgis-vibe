@@ -1,7 +1,7 @@
-// Manage Pages modal — CRUD for the Facebook/Instagram pages linked to the account
+﻿// Manage Pages modal â€” CRUD for the Facebook/Instagram pages linked to the account
 import React, { useState } from 'react';
-import { Input, Modal } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Input, Modal } from '@/components/ui-kit-compat';
+import type { ColumnsType } from '@/components/ui-kit-compat';
 import { Edit3, Plus, RefreshCcw, Trash2 } from 'lucide-react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
 import { DataTable } from '@/components/ui/DataTable';

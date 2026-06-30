@@ -1,7 +1,7 @@
-// meta-inline-adset-rows.tsx — compact adset table rendered inside campaign expand row
+﻿// meta-inline-adset-rows.tsx â€” compact adset table rendered inside campaign expand row
 import React from 'react';
-import { Table } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Table } from '@/components/ui-kit-compat';
+import type { ColumnsType } from '@/components/ui-kit-compat';
 import { StatusBadge, statusToVariant } from '@/components/ui/StatusBadge';
 import type { AdSet, Campaign } from '@/shared/mock-data';
 import { getMetricValue, formatMetricValue } from './meta-metric-helpers';

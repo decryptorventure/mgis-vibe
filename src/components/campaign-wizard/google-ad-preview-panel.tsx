@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from 'antd';
+import { Button } from '@/components/ui-kit-compat';
 
 interface GoogleAdPreviewPanelProps {
   headline: string;

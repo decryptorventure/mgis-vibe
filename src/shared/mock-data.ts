@@ -130,15 +130,20 @@ export interface NetworkRule {
   id: string;
   name: string;
   network: string;
+  // Primary condition (first of conditions[] or legacy single field)
   conditionKey: string;
   conditionParam: number;
   conditionParamExtra?: string;
+  // Primary action (first of actions[] or legacy single field)
   actionKey: string;
   actionParam?: number;
   scheduleMinutes: 15 | 60 | 1440;
   status: 'active' | 'paused';
   lastTriggered?: string;
   triggerCount: number;
+  // Multi-condition/action support (AND logic)
+  conditions?: { conditionKey: string; conditionParam: number }[];
+  actions?: { actionKey: string; actionParam?: number }[];
   // Legacy display fields kept for backward compat
   projects?: string[];
   bidType?: string;

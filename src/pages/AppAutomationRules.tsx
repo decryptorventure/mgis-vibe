@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, Alert, Skeleton } from 'antd';
+﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Card, Alert, Skeleton } from '@/components/ui-kit-compat';
 import { Button, toast } from '@frontend-team/ui-kit';
 import { useParams } from 'react-router-dom';
 import { Zap, Bot, Clock, Plus } from 'lucide-react';
@@ -10,7 +10,7 @@ import { RuleEditorModal } from '@/components/automation/rule-editor-modal';
 import { mockNetworkRules, mockAutomationRuns, mockProjects } from '@/shared/mock-data';
 import type { NetworkRule } from '@/shared/mock-data';
 import type { RuleTemplate } from '@/shared/rule-conditions';
-import { Table, Tag } from 'antd';
+import { Table, Tag } from '@/components/ui-kit-compat';
 
 const statusTagColor: Record<string, string> = {
   completed: 'green', triggered: 'orange', skipped: 'default', error: 'red',

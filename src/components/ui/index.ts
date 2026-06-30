@@ -15,3 +15,7 @@ export { ChartContainer } from './ChartContainer';
 export { ConfirmModal } from './ConfirmModal';
 export { AiAssistantWidget } from './AiAssistantWidget';
 export { DataFreshnessIndicator } from './data-freshness-indicator';
+export { SectionHeader } from './SectionHeader';
+export { SurfaceSection } from './SurfaceSection';
+export { BulkActionBar } from './BulkActionBar';
+export type { BulkAction } from './BulkActionBar';

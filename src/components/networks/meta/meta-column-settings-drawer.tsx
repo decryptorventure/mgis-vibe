@@ -1,6 +1,6 @@
-// Column settings drawer — toggle visible columns, assign heatmap colors per metric
+﻿// Column settings drawer â€” toggle visible columns, assign heatmap colors per metric
 import React from 'react';
-import { Checkbox, Drawer, Popover, Switch } from 'antd';
+import { Checkbox, Drawer, Popover, Switch } from '@/components/ui-kit-compat';
 import { Palette, X } from 'lucide-react';
 import { Button, cn } from '@frontend-team/ui-kit';
 import type { MetaEntity, MetaColumnKey, MetaColumnConfig, HeatmapColor } from './meta-types';

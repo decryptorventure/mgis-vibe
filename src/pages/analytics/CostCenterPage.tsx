@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Table, Select, DatePicker, Card } from 'antd';
+﻿import React, { useState } from 'react';
+import { Table, Select, DatePicker, Card } from '@/components/ui-kit-compat';
 import { DollarSign } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { mockCampaigns } from '@/shared/mock-data';
@@ -168,7 +168,7 @@ const CostCenterPage: React.FC<CostCenterPageProps> = ({ hideHeader }) => {
             </span>
             <Select
               value={networkFilter}
-              onChange={setNetworkFilter}
+              onChange={(v) => setNetworkFilter(v as string)}
               options={NETWORK_OPTIONS}
               size="small"
               style={{ width: 160 }}

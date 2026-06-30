@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Button, Table } from 'antd';
+import { Form, Input, Button, Table } from '@/components/ui-kit-compat';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface WizardStepTrackingProps {

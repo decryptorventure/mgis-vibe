@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card, Tag, Typography, Row, Col, Divider, Button } from 'antd';
+﻿import React from 'react';
+import { Card, Tag, Typography, Row, Col, Divider, Button } from '@/components/ui-kit-compat';
 import { Image as ImageIcon, Smartphone, CheckCircle2 } from 'lucide-react';
 import { mockAsaCreativeSets } from '@/shared/mock-data';
 import type { AsaCreativeSet } from '@/shared/mock-data';

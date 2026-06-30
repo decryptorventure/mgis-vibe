@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Select, Switch } from 'antd';
+import { Form, Select, Switch } from '@/components/ui-kit-compat';
 
 interface MolocoTargetingSectionProps {
   value: Record<string, any>;

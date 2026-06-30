@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Tag, Card, Row, Col, Typography, Progress } from 'antd';
+﻿import React from 'react';
+import { Table, Tag, Card, Row, Col, Typography, Progress } from '@/components/ui-kit-compat';
 import { Users, UserPlus, Target } from 'lucide-react';
 import { mockMetaAudiences } from '@/shared/mock-data';
 import type { MetaAudience } from '@/shared/mock-data';

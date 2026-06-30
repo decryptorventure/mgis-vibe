@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Checkbox, Drawer, Input, Progress, Radio, Select, Switch, Tabs } from 'antd';
+﻿import React, { useEffect, useMemo, useState } from 'react';
+import { Checkbox, Drawer, Input, Progress, Radio, Select, Switch, Tabs } from '@/components/ui-kit-compat';
 import {
   AlertTriangle,
   Bot,
@@ -22,7 +22,9 @@ import {
   META_DEFAULT_BULK_CRITERIA,
   type MetaAutomationRun,
   type MetaBulkCriteria,
+  type MetaBulkGender,
   type MetaBulkGenerationResult,
+  type MetaBulkObjective,
   type MetaCreationRecipe,
   type MetaPreflightIssue,
 } from './meta-bulk-generation';
@@ -267,14 +269,14 @@ export const MetaBulkCreateDrawer: React.FC<MetaBulkCreateDrawerProps> = ({
                         <Field label="Objective">
                           <Select
                             value={criteria.objective}
-                            onChange={value => updateCriteria('objective', value)}
+                            onChange={value => updateCriteria('objective', value as MetaBulkObjective)}
                             options={[{ value: 'App promotions', label: 'App promotions' }, { value: 'Sales', label: 'Sales' }]}
                           />
                         </Field>
                         <Field label="Conversion event">
                           <Select
                             value={criteria.conversionEvent}
-                            onChange={value => updateCriteria('conversionEvent', value)}
+                            onChange={value => updateCriteria('conversionEvent', value as string)}
                             options={[{ value: 'App install', label: 'App install' }, { value: 'Purchase', label: 'Purchase' }, { value: 'Complete registration', label: 'Complete registration' }]}
                           />
                         </Field>
@@ -290,10 +292,10 @@ export const MetaBulkCreateDrawer: React.FC<MetaBulkCreateDrawerProps> = ({
 
                     <CriteriaSection icon={<Layers3 size={16} className="fg_blue_accent" />} title="Ad Set Matrix">
                       <Field label="Countries">
-                        <Select mode="tags" value={criteria.countries} onChange={value => updateCriteria('countries', value)} tokenSeparators={[',', ' ']} />
+                        <Select mode="tags" value={criteria.countries} onMultiChange={value => updateCriteria('countries', value)} tokenSeparators={[',', ' ']} />
                       </Field>
                       <Field label="Audiences">
-                        <Select mode="tags" value={criteria.audiences} onChange={value => updateCriteria('audiences', value)} tokenSeparators={[',']} />
+                        <Select mode="tags" value={criteria.audiences} onMultiChange={value => updateCriteria('audiences', value)} tokenSeparators={[',']} />
                       </Field>
                       <div className="grid grid-cols-3 gap-3">
                         <Field label="Age min">
@@ -305,7 +307,7 @@ export const MetaBulkCreateDrawer: React.FC<MetaBulkCreateDrawerProps> = ({
                         <Field label="Gender">
                           <Select
                             value={criteria.gender}
-                            onChange={value => updateCriteria('gender', value)}
+                            onChange={value => updateCriteria('gender', value as MetaBulkGender)}
                             options={[{ value: 'All', label: 'All' }, { value: 'Men', label: 'Men' }, { value: 'Women', label: 'Women' }]}
                           />
                         </Field>
@@ -333,18 +335,18 @@ export const MetaBulkCreateDrawer: React.FC<MetaBulkCreateDrawerProps> = ({
                           value={criteria.pageId}
                           allowClear
                           placeholder="Select page"
-                          onChange={value => updateCriteria('pageId', value)}
+                          onChange={value => updateCriteria('pageId', value as string)}
                           options={pages.map(page => ({ value: page.id, label: page.name }))}
                         />
                       </Field>
                       <Field label="Creative groups">
-                        <Select mode="tags" value={criteria.creativeGroups} onChange={value => updateCriteria('creativeGroups', value)} tokenSeparators={[',']} />
+                        <Select mode="tags" value={criteria.creativeGroups} onMultiChange={value => updateCriteria('creativeGroups', value)} tokenSeparators={[',']} />
                       </Field>
                       <Field label="Primary text variants">
-                        <Select mode="tags" value={criteria.primaryTexts} onChange={value => updateCriteria('primaryTexts', value)} tokenSeparators={['|']} />
+                        <Select mode="tags" value={criteria.primaryTexts} onMultiChange={value => updateCriteria('primaryTexts', value)} tokenSeparators={['|']} />
                       </Field>
                       <Field label="Headline variants">
-                        <Select mode="tags" value={criteria.headlines} onChange={value => updateCriteria('headlines', value)} tokenSeparators={['|']} />
+                        <Select mode="tags" value={criteria.headlines} onMultiChange={value => updateCriteria('headlines', value)} tokenSeparators={['|']} />
                       </Field>
                     </CriteriaSection>
                   </div>
@@ -359,7 +361,7 @@ export const MetaBulkCreateDrawer: React.FC<MetaBulkCreateDrawerProps> = ({
                       <Select
                         placeholder="Load a saved recipe"
                         value={activeRecipeId}
-                        onChange={handleLoadRecipe}
+                        onChange={v => handleLoadRecipe(v as string)}
                         options={recipes.map(recipe => ({ value: recipe.id, label: recipe.name }))}
                       />
                       <div className="space-y-2">

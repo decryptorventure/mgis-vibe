@@ -1,6 +1,6 @@
-// ─── RuleCard — human-readable automation rule display card ──────────────────
+﻿// ─── RuleCard — human-readable automation rule display card ──────────────────
 import React from 'react';
-import { Switch, Tag } from 'antd';
+import { Switch, Tag } from '@/components/ui-kit-compat';
 import { Button } from '@frontend-team/ui-kit';
 import { Pencil, Clock, Zap } from 'lucide-react';
 import { CONDITION_DEFS, ACTION_DEFS } from '@/shared/rule-conditions';

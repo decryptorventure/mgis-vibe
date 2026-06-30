@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
-import { Alert, Input, Select, Tabs } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+﻿import React, { useMemo, useState } from 'react';
+import { Alert, Input, Select, Tabs } from '@/components/ui-kit-compat';
+import type { ColumnsType } from '@/components/ui-kit-compat';
 import {
   Activity,
   AlertTriangle,
@@ -587,7 +587,7 @@ export const NetworkPortfolioWorkspace: React.FC = () => {
           size="small"
           className="w-28"
           value={osFilter}
-          onChange={value => setOsFilter(value)}
+          onChange={value => setOsFilter(value as OsFilter)}
           options={[
             { value: 'all', label: 'All OS' },
             { value: 'ios', label: 'iOS' },
@@ -598,7 +598,7 @@ export const NetworkPortfolioWorkspace: React.FC = () => {
           size="small"
           className="w-36"
           value={statusFilter}
-          onChange={value => setStatusFilter(value)}
+          onChange={value => setStatusFilter(value as StatusFilter)}
           options={[
             { value: 'all', label: 'All states' },
             { value: 'active', label: 'Active' },
@@ -611,7 +611,7 @@ export const NetworkPortfolioWorkspace: React.FC = () => {
           size="small"
           className="w-36"
           value={sortMode}
-          onChange={value => setSortMode(value)}
+          onChange={value => setSortMode(value as SortMode)}
           options={[
             { value: 'spend', label: 'Sort by spend' },
             { value: 'installs', label: 'Sort by installs' },

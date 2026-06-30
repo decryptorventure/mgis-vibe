@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, Table, Button as AntButton, Tooltip, Skeleton } from 'antd';
+import { Card, Table, Button as AntButton, Tooltip, Skeleton } from '@/components/ui-kit-compat';
 import { Button, toast } from '@frontend-team/ui-kit';
 import { 
   RefreshCw, Shield, AlertTriangle, CheckCircle, XCircle, Key, 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Steps, Button } from 'antd';
+import { Modal, Steps, Button } from '@/components/ui-kit-compat';
 import { toast } from '@frontend-team/ui-kit';
 import { Rocket } from 'lucide-react';
 import { WizardStepBasics } from './wizard-step-basics';

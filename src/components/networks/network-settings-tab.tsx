@@ -1,6 +1,6 @@
-// ─── NetworkSettingsTab — shared API settings tab for all network workspaces ──
+﻿// ─── NetworkSettingsTab — shared API settings tab for all network workspaces ──
 import React, { useState } from 'react';
-import { Card, Select, Button, Tag } from 'antd';
+import { Card, Select, Button, Tag } from '@/components/ui-kit-compat';
 import { toast } from '@frontend-team/ui-kit';
 import { Key, RefreshCw, CheckCircle, Clock } from 'lucide-react';
 import type { NetworkConfig } from '@/shared/network-config';
@@ -106,7 +106,7 @@ export const NetworkSettingsTab: React.FC<NetworkSettingsTabProps> = ({ config }
             <div className="text-sm font-semibold text-[var(--text-primary)] mb-2">Sync Frequency</div>
             <Select
               value={syncFreq}
-              onChange={setSyncFreq}
+              onChange={(v) => setSyncFreq(v as string)}
               options={SYNC_FREQ_OPTIONS}
               className="w-56"
             />

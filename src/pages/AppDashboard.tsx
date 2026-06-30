@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Row, Col, Table, Progress, Alert, Skeleton, Tag, Select, Button, Tooltip } from 'antd';
+import { Card, Row, Col, Table, Progress, Alert, Skeleton, Tag, Select, Button, Tooltip } from '@/components/ui-kit-compat';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Activity, DollarSign, TrendingUp, Users, ArrowUpRight, Network, Globe, Minus, Plus } from 'lucide-react';

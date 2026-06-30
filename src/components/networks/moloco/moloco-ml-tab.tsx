@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card, Row, Col, Statistic, Table, Typography, Tag, Divider } from 'antd';
+﻿import React from 'react';
+import { Card, Row, Col, Statistic, Table, Typography, Tag, Divider } from '@/components/ui-kit-compat';
 import { BrainCircuit, Activity, Zap, Server, Target } from 'lucide-react';
 import { mockMolocoMLStats } from '@/shared/mock-data';
 

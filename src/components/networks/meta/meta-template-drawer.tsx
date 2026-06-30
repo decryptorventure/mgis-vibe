@@ -1,6 +1,6 @@
-// Template drawer — list and edit campaign templates
+﻿// Template drawer â€” list and edit campaign templates
 import React, { useEffect, useState } from 'react';
-import { Drawer } from 'antd';
+import { Drawer } from '@/components/ui-kit-compat';
 import { Copy, Edit3, FileText, Plus, Trash2, X } from 'lucide-react';
 import { Button, Card, toast } from '@frontend-team/ui-kit';
 import type { MetaPage, MetaTemplate } from './meta-types';

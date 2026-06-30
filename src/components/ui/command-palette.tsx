@@ -1,8 +1,8 @@
-// ─── CommandPalette — global ⌘K / Ctrl+K quick navigation modal ─────────────
+﻿// ─── CommandPalette — global ⌘K / Ctrl+K quick navigation modal ─────────────
 import React, { useState, useMemo } from 'react';
-import { Modal } from 'antd';
+import { Modal } from '@/components/ui-kit-compat';
 import { useNavigate } from 'react-router-dom';
-import { Search, LayoutDashboard, Rocket, BarChart3 } from 'lucide-react';
+import { Search, LayoutDashboard, Rocket } from 'lucide-react';
 import { mockProjects } from '@/shared/mock-data';
 import { ACTIVE_NETWORKS, isActiveNetworkKey } from '@/shared/navigation';
 import type { ActiveNetworkKey } from '@/shared/navigation';

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Input, Radio, Row, Col, Tooltip } from 'antd';
+import React from 'react';
+import { Card, Input, Radio, Row, Col, Tooltip } from '@/components/ui-kit-compat';
 import { Button, toast } from '@frontend-team/ui-kit';
 import { Search, Plus, Play, ShieldAlert, AlertCircle, RefreshCw, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { EmptyState, FilterBar, PageHeader } from '@/components/ui';
 import { mockProjects } from '@/shared/mock-data';
 import { NETWORK_LOGOS } from '@/shared/network-config';
 import { ACTIVE_NETWORKS, isActiveNetworkKey } from '@/shared/navigation';
+import { usePersistentFilter } from '@/shared/hooks/use-persistent-filter';
 
 // Custom status configuration for vibrant aesthetics
 const STATUS_META = {
@@ -38,14 +39,17 @@ const STATUS_META = {
 
 export const AppsList: React.FC = () => {
   const navigate = useNavigate();
-  const [searchText, setSearchText] = useState('');
-  const [osFilter, setOsFilter] = useState<'all' | 'ios' | 'android'>('all');
+  const [filters, setFilters, clearFilters] = usePersistentFilter('apps_list_filters_v1', {
+    search: '',
+    os: 'all' as 'all' | 'ios' | 'android',
+  });
+  const hasActiveFilters = filters.search !== '' || filters.os !== 'all';
 
   const filteredProjects = mockProjects.filter((p) => {
     const matchesSearch =
-      p.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      p.package.toLowerCase().includes(searchText.toLowerCase());
-    const matchesOs = osFilter === 'all' || p.os === osFilter;
+      p.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+      p.package.toLowerCase().includes(filters.search.toLowerCase());
+    const matchesOs = filters.os === 'all' || p.os === filters.os;
     return matchesSearch && matchesOs;
   });
 
@@ -72,40 +76,28 @@ export const AppsList: React.FC = () => {
 
       <FilterBar
         title="Bộ lọc"
-        onReset={() => {
-          setSearchText('');
-          setOsFilter('all');
-        }}
         actions={
           <>
-            <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>
-              {filteredProjects.length} apps
-            </span>
-            <Button
-              type="button"
-              variant="subtle"
-              size="s"
-              onClick={() => {
-                setSearchText('');
-                setOsFilter('all');
-              }}
-            >
-              Đặt lại
-            </Button>
+            <span className="text-xs font-medium text_tertiary">{filteredProjects.length} apps</span>
+            {hasActiveFilters && (
+              <Button type="button" variant="subtle" size="s" onClick={clearFilters} className="text_tertiary gap-1">
+                Xoá lọc
+              </Button>
+            )}
           </>
         }
       >
         <Input
           prefix={<Search size={15} className="text-[var(--text-tertiary)]" />}
           placeholder="Tìm kiếm app theo tên hoặc bundle ID..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
+          value={filters.search}
+          onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
           className="w-full sm:w-80"
           allowClear
         />
         <Radio.Group
-          value={osFilter}
-          onChange={(e) => setOsFilter(e.target.value)}
+          value={filters.os}
+          onChange={(e) => setFilters(f => ({ ...f, os: e.target.value }))}
           buttonStyle="solid"
           size="middle"
         >
@@ -225,10 +217,7 @@ export const AppsList: React.FC = () => {
             title="Không tìm thấy ứng dụng"
             description="Không có app nào phù hợp với bộ lọc hiện tại."
             actionLabel="Đặt lại bộ lọc"
-            onAction={() => {
-              setSearchText('');
-              setOsFilter('all');
-            }}
+            onAction={clearFilters}
           />
         </Card>
       )}

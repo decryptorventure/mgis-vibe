@@ -1,6 +1,6 @@
-// meta-creative-detail-drawer.tsx — side drawer showing full creative metrics + status toggle
+﻿// meta-creative-detail-drawer.tsx — side drawer showing full creative metrics + status toggle
 import React from 'react';
-import { Drawer, Switch, Tag } from 'antd';
+import { Drawer, Switch, Tag } from '@/components/ui-kit-compat';
 import { PlayCircle, Image as ImageIcon, Layout, Sparkles } from 'lucide-react';
 import type { MetaCreativeAsset } from '@/shared/mock-data';
 

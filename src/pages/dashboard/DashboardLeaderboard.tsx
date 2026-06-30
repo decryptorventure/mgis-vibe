@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card, Badge } from 'antd';
+﻿import React from 'react';
+import { Card, Badge } from '@/components/ui-kit-compat';
 import { DataTable } from '@/components/ui';
 import { Trophy } from 'lucide-react';
 

@@ -1,16 +1,13 @@
+// rule-editor-modal.tsx — rule creation/editing modal with multi-condition/action support
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Radio, Button } from 'antd';
-import { toast } from '@frontend-team/ui-kit';
-import { Zap } from 'lucide-react';
-import { RuleConditionBuilder } from './rule-condition-builder';
-import { RuleActionBuilder, type ActionValue } from './rule-action-builder';
+import { Modal, Form, Input, Select, Radio } from '@/components/ui-kit-compat';
+import { Button, toast } from '@frontend-team/ui-kit';
+import { AlertTriangle, Loader2, Zap } from 'lucide-react';
+import { RuleLogicBuilder, type ConditionValue } from './rule-logic-builder';
 import { RuleTemplatePicker } from './rule-template-picker';
 import { getConditionsForNetwork, getActionsForNetwork, type RuleTemplate } from '@/shared/rule-conditions';
+import type { ActionValue } from './rule-action-builder';
 import type { NetworkRule } from '@/shared/mock-data';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RuleEditorModal — full rule creation/editing form with template support
-// ─────────────────────────────────────────────────────────────────────────────
 
 const NETWORKS = ['Google Ads', 'Meta', 'ASA', 'Axon', 'Moloco'];
 
@@ -21,71 +18,91 @@ interface RuleEditorModalProps {
   initialValues?: Partial<NetworkRule>;
 }
 
-export const RuleEditorModal: React.FC<RuleEditorModalProps> = ({
-  open,
-  onClose,
-  onSave,
-  initialValues,
-}) => {
+function defaultConditions(network: string): ConditionValue[] {
+  const conds = getConditionsForNetwork(network);
+  return [{ conditionKey: conds[0]?.key ?? 'cpa_gt', conditionParam: conds[0]?.defaultValue ?? 2 }];
+}
+
+function defaultActions(network: string): ActionValue[] {
+  const acts = getActionsForNetwork(network);
+  return [{ actionKey: acts[0]?.key ?? 'pause_campaign', actionParam: undefined }];
+}
+
+export const RuleEditorModal: React.FC<RuleEditorModalProps> = ({ open, onClose, onSave, initialValues }) => {
   const [form] = Form.useForm();
   const [network, setNetwork] = useState(initialValues?.network ?? 'Meta');
-  const [conditionVal, setConditionVal] = useState(() => {
-    const conds = getConditionsForNetwork(initialValues?.network ?? 'Meta');
-    return {
-      conditionKey: initialValues?.conditionKey ?? conds[0]?.key ?? 'cpa_gt',
-      conditionParam: initialValues?.conditionParam ?? conds[0]?.defaultValue ?? 2,
-    };
+  const [conditions, setConditions] = useState<ConditionValue[]>(() => {
+    if (initialValues?.conditions?.length) return initialValues.conditions;
+    const net = initialValues?.network ?? 'Meta';
+    return [{ conditionKey: initialValues?.conditionKey ?? defaultConditions(net)[0].conditionKey, conditionParam: initialValues?.conditionParam ?? defaultConditions(net)[0].conditionParam }];
   });
-  const [actionVal, setActionVal] = useState<ActionValue>(() => {
-    const acts = getActionsForNetwork(initialValues?.network ?? 'Meta');
-    return {
-      actionKey: initialValues?.actionKey ?? acts[0]?.key ?? 'pause_campaign',
-      actionParam: initialValues?.actionParam,
-    };
+  const [actions, setActions] = useState<ActionValue[]>(() => {
+    if (initialValues?.actions?.length) return initialValues.actions;
+    const net = initialValues?.network ?? 'Meta';
+    return [{ actionKey: initialValues?.actionKey ?? defaultActions(net)[0].actionKey, actionParam: initialValues?.actionParam }];
   });
+  const [pendingNetwork, setPendingNetwork] = useState<string | null>(null);
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Sync form network field on open
+  const hasLogic = conditions.length > 0 || actions.length > 0;
+
   useEffect(() => {
     if (open) {
       const net = initialValues?.network ?? 'Meta';
       setNetwork(net);
+      setConditions(initialValues?.conditions?.length ? initialValues.conditions : [{ conditionKey: initialValues?.conditionKey ?? defaultConditions(net)[0].conditionKey, conditionParam: initialValues?.conditionParam ?? defaultConditions(net)[0].conditionParam }]);
+      setActions(initialValues?.actions?.length ? initialValues.actions : [{ actionKey: initialValues?.actionKey ?? defaultActions(net)[0].actionKey, actionParam: initialValues?.actionParam }]);
+      setPendingNetwork(null);
       form.setFieldsValue({ name: initialValues?.name ?? '', scheduleMinutes: initialValues?.scheduleMinutes ?? 60 });
     }
   }, [open, initialValues, form]);
 
-  const handleNetworkChange = (net: string) => {
+  const applyNetworkChange = (net: string) => {
     setNetwork(net);
-    const conds = getConditionsForNetwork(net);
-    const acts = getActionsForNetwork(net);
-    setConditionVal({ conditionKey: conds[0]?.key ?? 'cpa_gt', conditionParam: conds[0]?.defaultValue ?? 0 });
-    setActionVal({ actionKey: acts[0]?.key ?? 'pause_campaign', actionParam: undefined });
+    setConditions(defaultConditions(net));
+    setActions(defaultActions(net));
+    setPendingNetwork(null);
+  };
+
+  const handleNetworkChange = (net: string) => {
+    if (hasLogic && (conditions[0]?.conditionKey || actions[0]?.actionKey)) {
+      setPendingNetwork(net);
+    } else {
+      applyNetworkChange(net);
+    }
   };
 
   const handleApplyTemplate = (tpl: RuleTemplate) => {
     const net = tpl.network === 'All' ? network : tpl.network;
     setNetwork(net);
     form.setFieldsValue({ scheduleMinutes: tpl.scheduleMinutes });
-    setConditionVal({ conditionKey: tpl.conditionKey, conditionParam: tpl.conditionParam });
-    setActionVal({ actionKey: tpl.actionKey, actionParam: tpl.actionParam });
+    setConditions([{ conditionKey: tpl.conditionKey, conditionParam: tpl.conditionParam }]);
+    setActions([{ actionKey: tpl.actionKey, actionParam: tpl.actionParam }]);
   };
 
   const handleOk = () => {
     form.validateFields().then(values => {
-      onSave({
-        name: values.name,
-        network,
-        conditionKey: conditionVal.conditionKey,
-        conditionParam: conditionVal.conditionParam,
-        actionKey: actionVal.actionKey,
-        actionParam: actionVal.actionParam,
-        scheduleMinutes: values.scheduleMinutes,
-        status: 'active',
-        lastTriggered: undefined,
-      });
-      toast.success('Rule saved successfully!');
-      form.resetFields();
-      onClose();
+      setIsSaving(true);
+      setTimeout(() => {
+        onSave({
+          name: values.name,
+          network,
+          conditionKey: conditions[0]?.conditionKey ?? 'cpa_gt',
+          conditionParam: conditions[0]?.conditionParam ?? 0,
+          actionKey: actions[0]?.actionKey ?? 'pause_campaign',
+          actionParam: actions[0]?.actionParam,
+          scheduleMinutes: values.scheduleMinutes,
+          status: 'active',
+          lastTriggered: undefined,
+          conditions,
+          actions,
+        });
+        toast.success('Rule saved successfully!');
+        form.resetFields();
+        setIsSaving(false);
+        onClose();
+      }, 600);
     });
   };
 
@@ -98,91 +115,60 @@ export const RuleEditorModal: React.FC<RuleEditorModalProps> = ({
               <Zap size={16} className="text-[var(--status-warning)]" />
               <span className="font-bold text-sm">{initialValues?.id ? 'Edit Rule' : 'New Rule'}</span>
             </div>
-            <Button
-              size="small"
-              icon={<Zap size={12} />}
-              onClick={() => setTemplatePickerOpen(true)}
-              className="font-semibold text-xs cursor-pointer"
-            >
-              Use Template
+            <Button size="s" onClick={() => setTemplatePickerOpen(true)} className="font-semibold text-xs cursor-pointer flex items-center gap-1">
+              <Zap size={12} /> Use Template
             </Button>
           </div>
         }
         open={open}
         onCancel={onClose}
-        onOk={handleOk}
-        okText="Save Rule"
+        okText={isSaving ? 'Saving…' : 'Save Rule'}
         cancelText="Cancel"
+        onOk={handleOk}
         width={600}
-        okButtonProps={{ className: 'bg-primary-500 border-0 text-[var(--text-inverse)] font-bold cursor-pointer' }}
+        okButtonProps={{ disabled: isSaving, className: 'cursor-pointer' }}
       >
-        <Form form={form} layout="vertical" className="mt-4 space-y-6"
-          initialValues={{ scheduleMinutes: 60 }}>
-
-          {/* Rule Name & Network */}
+        <Form form={form} layout="vertical" className="mt-4 space-y-4" initialValues={{ scheduleMinutes: 60 }}>
+          {/* Name + Network */}
           <div className="grid grid-cols-3 gap-4">
             <Form.Item
-              label={<span className="text-xs font-bold text-[var(--text-secondary)]">Rule Name</span>}
+              label={<span className="text-xs font-bold text_secondary">Rule Name <span className="fg_error">*</span></span>}
               name="name"
               rules={[{ required: true, message: 'Enter a rule name' }]}
               className="mb-0 col-span-2"
             >
               <Input placeholder="e.g. Pause high CPA campaigns" className="h-10 rounded-lg" />
             </Form.Item>
-            
             <div>
-              <div className="text-xs font-bold text-[var(--text-secondary)] mb-2">Network</div>
-              <Select
-                value={network}
-                onChange={handleNetworkChange}
-                options={NETWORKS.map(n => ({ value: n, label: n }))}
-                className="w-full h-10"
-              />
+              <div className="text-xs font-bold text_secondary mb-2">Network</div>
+              <Select value={network} onChange={handleNetworkChange} options={NETWORKS.map(n => ({ value: n, label: n }))} className="w-full h-10" />
             </div>
           </div>
 
-          {/* Visual Block Builder for Logic */}
-          <div className="bg-[var(--surface-subtle)] border border-[var(--border-default)] p-4 rounded-2xl relative shadow-sm">
-            <div className="absolute top-4 right-4 text-[10px] font-bold text-[var(--text-tertiary)] uppercase tracking-widest">Logic Builder</div>
-            
-            {/* Trigger condition Block */}
-            <div className="bg-[var(--surface-base)] border border-[var(--border-strong)] rounded-xl p-4 relative shadow-sm mt-4 hover:border-[var(--color-primary-300)] transition-colors">
-              <div className="flex items-center gap-2 mb-4 text-xs font-black uppercase text-[var(--status-error)]">
-                <span className="bg-[var(--status-error-bg)] border border-[var(--status-error-border)] px-2.5 py-1 rounded">IF</span>
-                <span className="text-[var(--text-secondary)]">Condition is met</span>
+          {/* Network change warning */}
+          {pendingNetwork && (
+            <div className="radius_8 border border_amber bg_amber_subtle p-3 flex items-start gap-3">
+              <AlertTriangle size={14} className="fg_warning shrink-0 mt-0.5" />
+              <span className="text-xs text_secondary flex-1">Changing network will reset your conditions and actions.</span>
+              <div className="flex gap-3 shrink-0">
+                <button type="button" onClick={() => setPendingNetwork(null)} className="text-xs fg_link font-semibold cursor-pointer bg-transparent border-0 p-0">Cancel</button>
+                <button type="button" onClick={() => applyNetworkChange(pendingNetwork)} className="text-xs fg_error font-semibold cursor-pointer bg-transparent border-0 p-0">Reset & Change</button>
               </div>
-              <RuleConditionBuilder
-                network={network}
-                value={conditionVal}
-                onChange={setConditionVal}
-              />
             </div>
+          )}
 
-            <div className="flex justify-center -my-3 relative z-10 pointer-events-none">
-               <div className="w-7 h-7 rounded-full bg-[var(--surface-base)] border-2 border-[var(--border-strong)] flex items-center justify-center shadow-sm">
-                  <div className="w-0.5 h-3 bg-[var(--text-tertiary)]" />
-               </div>
-            </div>
-
-            {/* Action Block */}
-            <div className="bg-[var(--surface-base)] border border-[var(--border-strong)] rounded-xl p-4 relative shadow-sm hover:border-[var(--color-primary-300)] transition-colors">
-              <div className="flex items-center gap-2 mb-4 text-xs font-black uppercase text-[var(--status-success)]">
-                <span className="bg-[var(--status-success-bg)] border border-[var(--status-success-border)] px-2.5 py-1 rounded">THEN</span>
-                <span className="text-[var(--text-secondary)]">Execute Action</span>
-              </div>
-              <RuleActionBuilder
-                network={network}
-                value={actionVal}
-                onChange={setActionVal}
-              />
-            </div>
-          </div>
+          {/* IF / THEN logic builder */}
+          <RuleLogicBuilder
+            network={network}
+            conditions={conditions}
+            actions={actions}
+            onConditionsChange={setConditions}
+            onActionsChange={setActions}
+          />
 
           {/* Schedule */}
           <div className="bg-[var(--surface-base)] border border-[var(--border-default)] p-4 rounded-2xl shadow-sm">
-            <div className="text-xs font-bold uppercase text-[var(--text-secondary)] mb-3">
-              Schedule — check frequency
-            </div>
+            <div className="text-xs font-bold uppercase text_secondary mb-3">Schedule — check frequency</div>
             <Form.Item name="scheduleMinutes" className="mb-0">
               <Radio.Group className="flex gap-4">
                 <Radio value={15} className="text-xs font-semibold">Every 15 min</Radio>
@@ -191,14 +177,17 @@ export const RuleEditorModal: React.FC<RuleEditorModalProps> = ({
               </Radio.Group>
             </Form.Item>
           </div>
+
+          {/* Saving indicator */}
+          {isSaving && (
+            <div className="flex items-center gap-2 text-xs text_tertiary">
+              <Loader2 size={13} className="animate-spin" /> Saving rule…
+            </div>
+          )}
         </Form>
       </Modal>
 
-      <RuleTemplatePicker
-        open={templatePickerOpen}
-        onClose={() => setTemplatePickerOpen(false)}
-        onSelect={handleApplyTemplate}
-      />
+      <RuleTemplatePicker open={templatePickerOpen} onClose={() => setTemplatePickerOpen(false)} onSelect={handleApplyTemplate} />
     </>
   );
 };

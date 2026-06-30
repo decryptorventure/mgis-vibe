@@ -1,6 +1,6 @@
-// Task 5 — Bulk remove low-marked Google creatives: preview list + confirmation
+﻿// Task 5 — Bulk remove low-marked Google creatives: preview list + confirmation
 import React, { useState } from 'react';
-import { Checkbox, Modal } from 'antd';
+import { Checkbox, Modal } from '@/components/ui-kit-compat';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { Button, toast } from '@frontend-team/ui-kit';
 import type { MediaItem } from '@/shared/mock-data';
@@ -37,7 +37,7 @@ export const CreativeBulkRemoveModal: React.FC<Props> = ({ items, open, onClose,
       footer={null}
       width={620}
       title={
-        <div className="flex items-center gap-2 text-red-600">
+        <div className="flex items-center gap-2 fg_error">
           <Trash2 size={16} />Bulk Remove Low-Marked Google Creatives
         </div>
       }
@@ -45,11 +45,11 @@ export const CreativeBulkRemoveModal: React.FC<Props> = ({ items, open, onClose,
     >
       <div className="space-y-4">
         {/* Warning banner */}
-        <div className="flex items-start gap-2.5 px-4 py-3 radius_8 bg-red-50 border border-red-200 text-sm text-red-700">
+        <div className="flex items-start gap-2.5 px-4 py-3 radius_8 bg_red_subtle border border_error text-sm fg_error">
           <AlertTriangle size={16} className="mt-0.5 shrink-0" />
           <div>
             <div className="font-semibold">Irreversible action — review carefully</div>
-            <div className="text-xs mt-0.5 text-red-600">
+            <div className="text-xs mt-0.5 fg_error">
               These creatives are marked <strong>LOW quality</strong> by Google. Removing them will affect the campaigns listed below.
               This action will be recorded in the Change Log.
             </div>
@@ -78,7 +78,7 @@ export const CreativeBulkRemoveModal: React.FC<Props> = ({ items, open, onClose,
                     {item.network.toUpperCase()} · ${item.spend?.toLocaleString() ?? 0} spend · ROAS {item.roas?.toFixed(1) ?? '—'}×
                   </div>
                 </div>
-                <span className="inline-flex px-1.5 py-0.5 radius_4 bg-red-50 text-red-600 border border-red-200 text-[9px] font-bold shrink-0">
+                <span className="inline-flex px-1.5 py-0.5 radius_4 bg_red_subtle fg_error border border_error text-[9px] font-bold shrink-0">
                   ↓ LOW
                 </span>
               </div>
@@ -106,8 +106,7 @@ export const CreativeBulkRemoveModal: React.FC<Props> = ({ items, open, onClose,
             type="button" variant="primary" size="m"
             disabled={selected.size === 0}
             onClick={handleConfirm}
-            style={{ backgroundColor: '#ef4444', borderColor: '#ef4444' }}
-            className="gap-1.5"
+            className="bg_error_contrast border_error_button gap-1.5"
           >
             <Trash2 size={14} />Remove {selected.size} Creative{selected.size !== 1 ? 's' : ''}
           </Button>

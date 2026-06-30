@@ -1,6 +1,6 @@
-// Task 4 — Performance metric filter bar for creative library (ROAS, CTR, CVR, IR, RR, spend, Google mark)
+﻿// Task 4 — Performance metric filter bar for creative library (ROAS, CTR, CVR, IR, RR, spend, Google mark)
 import React from 'react';
-import { InputNumber, Select, Slider } from 'antd';
+import { InputNumber, Select, Slider } from '@/components/ui-kit-compat';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '@frontend-team/ui-kit';
 
@@ -88,7 +88,7 @@ export const CreativePerformanceFilterBar: React.FC<Props> = ({ filters, onChang
           <div className="text-[10px] text_tertiary mb-1">Google Mark</div>
           <Select
             size="small" value={filters.googleMark} className="w-full"
-            onChange={v => onChange({ googleMark: v })}
+            onChange={v => onChange({ googleMark: v as 'all' | 'low' | 'good' })}
             options={[
               { value: 'all', label: 'All' },
               { value: 'good', label: '✓ Good' },

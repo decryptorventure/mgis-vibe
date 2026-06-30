@@ -1,6 +1,6 @@
-// Task 2 — Last synced / data freshness indicator for network data sources
+﻿// Task 2 — Last synced / data freshness indicator for network data sources
 import React from 'react';
-import { Tooltip } from 'antd';
+import { Tooltip } from '@/components/ui-kit-compat';
 import { AlertTriangle, CheckCircle2, Clock, RefreshCw } from 'lucide-react';
 import { cn } from '@frontend-team/ui-kit';
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card, Input } from 'antd';
+﻿import React from 'react';
+import { Card, Input } from '@/components/ui-kit-compat';
 import { DataTable } from '@/components/ui';
 import { Clock, Search } from 'lucide-react';
 

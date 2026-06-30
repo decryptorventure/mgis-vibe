@@ -1,6 +1,6 @@
-// Google UAC campaign creation wizard — full-page drawer (2-column layout)
+﻿// Google UAC campaign creation wizard — full-page drawer (2-column layout)
 import React, { useState } from 'react';
-import { Drawer } from 'antd';
+import { Drawer } from '@/components/ui-kit-compat';
 import { AlertTriangle, ArrowLeft, CheckCircle2, Rocket } from 'lucide-react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
 import type { Project } from '@/shared/mock-data';
@@ -34,7 +34,7 @@ const StepsSidebar: React.FC<{ state: GoogleBuilderState }> = ({ state }) => {
     return <span className="text-sm font-bold">{idx + 1}</span>;
   };
   const stateBg = (s: 'done' | 'warn' | 'pending') => {
-    if (s === 'done') return 'bg-emerald-500';
+    if (s === 'done') return 'bg-[var(--status-success)]';
     if (s === 'warn') return 'bg-amber-500';
     return 'bg_tertiary text_secondary';
   };

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Modal, Button, Tag } from 'antd';
+﻿import React, { useState } from 'react';
+import { Modal, Button, Tag } from '@/components/ui-kit-compat';
 import { Zap } from 'lucide-react';
 import { RULE_TEMPLATES, CONDITION_DEFS, ACTION_DEFS, type RuleTemplate } from '@/shared/rule-conditions';
 import { FilterChip } from '@/components/ui/FilterChip';

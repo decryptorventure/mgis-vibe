@@ -1,0 +1,19 @@
+{
+  "verdict": "issues-found",
+  "checked_at": "2026-06-29T14:15:41+07:00",
+  "frontend": true,
+  "files_reviewed": [
+    "src/components/ui-kit-compat/choice-controls.tsx",
+    "src/components/ui-kit-compat/overlays.tsx",
+    "src/components/networks/meta/meta-builder-drawer.tsx",
+    "src/components/networks/meta/meta-value-rules-modal.tsx",
+    "src/components/networks/meta/meta-adset-settings-form.tsx",
+    "src/components/networks/meta/meta-adset-audience-section.tsx",
+    "src/components/networks/meta/meta-adset-placements-section.tsx"
+  ],
+  "finding_counts": {
+    "critical": 0,
+    "major": 6,
+    "minor": 9
+  }
+}

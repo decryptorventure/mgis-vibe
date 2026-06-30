@@ -1,6 +1,6 @@
-// ─── NetworkConfig types — shared across all network workspace modules ───────
+﻿// ─── NetworkConfig types — shared across all network workspace modules ───────
 import React from 'react';
-import type { TabsProps } from 'antd';
+import type { TabsProps } from '@/components/ui-kit-compat';
 import type { Campaign } from '@/shared/mock-data';
 import { ACTIVE_NETWORK_KEYS, isActiveNetworkKey } from '@/shared/navigation';
 

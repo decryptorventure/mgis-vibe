@@ -1,7 +1,7 @@
 // Axon shared UI primitives — PanelTitle, RecommendationBadge, SelectTile, BuilderSection
 import React from 'react';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { Button, Card, cn } from '@frontend-team/ui-kit';
+import { Card, cn } from '@frontend-team/ui-kit';
 import type { AxonCampaignRow } from './axon-types';
 import { AXON_COLOR } from './axon-types';
 

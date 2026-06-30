@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card, Tag, Typography, Row, Col, Divider, Button } from 'antd';
+﻿import React from 'react';
+import { Card, Tag, Typography, Row, Col, Divider, Button } from '@/components/ui-kit-compat';
 import { Folder, Upload, Play, Image as ImageIcon, Layout, Box } from 'lucide-react';
 import { mockMolocoCreativeGroups } from '@/shared/mock-data';
 import type { MolocoCreativeGroup } from '@/shared/mock-data';

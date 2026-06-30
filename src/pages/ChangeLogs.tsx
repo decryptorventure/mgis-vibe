@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Select, Timeline, Tag, Skeleton } from 'antd';
+import { Card, Select, Timeline, Tag, Skeleton } from '@/components/ui-kit-compat';
 import { Button, toast } from '@frontend-team/ui-kit';
 import {
   ArrowRightLeft, Plus, Upload, Trash2, Copy, Pencil, CircleDot, 

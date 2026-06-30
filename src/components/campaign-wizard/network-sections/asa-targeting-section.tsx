@@ -1,5 +1,5 @@
-import React from 'react';
-import { Form, Input, InputNumber, Select, Row, Col } from 'antd';
+﻿import React from 'react';
+import { Form, Input, InputNumber, Select, Row, Col } from '@/components/ui-kit-compat';
 
 interface AsaTargetingSectionProps {
   value: Record<string, any>;

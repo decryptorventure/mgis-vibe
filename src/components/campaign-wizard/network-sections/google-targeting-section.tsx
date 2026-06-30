@@ -1,5 +1,5 @@
-import React from 'react';
-import { Form, Input, Select, InputNumber, Row, Col } from 'antd';
+﻿import React from 'react';
+import { Form, Input, Select, InputNumber, Row, Col } from '@/components/ui-kit-compat';
 import { GoogleAdPreviewPanel } from '../google-ad-preview-panel';
 
 interface GoogleTargetingSectionProps {

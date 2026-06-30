@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Tag, Switch, Card, Row, Col, Typography, Button } from 'antd';
+﻿import React from 'react';
+import { Table, Tag, Switch, Card, Row, Col, Typography, Button } from '@/components/ui-kit-compat';
 import { Activity, Smartphone, Server } from 'lucide-react';
 import { mockGoogleConversionEvents } from '@/shared/mock-data';
 import type { GoogleConversionEvent } from '@/shared/mock-data';

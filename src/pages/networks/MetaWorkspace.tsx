@@ -1,11 +1,11 @@
-// MetaWorkspace — thin JSX orchestrator. All state and handlers live in useMetaWorkspace.
-import React from 'react';
-import { DatePicker, Input, Select, Segmented } from 'antd';
-import { ChevronDown, Columns3, FileText, Play, Plus, RefreshCcw, Settings, Trash2, WandSparkles, Zap } from 'lucide-react';
+﻿// MetaWorkspace â€” thin JSX orchestrator. All state and handlers live in useMetaWorkspace.
+import React, { useState } from 'react';
+import { DatePicker, Input, Select, Segmented } from '@/components/ui-kit-compat';
+import { ChevronDown, Columns3, FileText, Play, Plus, RefreshCcw, Settings, Sparkles, Trash2, WandSparkles, Zap } from 'lucide-react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
 import { MetaBulkCreateDrawer } from './meta-bulk-create-drawer';
 import { MetaReportTable } from '@/components/networks/meta/meta-report-table';
-import type { MetaWorkspaceProps, MetaEntity, FilterOperator } from '@/components/networks/meta/meta-types';
+import type { MetaWorkspaceProps, MetaEntity, FilterOperator, FilterField } from '@/components/networks/meta/meta-types';
 import { META_ACCOUNT_OPTIONS, ENTITY_META, TABLE_VIEW_PRESETS } from '@/components/networks/meta/meta-table-config';
 import { EntityTabs } from '@/components/networks/meta/meta-entity-tabs';
 import { DraftCampaignsPanel } from '@/components/networks/meta/meta-drafts-panel';
@@ -14,6 +14,7 @@ import { ColumnSettingsDrawer } from '@/components/networks/meta/meta-column-set
 import { ManagePagesModal } from '@/components/networks/meta/meta-manage-pages-modal';
 import { TemplateDrawer } from '@/components/networks/meta/meta-template-drawer';
 import { MetaBuilderDrawer } from '@/components/networks/meta/meta-builder-drawer';
+import { BatchGeneratorDrawer } from '@/components/networks/meta/meta-batch-generator-drawer';
 import { useMetaWorkspace } from '@/components/networks/meta/use-meta-workspace';
 import { FILTER_CHIPS } from '@/components/networks/meta/meta-filter-presets';
 import type { Campaign, AdSet, Ad } from '@/shared/mock-data';
@@ -27,6 +28,7 @@ const MetaToolbarButton: React.FC<{ icon: React.ReactNode; label: string; onClic
 export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
   const ws = useMetaWorkspace(props);
   const { entity, activeApp, accountId, setAccountId } = ws;
+  const [batchGeneratorOpen, setBatchGeneratorOpen] = useState(false);
   const currentTitle = ENTITY_META[entity].title;
 
   const handleOpenBuilderOrNavigate = (targetEntity?: MetaEntity) => {
@@ -44,7 +46,7 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl font-semibold text_primary m-0 leading-none">{activeApp?.name ?? 'Meta Workspace'}</h1>
-                <Select className="min-w-64" size="small" value={accountId} onChange={setAccountId} options={META_ACCOUNT_OPTIONS} />
+                <Select className="min-w-64" size="small" value={accountId} onChange={(v) => setAccountId(v as string)} options={META_ACCOUNT_OPTIONS} />
               </div>
               <div className="mt-2 flex items-center gap-2 text-xs text_secondary">
                 <span className="inline-flex items-center gap-1 px-2 py-1 radius_4 bg_secondary border border_secondary">
@@ -59,6 +61,7 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
             <MetaToolbarButton icon={<Settings size={14} />} label="Manage Pages" onClick={() => ws.setPagesOpen(true)} />
             <MetaToolbarButton icon={<FileText size={14} />} label="Templates" onClick={() => ws.setTemplatesOpen(true)} />
             <MetaToolbarButton icon={<WandSparkles size={14} />} label="AI Bulk Create" onClick={() => ws.setBulkCreateOpen(true)} active={ws.bulkCreateOpen} />
+            <MetaToolbarButton icon={<Sparkles size={14} />} label="Batch Generate" onClick={() => setBatchGeneratorOpen(true)} active={batchGeneratorOpen} />
             <Button type="button" variant="border" size="s" className="gap-1.5 fg_accent_primary border_accent_primary_contrast" onClick={() => toast.info('API warm-up is mocked')}>
               <Zap size={14} />API Warm-up
             </Button>
@@ -120,7 +123,7 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
           <div className="border-t border_secondary p-4 space-y-3">
             {ws.draftFilters.map(rule => (
               <div key={rule.id} className="grid grid-cols-1 lg:grid-cols-[180px_200px_1fr_auto] gap-3 items-center">
-                <Select value={rule.field} options={[{ value: 'entity', label: ENTITY_META[entity].singular }, { value: 'status', label: 'Status' }, { value: 'account', label: 'Account' }]} onChange={v => ws.setDraftFilters(fs => fs.map(f => f.id === rule.id ? { ...f, field: v } : f))} />
+                <Select value={rule.field} options={[{ value: 'entity', label: ENTITY_META[entity].singular }, { value: 'status', label: 'Status' }, { value: 'account', label: 'Account' }]} onChange={v => ws.setDraftFilters(fs => fs.map(f => f.id === rule.id ? { ...f, field: v as FilterField } : f))} />
                 <Segmented size="small" value={rule.operator} options={['is', 'is not', 'contains', 'in']} onChange={v => ws.setDraftFilters(fs => fs.map(f => f.id === rule.id ? { ...f, operator: v as FilterOperator } : f))} />
                 <Input value={rule.value} placeholder={rule.operator === 'in' ? 'Value 1, Value 2' : 'Type filter value'} onChange={e => ws.setDraftFilters(fs => fs.map(f => f.id === rule.id ? { ...f, value: e.target.value } : f))} />
                 <Button type="button" variant="danger" size="icon-s" onClick={() => ws.setDraftFilters(fs => fs.filter(f => f.id !== rule.id))}><Trash2 size={13} /></Button>
@@ -138,14 +141,14 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-2xl font-semibold text_primary m-0">{currentTitle}</h2>
-            <Select size="small" value={ws.bulkAction} className="w-40" options={[{ value: 'actions', label: 'Bulk actions' }, { value: 'duplicate', label: 'Duplicate' }, { value: 'pause', label: 'Pause' }, { value: 'activate', label: 'Activate' }, { value: 'delete', label: 'Delete' }]} onChange={ws.setBulkAction} />
+            <Select size="small" value={ws.bulkAction} className="w-40" options={[{ value: 'actions', label: 'Bulk actions' }, { value: 'duplicate', label: 'Duplicate' }, { value: 'pause', label: 'Pause' }, { value: 'activate', label: 'Activate' }, { value: 'delete', label: 'Delete' }]} onChange={(v) => ws.setBulkAction(v as string)} />
             <Button type="button" variant="border" size="s" onClick={ws.runBulkAction}>Apply</Button>
             {ws.selectedCampaign && entity !== 'campaigns' && <Button type="button" variant="border" size="s" onClick={ws.clearCampaignScope}>Clear campaign scope</Button>}
             {ws.selectedAdSet && entity === 'ads' && <Button type="button" variant="border" size="s" onClick={ws.clearAdSetScope}>Clear ad set scope</Button>}
           </div>
           <div className="flex items-center gap-2 justify-end flex-wrap">
             <Button type="button" variant="border" size="s" className="gap-1.5" onClick={ws.discardDrafts}><Trash2 size={14} /> Discard Drafts ({ws.drafts.length})</Button>
-            <Select size="small" className="w-44" value={ws.activePresetByEntity[entity]} options={[{ value: 'custom', label: 'Custom view' }, ...TABLE_VIEW_PRESETS[entity].map(p => ({ value: p.id, label: p.label }))]} onChange={v => ws.applyTablePreset(entity, v)} />
+            <Select size="small" className="w-44" value={ws.activePresetByEntity[entity]} options={[{ value: 'custom', label: 'Custom view' }, ...TABLE_VIEW_PRESETS[entity].map(p => ({ value: p.id, label: p.label }))]} onChange={v => ws.applyTablePreset(entity, v as string)} />
             <Button type="button" variant="border" size="s" className="gap-1.5" onClick={() => ws.setColumnsOpen(true)}><Columns3 size={14} />Columns</Button>
             <Button type="button" variant="border" size="s" className="gap-1.5" onClick={() => ws.setBulkCreateOpen(true)}><WandSparkles size={14} />AI Bulk</Button>
             <Button type="button" variant="primary" size="s" className="gap-1.5" onClick={() => handleOpenBuilderOrNavigate(entity)}><Plus size={14} />{ENTITY_META[entity].createLabel}</Button>
@@ -208,6 +211,7 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
       <TemplateDrawer open={ws.templatesOpen} onClose={() => ws.setTemplatesOpen(false)} templates={ws.templates} pages={ws.pages} onChange={ws.setTemplates} />
       <ColumnSettingsDrawer open={ws.columnsOpen} onClose={() => ws.setColumnsOpen(false)} entity={entity} visibleKeys={ws.visibleColumnKeys} heatmapColors={ws.heatmapColors} onVisibleKeysChange={keys => ws.updateTablePreferences(entity, { visibleKeys: keys })} onHeatmapColorsChange={colors => ws.updateTablePreferences(entity, { heatmapColors: colors })} />
       <MetaBuilderDrawer open={ws.builderOpen} onClose={() => ws.setBuilderOpen(false)} context={ws.builderContext} pages={ws.pages} templates={ws.templates} />
+      <BatchGeneratorDrawer open={batchGeneratorOpen} onClose={() => setBatchGeneratorOpen(false)} templates={ws.templates} />
       <MetaBulkCreateDrawer
         open={ws.bulkCreateOpen}
         onClose={() => ws.setBulkCreateOpen(false)}

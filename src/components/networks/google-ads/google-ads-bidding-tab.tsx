@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Tag, Progress, Card, Statistic, Row, Col, Typography } from 'antd';
+﻿import React from 'react';
+import { Table, Tag, Progress, Card, Statistic, Row, Col, Typography } from '@/components/ui-kit-compat';
 import { TrendingUp, Crosshair, Download } from 'lucide-react';
 import { mockGoogleBiddingStrategies } from '@/shared/mock-data';
 import type { GoogleBiddingStrategy } from '@/shared/mock-data';
@@ -29,7 +29,7 @@ export const GoogleAdsBiddingTab: React.FC = () => {
       title: 'Target vs Actual',
       key: 'performance',
       render: (_: any, record: GoogleBiddingStrategy) => {
-        if (record.type === 'MAXIMIZE_INSTALLS') return <Text type="secondary">—</Text>;
+        if (record.type === 'MAXIMIZE_INSTALLS') return <Text type="secondary">â€”</Text>;
         const isROAS = record.type === 'TARGET_ROAS';
         const prefix = isROAS ? '' : '$';
         const suffix = isROAS ? 'x' : '';

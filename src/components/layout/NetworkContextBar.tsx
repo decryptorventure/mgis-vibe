@@ -1,5 +1,5 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import { Dropdown } from 'antd';
+﻿import { useNavigate, useParams } from 'react-router-dom';
+import { Dropdown } from '@/components/ui-kit-compat';
 import { cn } from '@frontend-team/ui-kit';
 import { ChevronDown } from 'lucide-react';
 import { NETWORK_LOGOS } from '@/shared/network-config';
@@ -68,33 +68,37 @@ export const NetworkContextBar: React.FC<NetworkContextBarProps> = ({ activeNetw
         </button>
       </Dropdown>
 
-      {/* Quick-switch tabs */}
-      <div className="flex items-center gap-1.5">
-        {networks.map(network => {
-          const isActive = network.key === activeNetwork;
-          return (
-            <button
-              key={network.key}
-              onClick={() => handleNetworkClick(network.key)}
-              className={cn(
-                'h-[26px] px-2 radius_6 cursor-pointer transition-colors text-xs inline-flex items-center gap-1.5 border',
-                isActive
-                  ? 'font-semibold'
-                  : 'font-normal text_tertiary border-transparent hover:state_bg_button_tertiary_soft',
-              )}
-              style={isActive ? {
-                background: `${network.color}18`,
-                color: network.color,
-                borderColor: `${network.color}30`,
-              } : undefined}
-            >
-              <span className="w-3.5 h-3.5 radius_round bg_primary p-0.5 flex items-center justify-center overflow-hidden border border_secondary shrink-0">
-                <img src={NETWORK_LOGOS[network.key]} alt={network.label} className="w-full h-full object-contain" />
-              </span>
-              <span>{network.shortLabel}</span>
-            </button>
-          );
-        })}
+      {/* Quick-switch tabs — scrollable with right-edge fade */}
+      <div className="relative flex items-center min-w-0 max-w-[60vw]">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+          {networks.map(network => {
+            const isActive = network.key === activeNetwork;
+            return (
+              <button
+                key={network.key}
+                onClick={() => handleNetworkClick(network.key)}
+                className={cn(
+                  'h-[26px] px-2 radius_6 cursor-pointer transition-colors text-xs inline-flex items-center gap-1.5 border flex-shrink-0',
+                  isActive
+                    ? 'font-semibold'
+                    : 'font-normal text_tertiary border-transparent hover:state_bg_button_tertiary_soft',
+                )}
+                style={isActive ? {
+                  background: `${network.color}18`,
+                  color: network.color,
+                  borderColor: `${network.color}30`,
+                } : undefined}
+              >
+                <span className="w-3.5 h-3.5 radius_round bg_primary p-0.5 flex items-center justify-center overflow-hidden border border_secondary shrink-0">
+                  <img src={NETWORK_LOGOS[network.key]} alt={network.label} className="w-full h-full object-contain" />
+                </span>
+                <span>{network.shortLabel}</span>
+              </button>
+            );
+          })}
+        </div>
+        {/* Right fade affordance for overflow scroll */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-[var(--surface-base)] to-transparent" />
       </div>
     </div>
   );

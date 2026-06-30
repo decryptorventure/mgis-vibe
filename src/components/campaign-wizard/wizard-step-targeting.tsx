@@ -1,5 +1,5 @@
 import React from 'react';
-import { Collapse } from 'antd';
+import { Collapse } from '@/components/ui-kit-compat';
 import { GoogleTargetingSection } from './network-sections/google-targeting-section';
 import { MetaTargetingSection } from './network-sections/meta-targeting-section';
 import { AsaTargetingSection } from './network-sections/asa-targeting-section';

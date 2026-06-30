@@ -1,5 +1,5 @@
-import React from 'react';
-import { Badge } from 'antd';
+﻿import React from 'react';
+import { Badge } from '@/components/ui-kit-compat';
 import type { Campaign } from '@/shared/mock-data';
 import { networkConfig } from '@/shared/tokens';
 

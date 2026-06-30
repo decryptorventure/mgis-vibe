@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Table, Tag, Button, Skeleton, Tabs } from 'antd';
-import { Zap, Clock, Play, Pause, Settings, Bot, AlertCircle } from 'lucide-react';
+﻿import React, { useState, useEffect } from 'react';
+import { Card, Table, Tag, Skeleton, Tabs } from '@/components/ui-kit-compat';
+import { Zap, Clock, Play, Pause, Bot, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, EmptyState } from '../components/ui';
 import { CONDITION_DEFS, ACTION_DEFS } from '../shared/rule-conditions';

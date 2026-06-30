@@ -1,5 +1,5 @@
-import React from 'react';
-import { Alert, Table, Tag, Tooltip } from 'antd';
+﻿import React from 'react';
+import { Alert, Table, Tag, Tooltip } from '@/components/ui-kit-compat';
 import {
   Activity,
   AlertTriangle,

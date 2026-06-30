@@ -1,6 +1,6 @@
-// ─── Axon (AppLovin) network config ──────────────────────────────────────────
+﻿// ─── Axon (AppLovin) network config ──────────────────────────────────────────
 import React from 'react';
-import { Tag, Card, Statistic, Table } from 'antd';
+import { Tag, Card, Statistic, Table } from '@/components/ui-kit-compat';
 import { RefreshCw, ArrowUp, ArrowDown } from 'lucide-react';
 import type { NetworkConfig } from './types';
 import { mockAxonCountryBids } from '@/shared/mock-data';

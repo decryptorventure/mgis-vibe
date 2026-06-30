@@ -1,6 +1,6 @@
-// Google UAC builder — Adgroup section (titles, descriptions, videos, images, HTML)
+﻿// Google UAC builder — Adgroup section (titles, descriptions, videos, images, HTML)
 import React, { useState } from 'react';
-import { Input } from 'antd';
+import { Input } from '@/components/ui-kit-compat';
 import { ChevronDown, ChevronUp, FileCode, Image, Link2, Type, Video, X } from 'lucide-react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
 import { BuilderSection } from '@/components/networks/axon/axon-ui-atoms';
@@ -15,7 +15,7 @@ const AdPanel: React.FC<{
   max: number;
   onClear?: () => void;
   children: React.ReactNode;
-}> = ({ icon, title, count, max, onClear, children }) => {
+}> = ({ icon, title, count: _count, max, onClear, children }) => {
   const [open, setOpen] = useState(true);
   return (
     <div className="radius_8 border border_primary overflow-hidden">
@@ -28,7 +28,7 @@ const AdPanel: React.FC<{
         </div>
         {onClear && (
           <button type="button" onClick={e => { e.stopPropagation(); onClear(); }}
-            className="text-xs text-red-500 hover:text-red-700 bg-transparent border-0 cursor-pointer">
+            className="text-xs fg_error hover:fg_error bg-transparent border-0 cursor-pointer">
             Clear All
           </button>
         )}
@@ -49,7 +49,7 @@ const CharInput: React.FC<{
   <div className="relative">
     <Input value={value} maxLength={maxLen} placeholder={placeholder}
       onChange={e => onChange(e.target.value)} />
-    <span className={cn('absolute right-2 bottom-1.5 text-[10px]', value.length >= maxLen ? 'text-red-500' : 'text_tertiary')}>
+    <span className={cn('absolute right-2 bottom-1.5 text-[10px]', value.length >= maxLen ? 'fg_error' : 'text_tertiary')}>
       {value.length}/{maxLen}
     </span>
   </div>
@@ -94,7 +94,7 @@ export const GoogleAdgroupSection: React.FC<Props> = ({ state, onChange }) => {
         {/* Adgroup name */}
         <div>
           <label className="text-xs font-semibold text_secondary block mb-1.5">
-            Adgroup Name <span className="text-red-500">*</span>
+            Adgroup Name <span className="fg_error">*</span>
           </label>
           <Input value={state.adgroupName} onChange={e => onChange({ adgroupName: e.target.value })}
             placeholder="e.g. Zego_Draw_US_Adgroup_01" />
@@ -153,7 +153,7 @@ export const GoogleAdgroupSection: React.FC<Props> = ({ state, onChange }) => {
               <code className="text-[11px] text_primary">youtube.com/watch?v=kI5Dptgzj2Y</code>
             </div>
             <div className="flex items-start gap-2">
-              <span className="inline-flex px-2 py-0.5 radius_4 bg-red-50 text-red-600 border border-red-200 text-[11px] shrink-0">✕ wrong</span>
+              <span className="inline-flex px-2 py-0.5 radius_4 bg_red_subtle fg_error border border_error text-[11px] shrink-0">✕ wrong</span>
               <code className="text-[11px] text_tertiary break-all">youtube.com/watch?v=…&list=PLPhr…&index=2</code>
             </div>
           </div>
@@ -178,7 +178,7 @@ export const GoogleAdgroupSection: React.FC<Props> = ({ state, onChange }) => {
                   <Video size={13} className="text_tertiary shrink-0" />
                   <span className="text-xs text_primary truncate flex-1">{url}</span>
                   <button type="button" onClick={() => onChange({ videoUrls: state.videoUrls.filter((_, j) => j !== i) })}
-                    className="text_tertiary hover:text-red-500 bg-transparent border-0 cursor-pointer shrink-0">
+                    className="text_tertiary hover:fg_error bg-transparent border-0 cursor-pointer shrink-0">
                     <X size={13} />
                   </button>
                 </div>

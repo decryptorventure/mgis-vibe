@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Tag, Typography, Switch } from 'antd';
+﻿import React from 'react';
+import { Table, Tag, Typography, Switch } from '@/components/ui-kit-compat';
 import { Globe } from 'lucide-react';
 import { mockAsaStorefronts } from '@/shared/mock-data';
 import type { AsaStorefront } from '@/shared/mock-data';

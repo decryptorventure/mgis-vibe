@@ -26,7 +26,9 @@ export const InlineEditCell: React.FC<InlineEditCellProps> = ({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value));
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sync draft when value prop changes externally
   useEffect(() => {
@@ -36,6 +38,9 @@ export const InlineEditCell: React.FC<InlineEditCellProps> = ({
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
+
+  // Cleanup flash timer on unmount
+  useEffect(() => () => { if (savedTimerRef.current) clearTimeout(savedTimerRef.current); }, []);
 
   const handleSave = async () => {
     const parsed = type === 'number' ? Number(draft) : draft;
@@ -48,10 +53,13 @@ export const InlineEditCell: React.FC<InlineEditCellProps> = ({
     await onSave(parsed);
     setSaving(false);
     setEditing(false);
+    // Brief ✓ flash to confirm save
+    setSaved(true);
+    savedTimerRef.current = setTimeout(() => setSaved(false), 1200);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSave();
+    if (e.key === 'Enter') { e.preventDefault(); handleSave(); }
     if (e.key === 'Escape') { setDraft(String(value)); setEditing(false); }
   };
 
@@ -71,13 +79,16 @@ export const InlineEditCell: React.FC<InlineEditCellProps> = ({
           min={type === 'number' ? min : undefined}
           onChange={e => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
+          onBlur={handleSave}
           className="w-20 text-xs border border-[var(--border-focus)] rounded px-1.5 py-0.5
                      outline-none bg_primary text_primary"
         />
         <button
+          type="button"
           onMouseDown={e => e.preventDefault()} // prevent blur before click
           onClick={handleSave}
           disabled={saving}
+          aria-label="Save"
           className="text-[var(--status-success)] hover:opacity-70 transition-opacity"
         >
           {saving
@@ -85,13 +96,25 @@ export const InlineEditCell: React.FC<InlineEditCellProps> = ({
             : <Check size={12} />}
         </button>
         <button
+          type="button"
           onMouseDown={e => e.preventDefault()}
           onClick={() => { setDraft(String(value)); setEditing(false); }}
+          aria-label="Cancel"
           className="text_tertiary hover:opacity-70 transition-opacity"
         >
           <X size={12} />
         </button>
       </div>
+    );
+  }
+
+  // Brief ✓ flash after save
+  if (saved) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-[var(--status-success)]">
+        <Check size={11} />
+        {displayValue}
+      </span>
     );
   }
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card, Tag, Typography, Row, Col, Divider, Tooltip } from 'antd';
+﻿import React from 'react';
+import { Card, Tag, Typography, Row, Col, Divider, Tooltip } from '@/components/ui-kit-compat';
 import { Sparkles, BrainCircuit, Play, Layout, Image as ImageIcon } from 'lucide-react';
 import { mockAxonCreativePerfs } from '@/shared/mock-data';
 import type { AxonCreativePerf } from '@/shared/mock-data';
@@ -13,7 +13,7 @@ export const AxonCreativePerfTab: React.FC = () => {
     switch (format) {
       case 'VIDEO': return <Play size={16} className="text-blue-500" />;
       case 'PLAYABLE': return <Layout size={16} className="text-purple-500" />;
-      case 'BANNER': return <ImageIcon size={16} className="text-green-500" />;
+      case 'BANNER': return <ImageIcon size={16} className="fg_success" />;
       default: return <ImageIcon size={16} className="text-gray-500" />;
     }
   };

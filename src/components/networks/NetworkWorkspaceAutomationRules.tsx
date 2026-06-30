@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Button, Table, Tag, Switch, Drawer, Form, Input, InputNumber, Select, Alert, Space, Row, Col } from 'antd';
+﻿import React, { useState, useEffect, useMemo } from 'react';
+import { Card, Button, Table, Tag, Switch, Drawer, Form, Input, InputNumber, Select, Alert, Space, Row, Col } from '@/components/ui-kit-compat';
 import { toast } from '@frontend-team/ui-kit';
 import { Plus, Trash2, Bot, Clock } from 'lucide-react';
 import { mockNetworkRules, mockAutomationRuns, type NetworkRule } from '@/shared/mock-data';

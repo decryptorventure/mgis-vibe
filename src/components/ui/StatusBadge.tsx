@@ -43,9 +43,10 @@ export function statusToVariant(status: string): StatusVariant {
   const s = status.toUpperCase();
   if (['ACTIVE', 'RUNNING', 'COMPLETED', 'SUCCESS', 'VALID'].includes(s)) return 'success';
   if (['ERROR', 'FAILED', 'EXPIRED', 'REVOKED'].includes(s)) return 'error';
-  if (['PAUSED', 'STOP', 'QUEUED', 'EXPIRING_SOON', 'UPDATE REQUIRED'].includes(s)) return 'warning';
+  if (['QUEUED', 'EXPIRING_SOON', 'UPDATE REQUIRED'].includes(s)) return 'warning';
+  if (['PAUSED', 'STOP', 'INACTIVE'].includes(s)) return 'neutral';
   if (['PROCESSING', 'PENDING'].includes(s)) return 'processing';
-  if (['LOGIC', 'INFO'].includes(s)) return 'info';
+  if (['DRAFT', 'LOGIC', 'INFO'].includes(s)) return 'info';
   return 'neutral';
 }
 

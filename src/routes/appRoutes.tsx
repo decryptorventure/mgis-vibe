@@ -13,7 +13,7 @@ const MediaLibraries = lazy(() => import('@/pages/MediaLibraries'));
 
 
 // App Workspace Pages
-const AppDashboard = lazy(() => import('@/pages/AppDashboard'));
+const AppDashboard = lazy(() => import('@/pages/app-dashboard'));
 const AppAutomationRules = lazy(() => import('@/pages/AppAutomationRules'));
 const NetworkWorkspace = lazy(() => import('@/pages/NetworkWorkspace'));
 const CampaignCreatePage = lazy(() => import('@/pages/campaign-create-page'));

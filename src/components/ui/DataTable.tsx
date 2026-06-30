@@ -1,6 +1,6 @@
-import React from 'react';
-import { Table } from 'antd';
-import type { TableProps } from 'antd';
+﻿import React from 'react';
+import { Table } from '@/components/ui-kit-compat';
+import type { TableProps } from '@/components/ui-kit-compat';
 import { Skeleton, cn } from '@frontend-team/ui-kit';
 import { Inbox } from 'lucide-react';
 import { EmptyState } from './EmptyState';

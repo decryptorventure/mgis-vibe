@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, DatePicker, Alert } from 'antd';
+import { Select, DatePicker, Alert } from '@/components/ui-kit-compat';
 import { Filter, Users, X } from 'lucide-react';
 import { FilterBar } from '@/components/ui';
 

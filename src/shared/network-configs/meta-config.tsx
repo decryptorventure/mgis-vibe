@@ -1,6 +1,6 @@
-// ─── Meta (Facebook/Instagram) network config ────────────────────────────────
+﻿// ─── Meta (Facebook/Instagram) network config ────────────────────────────────
 import React from 'react';
-import { Tag, Card, Statistic } from 'antd';
+import { Tag, Card, Statistic } from '@/components/ui-kit-compat';
 import { Settings } from 'lucide-react';
 import type { NetworkConfig } from './types';
 import { networkConfig } from '@/shared/tokens';

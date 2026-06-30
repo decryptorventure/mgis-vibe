@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Select, InputNumber } from 'antd';
+﻿import React, { useEffect } from 'react';
+import { Select, InputNumber } from '@/components/ui-kit-compat';
 import { getActionsForNetwork, ACTION_DEFS } from '@/shared/rule-conditions';
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
-// ─── Apple Search Ads (ASA) network config ───────────────────────────────────
+﻿// ─── Apple Search Ads (ASA) network config ───────────────────────────────────
 import React from 'react';
-import { Tag, Card, Statistic, Table } from 'antd';
+import { Tag, Card, Statistic, Table } from '@/components/ui-kit-compat';
 import { Search } from 'lucide-react';
 import type { NetworkConfig } from './types';
 import { mockAsaKeywords } from '@/shared/mock-data';

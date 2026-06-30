@@ -84,18 +84,20 @@ export const getCountryTier = (code: string): 1 | 2 | 3 | 4 => {
 };
 
 export const TIER_STYLE: Record<1 | 2 | 3 | 4, string> = {
-  1: 'bg-blue-50 text-blue-700 border-blue-200',
-  2: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  1: 'bg_blue_subtle fg_info border_blue',
+  2: 'bg_emerald_subtle fg_success border_emerald',
   3: 'bg-purple-50 text-purple-700 border-purple-200',
   4: 'bg-amber-50 text-amber-700 border-amber-200',
 };
 
-export const builderSteps = [
-  { key: 'objective', title: 'Objective', hint: 'App + campaign name + OS', state: 'done' as const },
-  { key: 'targeting', title: 'Targeting', hint: '3 regions selected', state: 'done' as const },
-  { key: 'budget', title: 'Budget', hint: 'Amount required', state: 'warn' as const },
-  { key: 'optimization', title: 'Optimization', hint: 'CPI, spend fast', state: 'done' as const },
-  { key: 'tracking', title: 'Tracking', hint: 'Links required', state: 'warn' as const },
+export type BuilderStepState = 'done' | 'warn' | 'pending';
+
+export const builderSteps: { key: string; title: string; hint: string; state: BuilderStepState }[] = [
+  { key: 'objective', title: 'Objective', hint: 'App + campaign name + OS', state: 'done' },
+  { key: 'targeting', title: 'Targeting', hint: '3 regions selected', state: 'done' },
+  { key: 'budget', title: 'Budget', hint: 'Amount required', state: 'warn' },
+  { key: 'optimization', title: 'Optimization', hint: 'CPI, spend fast', state: 'done' },
+  { key: 'tracking', title: 'Tracking', hint: 'Links required', state: 'warn' },
 ];
 
 export const regionGroups = [

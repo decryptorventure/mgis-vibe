@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Typography, Card, Row, Col, Progress } from 'antd';
+﻿import React from 'react';
+import { Table, Typography, Card, Row, Col, Progress } from '@/components/ui-kit-compat';
 import { TrendingUp, Target, Users } from 'lucide-react';
 import { mockAxonROASCohorts } from '@/shared/mock-data';
 import type { AxonROASCohort } from '@/shared/mock-data';

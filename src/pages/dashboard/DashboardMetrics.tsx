@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Badge } from 'antd';
+import { Card, Badge } from '@/components/ui-kit-compat';
 import { StatCard } from '@/components/ui/StatCard';
 import { Users, Activity, Trophy, TrendingUp, Sparkles } from 'lucide-react';
 
