@@ -1,7 +1,7 @@
-// meta-batch-theme-picker.tsx — auto-detected theme multi-select with inline media file expand
+// meta-batch-theme-picker.tsx — theme multi-select with search + inline media file expand
 import React, { useState } from 'react';
 import { cn } from '@frontend-team/ui-kit';
-import { ChevronDown, FileImage, Film, Layers3 } from 'lucide-react';
+import { ChevronDown, FileImage, Film, Layers3, Search } from 'lucide-react';
 import type { BatchTheme } from './meta-batch-types';
 
 interface Props {
@@ -18,18 +18,24 @@ const CheckMark = () => (
 
 export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const allSelected = themes.length > 0 && selected.length === themes.length;
+  const [query, setQuery] = useState('');
+
+  const filtered = query.trim()
+    ? themes.filter(t => t.name.toLowerCase().includes(query.toLowerCase()))
+    : themes;
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every(t => selected.includes(t.id));
 
   const toggleAll = () => {
-    if (allSelected) {
-      themes.forEach(t => { if (selected.includes(t.id)) onToggle(t.id); });
+    if (allFilteredSelected) {
+      filtered.forEach(t => { if (selected.includes(t.id)) onToggle(t.id); });
     } else {
-      themes.forEach(t => { if (!selected.includes(t.id)) onToggle(t.id); });
+      filtered.forEach(t => { if (!selected.includes(t.id)) onToggle(t.id); });
     }
   };
 
   return (
-    <div className="flex flex-col gap-3 h-full">
+    <div className="flex flex-col gap-2.5 h-full">
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1.5 text-xs font-semibold text_secondary uppercase tracking-wide">
           <Layers3 size={13} className="shrink-0" />
@@ -39,13 +45,20 @@ export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }
           </span>
         </div>
         <button type="button" onClick={toggleAll}
-          className="text-[11px] text_tertiary hover:text_secondary transition-colors">
-          {allSelected ? 'Clear All' : 'Select All'}
+          className="text-[11px] text_tertiary hover:text_secondary transition-colors px-1">
+          {allFilteredSelected ? 'Clear' : 'Select All'}
         </button>
       </div>
 
+      {/* Search */}
+      <div className="relative shrink-0">
+        <Search size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text_tertiary pointer-events-none" />
+        <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search themes…"
+          className="w-full border border_primary radius_8 pl-7 pr-2.5 py-1 text-[11px] text_primary bg_secondary outline-none placeholder:text_tertiary focus:border_accent_secondary" />
+      </div>
+
       <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
-        {themes.map(t => {
+        {filtered.map(t => {
           const isSelected = selected.includes(t.id);
           const isOpen = expandedId === t.id;
           return (
@@ -55,7 +68,6 @@ export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }
                 isSelected ? 'border_accent_secondary bg_info' : 'border_primary bg_primary'
               )}>
               <div className="flex items-center gap-1.5 px-3 py-2">
-                {/* Selection button */}
                 <button type="button" onClick={() => onToggle(t.id)}
                   className="flex items-center gap-2 flex-1 text-left min-w-0">
                   <span className={cn(
@@ -66,7 +78,6 @@ export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }
                   </span>
                   <span className="body_s font-medium text_primary truncate">{t.name}</span>
                 </button>
-                {/* File count + expand toggle */}
                 <button type="button" aria-label="Preview media files in this theme"
                   onClick={() => setExpandedId(isOpen ? null : t.id)}
                   className={cn(
@@ -78,7 +89,6 @@ export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }
                 </button>
               </div>
 
-              {/* Inline media file list */}
               {isOpen && (
                 <div className="px-3 pb-2 border-t border_secondary pt-1.5 space-y-1 max-h-28 overflow-y-auto">
                   {t.files.map(f => (
@@ -97,8 +107,10 @@ export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }
             </div>
           );
         })}
-        {themes.length === 0 && (
-          <div className="text-xs text_tertiary py-4 text-center">No themes detected</div>
+        {filtered.length === 0 && (
+          <div className="text-xs text_tertiary py-4 text-center">
+            {query.trim() ? `No results for "${query}"` : 'No themes detected'}
+          </div>
         )}
       </div>
     </div>

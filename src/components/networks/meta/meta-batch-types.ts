@@ -1,27 +1,22 @@
-// meta-batch-types.ts — shared interfaces for Batch Campaign Generator
+// meta-batch-types.ts — shared interfaces and utilities for Batch Campaign Generator
 import type { MetaTemplate } from './meta-types';
 import type { MediaFile } from './meta-media-library-modal';
 
 // Theme — auto-detected group of MediaFiles sharing a naming pattern
 export interface BatchTheme {
-  id: string;       // kebab-slug of name e.g. "sexy-phone"
-  name: string;     // parsed display name e.g. "Sexy_Phone"
+  id: string;
+  name: string;
   files: MediaFile[];
 }
 
-// Ad account (mock for Phase 1+2; Phase 3 will fetch from API)
-export interface BatchAccount {
-  id: string;
-  name: string;
-}
-
-// One cell in the Templates × Themes × Accounts matrix
+// One cell in the Templates × Themes matrix.
+// A combination may produce multiple campaigns (slices) based on minCreatives config.
 export interface BatchCombination {
-  id: string;
-  template: MetaTemplate;
+  id: string;                // `${template.id}:${theme.id}`
+  template: MetaTemplate;    // template.account holds the bound ad account
   theme: BatchTheme;
-  account: BatchAccount;
-  generatedName: string;  // resolved from NamePattern tokens
+  slices: number[];          // creative counts per campaign, e.g. [5, 8]
+  generatedNames: string[];  // one name per slice
   excluded: boolean;
 }
 
@@ -29,19 +24,24 @@ export type BatchJobStatus = 'queued' | 'running' | 'done' | 'error';
 
 export interface BatchJob {
   combination: BatchCombination;
+  sliceIndex: number;
   status: BatchJobStatus;
   error?: string;
 }
 
-// Phase state for the drawer shell — 2-phase: setup (with live preview) → progress
-export type BatchGeneratorPhase = 'setup' | 'progress';
+// Session-only batch run record (resets on page refresh)
+export interface BatchRun {
+  id: string;
+  createdAt: string;
+  totalCampaigns: number;
+  jobs: BatchJob[];
+}
 
-// Name pattern string with substitution tokens: {template} {theme} {account} {date}
+export type BatchGeneratorPhase = 'setup' | 'progress';
 export type NamePattern = string;
 
-export const DEFAULT_NAME_PATTERN: NamePattern = '[{template}] {theme} | {account}';
+export const DEFAULT_NAME_PATTERN: NamePattern = '[{template}] {theme}';
 
-// Ad copy shared across all generated campaigns in one batch run
 export interface BatchAdCopy {
   primaryText: string;
   headline: string;
@@ -58,3 +58,38 @@ export const CTA_OPTIONS = [
   'DOWNLOAD', 'INSTALL_NOW', 'LEARN_MORE', 'SHOP_NOW',
   'SIGN_UP', 'GET_QUOTE', 'BOOK_NOW', 'APPLY_NOW',
 ];
+
+// Compute how many campaigns to create given total media files and min/max per campaign.
+// Greedy: take minCreatives-sized slices while remaining > max; if last remainder < min,
+// pop and redistribute until distributable.
+function canDistribute(n: number, min: number, max: number): boolean {
+  const groups = Math.ceil(n / max);
+  return Math.floor(n / groups) >= min;
+}
+
+export function computeSlices(totalFiles: number, minCreatives: number, maxCreatives = 9): number[] {
+  if (totalFiles <= maxCreatives) return [totalFiles];
+
+  const slices: number[] = [];
+  let remaining = totalFiles;
+
+  while (remaining > maxCreatives) {
+    slices.push(minCreatives);
+    remaining -= minCreatives;
+  }
+
+  if (remaining < minCreatives) {
+    while (!canDistribute(remaining, minCreatives, maxCreatives) && slices.length > 0) {
+      remaining += slices.pop()!;
+    }
+  }
+
+  const numGroups = Math.ceil(remaining / maxCreatives);
+  const base = Math.floor(remaining / numGroups);
+  const extra = remaining - base * numGroups;
+  for (let i = 0; i < numGroups; i++) {
+    slices.push(i < extra ? base + 1 : base);
+  }
+
+  return slices;
+}

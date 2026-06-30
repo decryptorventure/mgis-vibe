@@ -7,6 +7,8 @@ import type { BatchJob, BatchJobStatus } from './meta-batch-types';
 interface Props {
   jobs: BatchJob[];
   onClose: () => void;
+  onBatchComplete?: (jobs: BatchJob[]) => void;
+  onViewHistory?: () => void;
 }
 
 const STATUS_ICON: Record<BatchJobStatus, React.ReactNode> = {
@@ -16,7 +18,7 @@ const STATUS_ICON: Record<BatchJobStatus, React.ReactNode> = {
   error:   <XCircle size={13} className="fg_error shrink-0" />,
 };
 
-export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClose }) => {
+export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClose, onBatchComplete, onViewHistory }) => {
   const [jobs, setJobs]     = useState<BatchJob[]>(initialJobs);
   const [paused, setPaused] = useState(false);
 
@@ -25,30 +27,31 @@ export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClo
   const allDone    = doneCount === jobs.length && jobs.length > 0;
   const pct        = jobs.length > 0 ? Math.round((doneCount / jobs.length) * 100) : 0;
 
-  // Simulate sequential job advancement — one job at a time
+  // Simulate sequential job advancement — one job at a time.
+  // NOTE: no cleanup return here. Returning clearTimeout would cancel the in-flight
+  // timer whenever `jobs` changes (which happens immediately when we set status to
+  // 'running'), causing generation to freeze permanently.
   useEffect(() => {
     if (allDone || paused) return;
     const runningIdx = jobs.findIndex(j => j.status === 'running');
-    if (runningIdx !== -1) return; // wait for current running job to finish
+    if (runningIdx !== -1) return; // already advancing, wait for timer to fire
 
     const nextIdx = jobs.findIndex(j => j.status === 'queued');
     if (nextIdx === -1) return;
 
     setJobs(prev => prev.map((j, i) => i === nextIdx ? { ...j, status: 'running' } : j));
 
-    const delay = 500 + Math.random() * 700;
-    const timer = setTimeout(() => {
+    setTimeout(() => {
       const outcome: BatchJobStatus = Math.random() < 0.1 ? 'error' : 'done';
       setJobs(prev => prev.map((j, i) => i === nextIdx ? { ...j, status: outcome } : j));
-    }, delay);
-
-    return () => clearTimeout(timer);
+    }, 400 + Math.random() * 500);
   }, [jobs, paused, allDone]);
 
   useEffect(() => {
     if (!allDone) return;
     if (errorCount === 0) toast.success(`${jobs.length} campaign${jobs.length !== 1 ? 's' : ''} generated!`);
     else toast.warning(`${doneCount - errorCount} done, ${errorCount} error${errorCount !== 1 ? 's' : ''}`);
+    onBatchComplete?.(jobs);
   }, [allDone]);
 
   return (
@@ -75,7 +78,7 @@ export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClo
       {/* Job list */}
       <div className="flex-1 overflow-y-auto divide-y divide-[var(--border-secondary)]">
         {jobs.map(job => (
-          <div key={job.combination.id}
+          <div key={`${job.combination.id}:${job.sliceIndex}`}
             className={cn(
               'flex items-center gap-3 px-6 py-2.5',
               job.status === 'error' && 'bg_error_subtle'
@@ -85,7 +88,7 @@ export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClo
               'flex-1 text-xs truncate',
               job.status === 'error' ? 'fg_error' : 'text_primary'
             )}>
-              {job.combination.generatedName}
+              {job.combination.generatedNames[job.sliceIndex] ?? job.combination.generatedNames[0]}
             </span>
             <span className={cn('text-[11px] shrink-0 capitalize font-medium',
               job.status === 'done'    ? 'text-[var(--status-success,#22c55e)]' :
@@ -107,10 +110,16 @@ export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClo
               {paused ? 'Resume' : 'Pause'}
             </Button>
           )}
+          {allDone && errorCount > 0 && (
+            <Button type="button" variant="border" size="s"
+              onClick={() => setJobs(prev => prev.map(j => j.status === 'error' ? { ...j, status: 'queued' } : j))}>
+              Retry {errorCount} Error{errorCount !== 1 ? 's' : ''}
+            </Button>
+          )}
           {allDone && (
             <Button type="button" variant="primary" size="s"
-              onClick={() => { onClose(); toast.info('View results in the Campaigns tab'); }}>
-              View in Campaign List
+              onClick={() => { onClose(); onViewHistory?.(); }}>
+              View Batch History
             </Button>
           )}
         </div>

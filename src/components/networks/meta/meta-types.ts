@@ -64,6 +64,7 @@ export interface MetaTemplate {
   age: string;
   attribution: string;
   placements: string[];
+  account?: { id: string; name: string };
 }
 
 export interface MetaPage {

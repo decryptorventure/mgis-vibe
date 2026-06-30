@@ -27,6 +27,7 @@ export const META_TEMPLATES: MetaTemplate[] = [
     age: '18-65',
     attribution: '7d click / 1d view',
     placements: ['Facebook', 'Instagram', 'Audience Network', 'Messenger', 'Threads'],
+    account: { id: 'act_2155186641586053', name: 'Clean2' },
   },
   {
     id: 'tpl-install-broad',
@@ -35,6 +36,7 @@ export const META_TEMPLATES: MetaTemplate[] = [
     age: '18-55',
     attribution: '7d click',
     placements: ['Facebook', 'Instagram', 'Messenger'],
+    account: { id: 'act_2531941187142628', name: 'Clean backup' },
   },
 ];
 

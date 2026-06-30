@@ -1,7 +1,7 @@
-﻿// MetaWorkspace â€” thin JSX orchestrator. All state and handlers live in useMetaWorkspace.
+﻿// MetaWorkspace — thin JSX orchestrator. All state and handlers live in useMetaWorkspace.
 import React, { useState } from 'react';
-import { DatePicker, Input, Select, Segmented } from '@/components/ui-kit-compat';
-import { ChevronDown, Columns3, FileText, Play, Plus, RefreshCcw, Settings, Sparkles, Trash2, WandSparkles, Zap } from 'lucide-react';
+import { DatePicker, Drawer, Input, Select, Segmented } from '@/components/ui-kit-compat';
+import { ChevronDown, Columns3, FileText, History, Play, Plus, RefreshCcw, Settings, Sparkles, Trash2, WandSparkles, Zap } from 'lucide-react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
 import { MetaBulkCreateDrawer } from './meta-bulk-create-drawer';
 import { MetaReportTable } from '@/components/networks/meta/meta-report-table';
@@ -15,8 +15,10 @@ import { ManagePagesModal } from '@/components/networks/meta/meta-manage-pages-m
 import { TemplateDrawer } from '@/components/networks/meta/meta-template-drawer';
 import { MetaBuilderDrawer } from '@/components/networks/meta/meta-builder-drawer';
 import { BatchGeneratorDrawer } from '@/components/networks/meta/meta-batch-generator-drawer';
+import { BatchHistoryPanel } from '@/components/networks/meta/meta-batch-history-panel';
 import { useMetaWorkspace } from '@/components/networks/meta/use-meta-workspace';
 import { FILTER_CHIPS } from '@/components/networks/meta/meta-filter-presets';
+import type { BatchJob, BatchRun } from '@/components/networks/meta/meta-batch-types';
 import type { Campaign, AdSet, Ad } from '@/shared/mock-data';
 
 const MetaToolbarButton: React.FC<{ icon: React.ReactNode; label: string; onClick?: () => void; active?: boolean }> = ({ icon, label, onClick, active }) => (
@@ -29,7 +31,18 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
   const ws = useMetaWorkspace(props);
   const { entity, activeApp, accountId, setAccountId } = ws;
   const [batchGeneratorOpen, setBatchGeneratorOpen] = useState(false);
+  const [historyOpen, setHistoryOpen]               = useState(false);
+  const [batchRuns, setBatchRuns]                   = useState<BatchRun[]>([]);
+  const [regenerateJobs, setRegenerateJobs]         = useState<BatchJob[] | undefined>(undefined);
   const currentTitle = ENTITY_META[entity].title;
+
+  const handleBatchComplete = (run: BatchRun) => setBatchRuns(prev => [...prev, run]);
+
+  const handleRegenerate = (jobs: BatchJob[]) => {
+    setHistoryOpen(false);
+    setRegenerateJobs(jobs.map(j => ({ ...j, status: 'queued' as const })));
+    setBatchGeneratorOpen(true);
+  };
 
   const handleOpenBuilderOrNavigate = (targetEntity?: MetaEntity) => {
     ws.openBuilder(targetEntity ?? entity);
@@ -62,6 +75,7 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
             <MetaToolbarButton icon={<FileText size={14} />} label="Templates" onClick={() => ws.setTemplatesOpen(true)} />
             <MetaToolbarButton icon={<WandSparkles size={14} />} label="AI Bulk Create" onClick={() => ws.setBulkCreateOpen(true)} active={ws.bulkCreateOpen} />
             <MetaToolbarButton icon={<Sparkles size={14} />} label="Batch Generate" onClick={() => setBatchGeneratorOpen(true)} active={batchGeneratorOpen} />
+            <MetaToolbarButton icon={<History size={14} />} label={`History${batchRuns.length > 0 ? ` (${batchRuns.length})` : ''}`} onClick={() => setHistoryOpen(true)} active={historyOpen} />
             <Button type="button" variant="border" size="s" className="gap-1.5 fg_accent_primary border_accent_primary_contrast" onClick={() => toast.info('API warm-up is mocked')}>
               <Zap size={14} />API Warm-up
             </Button>
@@ -211,7 +225,19 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
       <TemplateDrawer open={ws.templatesOpen} onClose={() => ws.setTemplatesOpen(false)} templates={ws.templates} pages={ws.pages} onChange={ws.setTemplates} />
       <ColumnSettingsDrawer open={ws.columnsOpen} onClose={() => ws.setColumnsOpen(false)} entity={entity} visibleKeys={ws.visibleColumnKeys} heatmapColors={ws.heatmapColors} onVisibleKeysChange={keys => ws.updateTablePreferences(entity, { visibleKeys: keys })} onHeatmapColorsChange={colors => ws.updateTablePreferences(entity, { heatmapColors: colors })} />
       <MetaBuilderDrawer open={ws.builderOpen} onClose={() => ws.setBuilderOpen(false)} context={ws.builderContext} pages={ws.pages} templates={ws.templates} />
-      <BatchGeneratorDrawer open={batchGeneratorOpen} onClose={() => setBatchGeneratorOpen(false)} templates={ws.templates} />
+      <BatchGeneratorDrawer
+        key={regenerateJobs ? `regen-${regenerateJobs[0]?.combination.id ?? 'r'}` : 'setup'}
+        open={batchGeneratorOpen}
+        onClose={() => { setBatchGeneratorOpen(false); setRegenerateJobs(undefined); }}
+        templates={ws.templates}
+        onBatchComplete={handleBatchComplete}
+        onViewHistory={() => { setBatchGeneratorOpen(false); setHistoryOpen(true); }}
+        regenerateJobs={regenerateJobs}
+      />
+      <Drawer open={historyOpen} onClose={() => setHistoryOpen(false)} placement="right" width={520} title={null} closable={false}
+        styles={{ body: { padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%' }, header: { display: 'none' } }}>
+        <BatchHistoryPanel runs={batchRuns} onRegenerate={handleRegenerate} />
+      </Drawer>
       <MetaBulkCreateDrawer
         open={ws.bulkCreateOpen}
         onClose={() => ws.setBulkCreateOpen(false)}

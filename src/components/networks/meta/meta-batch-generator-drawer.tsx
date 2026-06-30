@@ -4,13 +4,13 @@ import React, { useMemo, useState } from 'react';
 import { Drawer } from '@/components/ui-kit-compat';
 import { Button } from '@frontend-team/ui-kit';
 import { ArrowRight, Sparkles, X } from 'lucide-react';
-import { DEFAULT_AD_COPY } from './meta-batch-types';
-import type { BatchAccount, BatchAdCopy, BatchCombination, BatchGeneratorPhase, BatchJob, NamePattern } from './meta-batch-types';
+import { computeSlices, DEFAULT_AD_COPY } from './meta-batch-types';
+import type { BatchAdCopy, BatchCombination, BatchGeneratorPhase, BatchJob, BatchRun, NamePattern } from './meta-batch-types';
 import type { MetaTemplate } from './meta-types';
-import { DEFAULT_NAME_PATTERN, MOCK_BATCH_ACCOUNTS, MOCK_MEDIA_FILES, resolveNamePattern, toThemeList } from './meta-theme-parser';
+import { DEFAULT_NAME_PATTERN, MOCK_MEDIA_FILES, resolveNamePattern, toThemeList } from './meta-theme-parser';
 import { BatchTemplatePicker } from './meta-batch-template-picker';
 import { BatchThemePicker } from './meta-batch-theme-picker';
-import { BatchAccountPicker } from './meta-batch-account-picker';
+import { BatchCreativeConfig } from './meta-batch-creative-config';
 import { BatchLivePreview } from './meta-batch-matrix-preview';
 import { BatchProgressTracker } from './meta-batch-progress-tracker';
 
@@ -18,72 +18,107 @@ interface Props {
   open: boolean;
   onClose: () => void;
   templates: MetaTemplate[];
+  onBatchComplete?: (run: BatchRun) => void;
+  onViewHistory?: () => void;
+  regenerateJobs?: BatchJob[];
 }
 
 const toggle = (ids: string[], id: string): string[] =>
   ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id];
 
-export const BatchGeneratorDrawer: React.FC<Props> = ({ open, onClose, templates }) => {
-  const [phase, setPhase]                             = useState<BatchGeneratorPhase>('setup');
+export const BatchGeneratorDrawer: React.FC<Props> = ({ open, onClose, templates, onBatchComplete, onViewHistory, regenerateJobs }) => {
+  const isRegen = Boolean(regenerateJobs && regenerateJobs.length > 0);
+  const [phase, setPhase]                             = useState<BatchGeneratorPhase>(isRegen ? 'progress' : 'setup');
   const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>([]);
   const [selectedThemeIds, setSelectedThemeIds]       = useState<string[]>([]);
-  const [selectedAccountIds, setSelectedAccountIds]   = useState<string[]>([]);
+  const [minCreatives, setMinCreatives]               = useState(5);
   const [namePattern, setNamePattern]                 = useState<NamePattern>(DEFAULT_NAME_PATTERN);
   const [adCopy, setAdCopy]                           = useState<BatchAdCopy>(DEFAULT_AD_COPY);
-  // Deterministic combo ID: `${t.id}:${th.id}:${a.id}` — excluded state persists across name pattern changes
-  const [excludedIds, setExcludedIds]                 = useState<Set<string>>(new Set());
-  const [jobs, setJobs]                               = useState<BatchJob[]>([]);
+  const [excludedCampaigns, setExcludedCampaigns]     = useState<Set<string>>(new Set());
+  const [jobs, setJobs]                               = useState<BatchJob[]>(regenerateJobs ?? []);
 
+  // Templates must have an account bound; filter others out
+  const batchableTemplates = templates.filter(t => t.account);
   const themes   = useMemo(() => toThemeList(MOCK_MEDIA_FILES), []);
-  const accounts: BatchAccount[] = MOCK_BATCH_ACCOUNTS;
 
-  const selectedTemplates = templates.filter(t => selectedTemplateIds.includes(t.id));
+  const selectedTemplates = batchableTemplates.filter(t => selectedTemplateIds.includes(t.id));
   const selectedThemes    = themes.filter(th => selectedThemeIds.includes(th.id));
-  const selectedAccounts  = accounts.filter(a => selectedAccountIds.includes(a.id));
+  const canGenerate       = selectedTemplates.length > 0 && selectedThemes.length > 0;
 
-  const canGenerate = selectedTemplates.length > 0 && selectedThemes.length > 0 && selectedAccounts.length > 0;
-
-  // Live preview — reactive to all selections, name pattern, and excluded set
+  // Live combinations — T×Th matrix with creative slicing.
+  // excluded = true only when ALL slices of a combo are excluded (for styling).
   const liveCombinations = useMemo<BatchCombination[]>(() => {
     if (!canGenerate) return [];
     return selectedTemplates.flatMap(t =>
-      selectedThemes.flatMap(th =>
-        selectedAccounts.map(a => {
-          const id = `${t.id}:${th.id}:${a.id}`;
-          return {
-            id,
-            template: t, theme: th, account: a,
-            generatedName: resolveNamePattern(namePattern, { template: t, theme: th, account: a }),
-            excluded: excludedIds.has(id),
-          };
-        })
-      )
+      selectedThemes.map(th => {
+        const id = `${t.id}:${th.id}`;
+        const slices = computeSlices(th.files.length, minCreatives);
+        return {
+          id,
+          template: t,
+          theme: th,
+          slices,
+          generatedNames: slices.map((_, i) => resolveNamePattern(namePattern, { template: t, theme: th }, i)),
+          excluded: slices.every((_, i) => excludedCampaigns.has(`${id}:${i}`)),
+        };
+      })
     );
-  }, [selectedTemplates, selectedThemes, selectedAccounts, namePattern, excludedIds]);
+  }, [selectedTemplates, selectedThemes, minCreatives, namePattern, excludedCampaigns, canGenerate]);
 
-  const activeCombinations = liveCombinations.filter(c => !c.excluded);
-  const activeCount = activeCombinations.length;
-  const totalCount  = liveCombinations.length;
+  // Count non-excluded individual campaigns (per slice)
+  const totalCampaignCount = liveCombinations.reduce((sum, c) =>
+    sum + c.slices.filter((_, i) => !excludedCampaigns.has(`${c.id}:${i}`)).length, 0);
+  const totalCombCount  = liveCombinations.length;
+  const activeCombCount = liveCombinations.filter(c => !c.excluded).length;
 
-  const toggleExclude = (id: string) => {
-    setExcludedIds(prev => {
+  const toggleExclude = (key: string) => {
+    setExcludedCampaigns(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(key)) next.delete(key); else next.add(key);
       return next;
     });
   };
 
+  // Exclude or include all campaigns at once (used by select-all checkbox in preview)
+  const handleToggleAll = (excludeAll: boolean) => {
+    if (excludeAll) {
+      setExcludedCampaigns(new Set(
+        liveCombinations.flatMap(c => c.slices.map((_, i) => `${c.id}:${i}`))
+      ));
+    } else {
+      setExcludedCampaigns(new Set());
+    }
+  };
+
   const handleGenerate = () => {
-    setJobs(activeCombinations.map(c => ({ combination: c, status: 'queued' })));
+    const newJobs: BatchJob[] = liveCombinations.flatMap(c =>
+      c.slices
+        .map((_, i) => ({ combination: c, sliceIndex: i, status: 'queued' as const }))
+        .filter((_, i) => !excludedCampaigns.has(`${c.id}:${i}`))
+    );
+    setJobs(newJobs);
     setPhase('progress');
+  };
+
+  const handleBatchComplete = (finalJobs: BatchJob[]) => {
+    if (onBatchComplete) {
+      const run: BatchRun = {
+        id: `run-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        totalCampaigns: finalJobs.length,
+        jobs: finalJobs,
+      };
+      onBatchComplete(run);
+    }
   };
 
   const handleClose = () => {
     setPhase('setup');
-    setSelectedTemplateIds([]); setSelectedThemeIds([]); setSelectedAccountIds([]);
+    setSelectedTemplateIds([]); setSelectedThemeIds([]);
+    setMinCreatives(5);
     setNamePattern(DEFAULT_NAME_PATTERN);
     setAdCopy(DEFAULT_AD_COPY);
-    setExcludedIds(new Set());
+    setExcludedCampaigns(new Set());
     setJobs([]);
     onClose();
   };
@@ -103,7 +138,7 @@ export const BatchGeneratorDrawer: React.FC<Props> = ({ open, onClose, templates
         </div>
         <div>
           <div className="body_s font-bold text_primary">Batch Campaign Generator</div>
-          <div className="text-[11px] text_tertiary">Templates × Themes × Accounts → generate campaigns in bulk</div>
+          <div className="text-[11px] text_tertiary">Templates × Themes → generate campaigns in bulk</div>
         </div>
         <button type="button" onClick={handleClose} aria-label="Close batch generator"
           className="ml-auto text_tertiary hover:text_primary transition-colors">
@@ -115,29 +150,28 @@ export const BatchGeneratorDrawer: React.FC<Props> = ({ open, onClose, templates
       <div className="flex-1 overflow-hidden">
         {phase === 'setup' && (
           <div className="flex h-full">
-            {/* Left panel: stacked criteria pickers — each section gets 1/3 of panel height */}
-            <div className="w-[320px] shrink-0 border-r border_primary flex flex-col overflow-hidden">
-              <div className="h-1/3 p-4 border-b border_secondary overflow-hidden">
-                <BatchTemplatePicker templates={templates} selected={selectedTemplateIds}
+            {/* Left panel: templates + themes + creative config */}
+            <div className="w-[300px] shrink-0 border-r border_primary flex flex-col overflow-hidden">
+              <div className="flex-1 p-4 border-b border_secondary overflow-hidden min-h-0">
+                <BatchTemplatePicker templates={batchableTemplates} selected={selectedTemplateIds}
                   onToggle={id => setSelectedTemplateIds(prev => toggle(prev, id))} />
               </div>
-              <div className="h-1/3 p-4 border-b border_secondary overflow-hidden">
+              <div className="flex-1 p-4 overflow-hidden min-h-0">
                 <BatchThemePicker themes={themes} selected={selectedThemeIds}
                   onToggle={id => setSelectedThemeIds(prev => toggle(prev, id))} />
               </div>
-              <div className="h-1/3 p-4 overflow-hidden">
-                <BatchAccountPicker accounts={accounts} selected={selectedAccountIds}
-                  onToggle={id => setSelectedAccountIds(prev => toggle(prev, id))} />
-              </div>
+              <BatchCreativeConfig value={minCreatives} onChange={setMinCreatives} />
             </div>
 
-            {/* Right panel: live preview — updates instantly as criteria change */}
+            {/* Right panel: live preview */}
             <div className="flex-1 flex flex-col overflow-hidden">
               <BatchLivePreview
                 combinations={liveCombinations}
+                excludedCampaigns={excludedCampaigns}
                 namePattern={namePattern}
                 onNamePatternChange={setNamePattern}
                 onToggleExclude={toggleExclude}
+                onToggleAll={handleToggleAll}
                 adCopy={adCopy}
                 onAdCopyChange={setAdCopy}
               />
@@ -145,11 +179,11 @@ export const BatchGeneratorDrawer: React.FC<Props> = ({ open, onClose, templates
           </div>
         )}
         {phase === 'progress' && (
-          <BatchProgressTracker jobs={jobs} onClose={handleClose} />
+          <BatchProgressTracker jobs={jobs} onClose={handleClose} onBatchComplete={handleBatchComplete} onViewHistory={onViewHistory} />
         )}
       </div>
 
-      {/* Footer — only in setup phase */}
+      {/* Footer — setup phase only */}
       {phase === 'setup' && (
         <div className="flex items-center justify-between px-6 py-3 border-t border_primary shrink-0">
           <div className="flex items-center gap-1 text-xs flex-wrap">
@@ -158,22 +192,24 @@ export const BatchGeneratorDrawer: React.FC<Props> = ({ open, onClose, templates
                 <span className="font-semibold fg_info">{selectedTemplates.length}</span>
                 <span className="text_tertiary">templates ×</span>
                 <span className="font-semibold fg_info">{selectedThemes.length}</span>
-                <span className="text_tertiary">themes ×</span>
-                <span className="font-semibold fg_info">{selectedAccounts.length}</span>
-                <span className="text_tertiary">accounts =</span>
-                <span className="font-semibold text_primary">{activeCount}</span>
-                {activeCount < totalCount && <span className="text_tertiary">/ {totalCount}</span>}
-                <span className="text_tertiary">campaigns</span>
+                <span className="text_tertiary">themes =</span>
+                <span className="font-semibold text_primary">{totalCampaignCount}</span>
+                {activeCombCount < totalCombCount && (
+                  <span className="text_tertiary">campaigns ({activeCombCount}/{totalCombCount} combos)</span>
+                )}
+                {activeCombCount === totalCombCount && (
+                  <span className="text_tertiary">campaigns</span>
+                )}
               </>
             ) : (
-              <span className="text_tertiary">Select at least 1 template, 1 theme, and 1 account</span>
+              <span className="text_tertiary">Select at least 1 template and 1 theme to preview</span>
             )}
           </div>
           <div className="flex gap-2 shrink-0">
             <Button type="button" variant="border" size="m" onClick={handleClose}>Cancel</Button>
             <Button type="button" variant="primary" size="m" className="gap-1.5"
-              disabled={!canGenerate || activeCount === 0} onClick={handleGenerate}>
-              Generate {activeCount > 0 ? `${activeCount} Campaign${activeCount !== 1 ? 's' : ''}` : 'Campaigns'}
+              disabled={!canGenerate || totalCampaignCount === 0} onClick={handleGenerate}>
+              Generate {totalCampaignCount > 0 ? `${totalCampaignCount} Campaign${totalCampaignCount !== 1 ? 's' : ''}` : 'Campaigns'}
               <ArrowRight size={14} />
             </Button>
           </div>

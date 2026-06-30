@@ -41,7 +41,11 @@
       "Bash(npx eslint *)",
       "Bash(node -e \"var mf7={id:'mf7',name:'banner_no_pattern.jpg',type:'image',size:'400KB',modified:'2026-06-07'}; console.log\\('duration absent:', !mf7.duration\\); console.log\\('MOCK_MEDIA_FILES index 6 is mf7 \\(7th element, 0-based\\):', true\\);\")",
       "PowerShell(\\(Get-Content \"src\\\\components\\\\networks\\\\meta\\\\meta-bulk-create-ads-modal.tsx\" | Measure-Object -Line\\).Lines)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(~/.claude/skills/.venv/Scripts/python.exe ~/.claude/skills/ui-ux-pro-max/scripts/search.py \"marketing automation campaign management bulk workflow tool\" --design-system -p \"NMS Batch Generator\" -f markdown)",
+      "PowerShell(cd \"C:\\\\Users\\\\iKame\\\\Desktop\\\\MGIS\\\\nms-fe\"; $py = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\.venv\\\\Scripts\\\\python.exe\"; & $py \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"marketing automation campaign management bulk workflow tool\" --design-system -p \"NMS Batch Generator\" -f markdown 2>&1 | Select-Object -First 120)",
+      "PowerShell(cd \"C:\\\\Users\\\\iKame\\\\Desktop\\\\MGIS\\\\nms-fe\"; $py = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\.venv\\\\Scripts\\\\python.exe\"; & $py \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"bulk create workflow automation progressive disclosure\" --domain ux 2>&1 | Select-Object -First 80)",
+      "PowerShell(cd \"C:\\\\Users\\\\iKame\\\\Desktop\\\\MGIS\\\\nms-fe\"; npx tsc --noEmit; Write-Host \"Exit: $LASTEXITCODE\")"
     ]
   }
 }

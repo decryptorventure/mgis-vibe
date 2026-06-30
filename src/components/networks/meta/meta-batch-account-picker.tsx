@@ -1,7 +1,7 @@
-// meta-batch-account-picker.tsx — ad account multi-select list for batch generator
-import React from 'react';
+// meta-batch-account-picker.tsx — ad account multi-select with search
+import React, { useState } from 'react';
 import { cn } from '@frontend-team/ui-kit';
-import { Users } from 'lucide-react';
+import { Search, Users } from 'lucide-react';
 import type { BatchAccount } from './meta-batch-types';
 
 interface Props {
@@ -17,18 +17,24 @@ const CheckMark = () => (
 );
 
 export const BatchAccountPicker: React.FC<Props> = ({ accounts, selected, onToggle }) => {
-  const allSelected = accounts.length > 0 && selected.length === accounts.length;
+  const [query, setQuery] = useState('');
+
+  const filtered = query.trim()
+    ? accounts.filter(a => a.name.toLowerCase().includes(query.toLowerCase()))
+    : accounts;
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every(a => selected.includes(a.id));
 
   const toggleAll = () => {
-    if (allSelected) {
-      accounts.forEach(a => { if (selected.includes(a.id)) onToggle(a.id); });
+    if (allFilteredSelected) {
+      filtered.forEach(a => { if (selected.includes(a.id)) onToggle(a.id); });
     } else {
-      accounts.forEach(a => { if (!selected.includes(a.id)) onToggle(a.id); });
+      filtered.forEach(a => { if (!selected.includes(a.id)) onToggle(a.id); });
     }
   };
 
   return (
-    <div className="flex flex-col gap-3 h-full">
+    <div className="flex flex-col gap-2.5 h-full">
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1.5 text-xs font-semibold text_secondary uppercase tracking-wide">
           <Users size={13} className="shrink-0" />
@@ -38,38 +44,43 @@ export const BatchAccountPicker: React.FC<Props> = ({ accounts, selected, onTogg
           </span>
         </div>
         <button type="button" onClick={toggleAll}
-          className="text-[11px] text_tertiary hover:text_secondary transition-colors">
-          {allSelected ? 'Clear All' : 'Select All'}
+          className="text-[11px] text_tertiary hover:text_secondary transition-colors px-1">
+          {allFilteredSelected ? 'Clear' : 'Select All'}
         </button>
       </div>
 
+      {/* Search */}
+      <div className="relative shrink-0">
+        <Search size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text_tertiary pointer-events-none" />
+        <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search accounts…"
+          className="w-full border border_primary radius_8 pl-7 pr-2.5 py-1 text-[11px] text_primary bg_secondary outline-none placeholder:text_tertiary focus:border_accent_secondary" />
+      </div>
+
       <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
-        {accounts.map(a => {
+        {filtered.map(a => {
           const isSelected = selected.includes(a.id);
           return (
             <button key={a.id} type="button" onClick={() => onToggle(a.id)}
               className={cn(
                 'w-full text-left border radius_8 px-3 py-2 transition-colors',
-                isSelected
-                  ? 'border_accent_secondary bg_info'
-                  : 'border_primary bg_primary hover:bg_secondary'
+                isSelected ? 'border_accent_secondary bg_info' : 'border_primary bg_primary hover:bg_secondary'
               )}>
               <div className="flex items-center gap-2">
                 <span className={cn(
                   'w-4 h-4 radius_8 border shrink-0 flex items-center justify-center',
-                  isSelected
-                    ? 'border-[var(--status-info)] bg-[var(--status-info)]'
-                    : 'border_secondary bg_primary'
+                  isSelected ? 'border-[var(--status-info)] bg-[var(--status-info)]' : 'border_secondary bg_primary'
                 )}>
                   {isSelected && <CheckMark />}
                 </span>
-                <span className="body_s font-medium text_primary">{a.name}</span>
+                <span className="body_s font-medium text_primary truncate">{a.name}</span>
               </div>
             </button>
           );
         })}
-        {accounts.length === 0 && (
-          <div className="text-xs text_tertiary py-4 text-center">No accounts available</div>
+        {filtered.length === 0 && (
+          <div className="text-xs text_tertiary py-4 text-center">
+            {query.trim() ? `No results for "${query}"` : 'No accounts available'}
+          </div>
         )}
       </div>
     </div>

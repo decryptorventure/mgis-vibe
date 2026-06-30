@@ -2,12 +2,12 @@
 import React from 'react';
 import { FileImage, Film, Play } from 'lucide-react';
 import type { MediaFile } from './meta-media-library-modal';
-import type { BatchAdCopy, BatchAccount } from './meta-batch-types';
+import type { BatchAdCopy } from './meta-batch-types';
 
 interface Props {
   mediaFile: MediaFile;
   adCopy: BatchAdCopy;
-  account: BatchAccount;
+  account: { id: string; name: string };
 }
 
 const CTA_LABELS: Record<string, string> = {
