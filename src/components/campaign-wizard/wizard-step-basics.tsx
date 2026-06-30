@@ -119,7 +119,7 @@ export const WizardStepBasics: React.FC<WizardStepBasicsProps> = ({
                   <Checkbox
                     checked={isSelected}
                     disabled={!!state.lockedNetwork}
-                    style={{ pointerEvents: 'none' }}
+                    className="pointer-events-none"
                   />
                 </div>
               </Card>

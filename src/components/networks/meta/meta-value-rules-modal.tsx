@@ -36,11 +36,11 @@ export const MetaValueRulesModal: React.FC<Props> = ({ open, onClose }) => {
                 <span className="ml-2 text-xs text_tertiary">{rs.rules} active rule</span>
               </div>
               <div className="flex items-center gap-1">
-                <Button type="button" variant="ghost" size="s" className="w-7 h-7 p-0 flex items-center justify-center" aria-label="Edit rule set">
+                <Button type="button" variant="subtle" size="s" className="w-7 h-7 p-0 flex items-center justify-center" aria-label="Edit rule set">
                   <Pencil size={13} className="text_secondary" />
                 </Button>
                 <Button
-                  type="button" variant="ghost" size="s"
+                  type="button" variant="subtle" size="s"
                   className="w-7 h-7 p-0 flex items-center justify-center fg_error"
                   aria-label="Delete rule set"
                   onClick={() => setRuleSets(prev => prev.filter(r => r.name !== rs.name))}

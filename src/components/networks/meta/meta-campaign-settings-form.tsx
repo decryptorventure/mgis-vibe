@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Input, Select } from '@/components/ui-kit-compat';
 import { Eye, ExternalLink, ShoppingCart, Smartphone, Target, ToggleLeft, ToggleRight } from 'lucide-react';
-import { Button, cn } from '@frontend-team/ui-kit';
+import { cn } from '@frontend-team/ui-kit';
 import type { MetaTemplate, BuilderContext } from './meta-types';
 import { Field } from './meta-template-forms';
 import { BuilderCard } from './meta-builder-forms';

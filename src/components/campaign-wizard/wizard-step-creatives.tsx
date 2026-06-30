@@ -81,7 +81,7 @@ export const WizardStepCreatives: React.FC<WizardStepCreativesProps> = ({
                       </div>
                     </div>
                   </div>
-                  <Checkbox checked={isSelected} style={{ pointerEvents: 'none' }} />
+                  <Checkbox checked={isSelected} className="pointer-events-none" />
                 </div>
               </Card>
             );

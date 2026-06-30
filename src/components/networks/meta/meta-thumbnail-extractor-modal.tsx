@@ -70,7 +70,7 @@ export const ThumbnailExtractorModal: React.FC<Props> = ({ open, videos, onClose
           <div className="flex items-center gap-2 mt-2">
             <Button type="button" variant="border" size="s" onClick={onClose}>Cancel</Button>
             <Button type="button" variant="border" size="s" disabled>Next</Button>
-            <Button type="button" variant="ghost" size="s" disabled>... Upload &amp; Confirm All</Button>
+            <Button type="button" variant="subtle" size="s" disabled>... Upload &amp; Confirm All</Button>
           </div>
         </div>
       )}

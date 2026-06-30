@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, RefreshCcw, Settings, WandSparkles, Zap } from 'lucide-react';
+import { FileText, RefreshCcw, Settings, Sparkles, WandSparkles, Zap } from 'lucide-react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
 import { DatePicker, Select } from '@/components/ui-kit-compat';
 import { StatusBadge, SurfaceSection } from '@/components/ui';

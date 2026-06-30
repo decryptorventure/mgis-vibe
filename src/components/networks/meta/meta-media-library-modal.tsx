@@ -55,7 +55,7 @@ export const MediaLibraryModal: React.FC<Props> = ({ open, onClose, onConfirm })
     <Modal open={open} onCancel={handleClose} title="Media Library" width={780} footer={null}>
       {/* Toolbar */}
       <div className="flex items-center gap-2 mb-3">
-        <Button type="button" variant="ghost" size="s" className="w-7 h-7 p-0" aria-label="Refresh media library">
+        <Button type="button" variant="subtle" size="s" className="w-7 h-7 p-0" aria-label="Refresh media library">
           <RefreshCcw size={13} />
         </Button>
         <Select size="small" className="w-36" defaultValue="Clean_IOS" options={[{ value: 'Clean_IOS', label: 'Clean_IOS' }]} />
