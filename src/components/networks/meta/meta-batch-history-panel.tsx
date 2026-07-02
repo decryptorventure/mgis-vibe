@@ -60,7 +60,6 @@ export const BatchHistoryPanel: React.FC<Props> = ({ runs, onRegenerate }) => {
 
       <div className="flex-1 overflow-y-auto divide-y divide-[var(--border-secondary)]">
         {[...runs].reverse().map(run => {
-          const doneCount  = run.jobs.filter(j => j.status === 'done').length;
           const errorCount = run.jobs.filter(j => j.status === 'error').length;
           const allOk      = errorCount === 0;
 
