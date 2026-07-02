@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import { Button, cn } from '@frontend-team/ui-kit';
 import { ArrowLeft, CheckCircle2, Loader2, RefreshCw, XCircle } from 'lucide-react';
-import type { BatchJob, BatchRun } from './meta-batch-types';
+import type { BatchJob, BatchRegenerateRequest, BatchRun } from './meta-batch-types';
 
 interface Props {
   run: BatchRun;
   onBack: () => void;
-  onRegenerate: (jobs: BatchJob[]) => void;
+  onRegenerate: (request: BatchRegenerateRequest) => void;
 }
 
 const STATUS_ICON: Record<string, React.ReactNode> = {
@@ -124,17 +124,17 @@ export const BatchRunDetail: React.FC<Props> = ({ run, onBack, onRegenerate }) =
       {/* Footer actions */}
       <div className="px-5 py-3 border-t border_primary shrink-0 flex items-center gap-2">
         {selectedKeys.size > 0 && (
-          <Button type="button" variant="border" size="s" className="gap-1.5"
-            onClick={() => onRegenerate(selectedJobs)}>
+          <Button type="button" variant="primary" size="s" className="gap-1.5"
+            onClick={() => onRegenerate({ criteria: run.criteriaSnapshot, keepKeys: selectedJobs.map(jobKey) })}>
             <RefreshCw size={12} />
             Regenerate {selectedKeys.size} selected
           </Button>
         )}
         {failedJobs.length > 0 && selectedKeys.size === 0 && (
           <Button type="button" variant="border" size="s" className="gap-1.5 fg_error"
-            onClick={() => onRegenerate(failedJobs)}>
+            onClick={() => onRegenerate({ criteria: run.criteriaSnapshot, keepKeys: failedJobs.map(jobKey) })}>
             <RefreshCw size={12} />
-            Regenerate {failedJobs.length} failed
+            Retry {failedJobs.length} failed
           </Button>
         )}
         <span className="text-[11px] text_tertiary ml-auto">

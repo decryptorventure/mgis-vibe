@@ -45,7 +45,17 @@
       "Bash(~/.claude/skills/.venv/Scripts/python.exe ~/.claude/skills/ui-ux-pro-max/scripts/search.py \"marketing automation campaign management bulk workflow tool\" --design-system -p \"NMS Batch Generator\" -f markdown)",
       "PowerShell(cd \"C:\\\\Users\\\\iKame\\\\Desktop\\\\MGIS\\\\nms-fe\"; $py = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\.venv\\\\Scripts\\\\python.exe\"; & $py \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"marketing automation campaign management bulk workflow tool\" --design-system -p \"NMS Batch Generator\" -f markdown 2>&1 | Select-Object -First 120)",
       "PowerShell(cd \"C:\\\\Users\\\\iKame\\\\Desktop\\\\MGIS\\\\nms-fe\"; $py = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\.venv\\\\Scripts\\\\python.exe\"; & $py \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"bulk create workflow automation progressive disclosure\" --domain ux 2>&1 | Select-Object -First 80)",
-      "PowerShell(cd \"C:\\\\Users\\\\iKame\\\\Desktop\\\\MGIS\\\\nms-fe\"; npx tsc --noEmit; Write-Host \"Exit: $LASTEXITCODE\")"
+      "PowerShell(cd \"C:\\\\Users\\\\iKame\\\\Desktop\\\\MGIS\\\\nms-fe\"; npx tsc --noEmit; Write-Host \"Exit: $LASTEXITCODE\")",
+      "Read(//c/Users/iKame/.claude/skills/ui-ux-pro-max/**)",
+      "Bash(.venv\\\\Scripts\\\\python.exe scripts/search.py \"SaaS advertising campaign batch generator workflow tool\" --design-system -p \"Meta Batch Generator\" -f markdown)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\.venv\\\\Scripts\\\\python.exe\" \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"SaaS advertising campaign batch generator workflow\" --design-system -p \"Meta Batch Generator\" -f markdown 2>&1 | Select-Object -First 100)",
+      "Bash(ls /c/Users/iKame/.claude/skills/ui-ux-pro-max/.venv/Scripts/ 2>/dev/null | head -10 || ls /c/Users/iKame/.claude/skills/.venv/Scripts/ 2>/dev/null | head -10)",
+      "Read(//c/Users/iKame/.claude/skills/ui-ux-pro-max/.venv/**)",
+      "Read(//c/Users/iKame/.claude/skills/.venv/Scripts//**)",
+      "PowerShell(Get-ChildItem \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\.venv\\\\Scripts\\\\\" -ErrorAction SilentlyContinue | Select-Object -First 10; Get-ChildItem \"$env:USERPROFILE\\\\.claude\\\\skills\\\\.venv\\\\Scripts\\\\\" -ErrorAction SilentlyContinue | Select-Object -First 10)",
+      "PowerShell($python = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\.venv\\\\Scripts\\\\python.exe\"; $script = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\"; & $python $script \"SaaS advertising campaign batch generator workflow\" --design-system -p \"Meta Batch Generator\" -f markdown 2>&1 | Select-Object -First 100)",
+      "PowerShell($python = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\.venv\\\\Scripts\\\\python.exe\"; $script = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\"; & $python $script \"batch workflow progress multi-step form\" --domain ux 2>&1 | Select-Object -First 60)",
+      "PowerShell($python = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\.venv\\\\Scripts\\\\python.exe\"; $script = \"$env:USERPROFILE\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\"; & $python $script \"data table selection bulk action\" --domain ux 2>&1 | Select-Object -First 60)"
     ]
   }
 }

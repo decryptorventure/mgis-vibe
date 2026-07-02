@@ -3,7 +3,6 @@
 import type { Key } from 'react';
 import { toast } from '@frontend-team/ui-kit';
 import type { Ad, AdSet, Campaign } from '@/shared/mock-data';
-import type { MetaAutomationRun, MetaBulkCriteria, MetaBulkGenerationResult, MetaCreationRecipe } from '@/pages/networks/meta-bulk-generation';
 import type { MetaEntity, MetaReportRow, DraftCampaign } from './meta-types';
 import { ENTITY_META } from './meta-table-config';
 import { isCampaign, isAdSet, isAd } from './meta-metric-helpers';
@@ -16,13 +15,10 @@ export interface WorkspaceSetters {
   setAds: React.Dispatch<React.SetStateAction<Ad[]>>;
   setSelectedRowKeys: React.Dispatch<React.SetStateAction<Key[]>>;
   setDrafts: React.Dispatch<React.SetStateAction<DraftCampaign[]>>;
-  setAutomationRuns: React.Dispatch<React.SetStateAction<MetaAutomationRun[]>>;
-  setRecipes: React.Dispatch<React.SetStateAction<MetaCreationRecipe[]>>;
   setSelectedCampaignId: React.Dispatch<React.SetStateAction<string | null>>;
   setSelectedAdSetId: React.Dispatch<React.SetStateAction<string | null>>;
   setEntity: (next: MetaEntity) => void;
   setDraftsCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
-  setBulkCreateOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // ----- Duplicate ----------------------------------------------------------
@@ -98,57 +94,21 @@ export function drillDownRow(
   if (isAdSet(row)) { setters.setSelectedCampaignId(row.campaignId); setters.setSelectedAdSetId(row.id); setters.setEntity('ads'); }
 }
 
-// ----- Recipes ------------------------------------------------------------
+// ----- Batch generator draft materialization -------------------------------
+// Turns completed batch-generator jobs into real DRAFT campaign/adset/ad rows
+// (ports the "materialize as drafts" behavior from the retired AI Bulk Create flow).
 
-export function upsertRecipe(recipe: MetaCreationRecipe, setRecipes: WorkspaceSetters['setRecipes']) {
-  setRecipes(items => { const exists = items.some(i => i.id === recipe.id); return exists ? items.map(i => i.id === recipe.id ? recipe : i) : [recipe, ...items]; });
-}
-
-// ----- Bulk draft generation ---------------------------------------------
-
-export function applyBulkGenerationResult(
-  result: MetaBulkGenerationResult,
-  criteria: MetaBulkCriteria,
-  setters: Pick<WorkspaceSetters, 'setCampaigns' | 'setAdSets' | 'setAds' | 'setDrafts' | 'setAutomationRuns' | 'setSelectedCampaignId' | 'setSelectedAdSetId' | 'setEntity' | 'setDraftsCollapsed' | 'setBulkCreateOpen' | 'setSelectedRowKeys'>,
+export function addBatchGeneratedEntities(
+  entities: { campaigns: Campaign[]; adSets: AdSet[]; ads: Ad[] },
+  draft: DraftCampaign,
+  setters: Pick<WorkspaceSetters, 'setCampaigns' | 'setAdSets' | 'setAds' | 'setDrafts'>,
 ) {
-  const gc = result.campaigns.map(c => c.campaign);
-  const gs = result.campaigns.flatMap(c => c.adSets.map(s => s.adSet));
-  const ga = result.campaigns.flatMap(c => c.adSets.flatMap(s => s.ads.map(a => a.ad)));
-  setters.setCampaigns(items => [...gc, ...items]);
-  setters.setAdSets(items => [...gs, ...items]);
-  setters.setAds(items => [...ga, ...items]);
-  setters.setDrafts(items => [{
-    id: result.runId,
-    name: `${criteria.name} batch`,
-    objective: criteria.objective,
-    budget: `$${result.summary.totalDailyBudget} / day`,
-    updatedAt: 'just now',
-    campaignId: gc[0]?.id,
-    progress: {
-      campaign: result.summary.campaigns,
-      adsets: result.summary.adSets,
-      creatives: Math.max(1, criteria.creativeGroups.length),
-      ads: result.summary.ads,
-      campaignTotal: result.summary.campaigns,
-      adsetsTotal: result.summary.adSets,
-      creativesTotal: Math.max(1, criteria.creativeGroups.length),
-      adsTotal: result.summary.ads,
-    },
-  }, ...items]);
-  setters.setAutomationRuns(items => [{
-    id: result.runId,
-    recipeName: criteria.name || 'Untitled Meta recipe',
-    createdAt: result.createdAt,
-    summary: result.summary,
-    status: 'drafted',
-  }, ...items]);
-  setters.setSelectedCampaignId(null);
-  setters.setSelectedAdSetId(null);
-  setters.setSelectedRowKeys([]);
-  setters.setEntity('campaigns');
-  setters.setDraftsCollapsed(false);
-  setters.setBulkCreateOpen(false);
-  toast.success(`Generated ${result.summary.campaigns} campaign draft(s), ${result.summary.adSets} ad set(s), ${result.summary.ads} ad(s)`);
+  if (entities.campaigns.length === 0) return;
+  setters.setCampaigns(items => [...entities.campaigns, ...items]);
+  setters.setAdSets(items => [...entities.adSets, ...items]);
+  setters.setAds(items => [...entities.ads, ...items]);
+  setters.setDrafts(items => [draft, ...items]);
+  toast.success(`Generated ${entities.campaigns.length} campaign draft(s), ${entities.adSets.length} ad set(s), ${entities.ads.length} ad(s)`);
 }
 
 // ----- Discard drafts ----------------------------------------------------

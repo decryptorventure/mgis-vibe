@@ -131,8 +131,8 @@ export const DEFAULT_VISIBLE_BY_ENTITY: Record<MetaEntity, MetaColumnKey[]> = {
 
 // Storage keys — these strings MUST remain byte-identical for localStorage compatibility
 export const TABLE_PREF_STORAGE_KEY = 'nms_meta_workspace_table_preferences_v2';
-export const META_CREATION_RECIPES_STORAGE_KEY = 'nms_meta_creation_recipes_v1';
-export const META_CREATION_RUNS_STORAGE_KEY = 'nms_meta_creation_runs_v1';
+export const META_BATCH_RUNS_STORAGE_KEY = 'nms_meta_batch_runs_v1';
+export const META_BATCH_PRESETS_STORAGE_KEY = 'nms_meta_batch_presets_v1';
 
 export const TABLE_VIEW_PRESETS: Record<MetaEntity, { id: string; label: string; keys: MetaColumnKey[]; heatmaps: Partial<Record<MetaColumnKey, string>> }[]> = {
   campaigns: [

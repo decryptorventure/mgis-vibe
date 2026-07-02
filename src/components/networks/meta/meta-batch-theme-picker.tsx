@@ -54,6 +54,7 @@ export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }
       <div className="relative shrink-0">
         <Search size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text_tertiary pointer-events-none" />
         <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search themes…"
+          aria-label="Search themes"
           className="w-full border border_primary radius_8 pl-7 pr-2.5 py-1 text-[11px] text_primary bg_secondary outline-none placeholder:text_tertiary focus:border_accent_secondary" />
       </div>
 
@@ -68,7 +69,8 @@ export const BatchThemePicker: React.FC<Props> = ({ themes, selected, onToggle }
                 isSelected ? 'border_accent_secondary bg_info' : 'border_primary bg_primary'
               )}>
               <div className="flex items-center gap-1.5 px-3 py-2">
-                <button type="button" onClick={() => onToggle(t.id)}
+                <button type="button" onClick={() => onToggle(t.id)} role="checkbox" aria-checked={isSelected}
+                  aria-label={`${isSelected ? 'Deselect' : 'Select'} theme ${t.name}`}
                   className="flex items-center gap-2 flex-1 text-left min-w-0">
                   <span className={cn(
                     'w-4 h-4 radius_8 border shrink-0 flex items-center justify-center',

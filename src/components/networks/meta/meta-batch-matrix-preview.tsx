@@ -1,12 +1,13 @@
 // meta-batch-matrix-preview.tsx — live preview: name pattern + flat campaign list grouped by template
 import React, { useMemo, useState } from 'react';
 import { cn } from '@frontend-team/ui-kit';
-import { AlertTriangle, ChevronDown, LayoutGrid, RotateCcw } from 'lucide-react';
-import { DEFAULT_NAME_PATTERN } from './meta-theme-parser';
+import { Tag } from '@/components/ui-kit-compat';
+import { AlertTriangle, ChevronDown, LayoutGrid } from 'lucide-react';
 import type { BatchAdCopy, BatchCombination, NamePattern } from './meta-batch-types';
 import type { MediaFile } from './meta-media-library-modal';
 import { BatchAdCopySection } from './meta-batch-ad-copy-section';
 import { BatchAdCard } from './meta-batch-ad-card';
+import { BatchNamePatternEditor } from './meta-batch-name-pattern-editor';
 
 interface Props {
   combinations: BatchCombination[];
@@ -18,8 +19,6 @@ interface Props {
   adCopy: BatchAdCopy;
   onAdCopyChange: (c: BatchAdCopy) => void;
 }
-
-const PATTERN_TOKENS = ['{template}', '{theme}', '{account}', '{date}', '{slice}'];
 
 // Returns the specific media files assigned to a slice (sequential allocation)
 function getSliceFiles(combo: BatchCombination, sliceIndex: number): MediaFile[] {
@@ -50,7 +49,11 @@ export const BatchLivePreview: React.FC<Props> = ({
     return [...map.values()];
   }, [combinations]);
 
-  const firstActiveCombo = combinations.find(c => !excludedCampaigns.has(`${c.id}:0`));
+  const activeNames = useMemo(
+    () => combinations.flatMap(c => c.slices.map((_, i) => ({ key: `${c.id}:${i}`, name: c.generatedNames[i] }))
+      .filter(({ key }) => !excludedCampaigns.has(key))),
+    [combinations, excludedCampaigns]
+  );
 
   if (combinations.length === 0) {
     return (
@@ -70,42 +73,16 @@ export const BatchLivePreview: React.FC<Props> = ({
     <div className="flex flex-col h-full">
       <BatchAdCopySection adCopy={adCopy} onChange={onAdCopyChange} />
 
-      {/* Campaign Name Pattern */}
-      <div className="px-5 pt-3.5 pb-3 border-b border_primary shrink-0">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-xs font-semibold text_secondary">Campaign Name Pattern</div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text_tertiary">
-              <span className="text_primary font-medium">{activeCampaigns}</span>/{allKeys.length} campaigns
-            </span>
-            {namePattern !== DEFAULT_NAME_PATTERN && (
-              <button type="button" aria-label="Reset pattern" onClick={() => onNamePatternChange(DEFAULT_NAME_PATTERN)}
-                className="text_tertiary hover:text_secondary transition-colors">
-                <RotateCcw size={11} />
-              </button>
-            )}
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-1.5 mb-2">
-          {PATTERN_TOKENS.map(tok => (
-            <button key={tok} type="button" onClick={() => onNamePatternChange(namePattern + tok)}
-              className="text-[11px] bg_secondary border border_secondary radius_8 px-2 py-0.5 text_secondary hover:border_primary hover:text_primary transition-colors font-mono">
-              {tok}
-            </button>
-          ))}
-        </div>
-        <input value={namePattern} onChange={e => onNamePatternChange(e.target.value)}
-          placeholder="e.g. [{template}] {theme} — {slice}"
-          className="w-full border border_primary radius_8 px-3 py-1.5 text-xs text_primary bg_primary outline-none placeholder:text_tertiary focus:border_accent_secondary font-mono" />
-        {firstActiveCombo && (
-          <div className="text-[10px] text_tertiary mt-1.5">
-            Preview: <span className="text_secondary font-mono">{firstActiveCombo.generatedNames[0]}</span>
-          </div>
-        )}
-      </div>
+      <BatchNamePatternEditor
+        namePattern={namePattern}
+        onNamePatternChange={onNamePatternChange}
+        activeCampaigns={activeCampaigns}
+        totalCampaigns={allKeys.length}
+        activeNames={activeNames}
+      />
 
       {allExcluded && (
-        <div className="mx-5 mt-3 flex items-center gap-2 px-3 py-2 bg_error_subtle border border-[var(--status-error,#ef4444)]/20 radius_8 shrink-0">
+        <div role="alert" className="mx-5 mt-3 flex items-center gap-2 px-3 py-2 bg_error_subtle border border-[var(--status-error,#ef4444)]/20 radius_8 shrink-0">
           <AlertTriangle size={12} className="fg_error shrink-0" />
           <span className="text-[11px] fg_error">All campaigns are deselected — none will be generated.</span>
         </div>
@@ -118,10 +95,11 @@ export const BatchLivePreview: React.FC<Props> = ({
             <tr>
               <th className="w-9 px-3 py-2.5 text-left">
                 <input type="checkbox" checked={allSelected} onChange={() => onToggleAll(allSelected)}
+                  aria-label={allSelected ? 'Deselect all campaigns' : 'Select all campaigns'}
                   className="w-3.5 h-3.5 accent-[var(--status-info)]" />
               </th>
               <th className="px-3 py-2.5 text-left text_tertiary font-medium">Theme</th>
-              <th className="px-3 py-2.5 text-left text_tertiary font-medium">Slice</th>
+              <th className="px-3 py-2.5 text-left text_tertiary font-medium">Part</th>
               <th className="px-3 py-2.5 text-left text_tertiary font-medium">Creatives</th>
               <th className="px-3 py-2.5 text-left text_tertiary font-medium">Campaign Name</th>
               <th className="w-8 px-2" />
@@ -135,16 +113,21 @@ export const BatchLivePreview: React.FC<Props> = ({
               return (
                 <React.Fragment key={group.template.id}>
                   {/* Template group header */}
-                  <tr className="bg_secondary border-b border_primary">
-                    <td colSpan={6} className="px-3 py-1.5">
+                  <tr className="border-b border_primary">
+                    <td colSpan={6} className="px-3 py-2 bg_secondary border-l-2 border-l-[var(--status-info)]">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-bold text_primary">{group.template.name}</span>
+                        <span className="text-xs font-bold text_primary">{group.template.name}</span>
                         {group.template.account && (
                           <span className="text-[10px] fg_info bg_info border border_accent_secondary radius_8 px-1.5 py-0.5 font-medium">
                             {group.template.account.name}
                           </span>
                         )}
-                        <span className="text-[10px] text_tertiary ml-auto">{groupActive}/{groupTotal} campaigns</span>
+                        <span className={cn(
+                          'text-[10px] radius_8 px-1.5 py-0.5 font-medium ml-auto',
+                          groupActive === groupTotal ? 'text-[var(--status-success,#22c55e)] bg-[var(--status-success,#22c55e)]/10' : 'fg_info bg_info'
+                        )}>
+                          {groupActive}/{groupTotal} campaigns
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -159,23 +142,29 @@ export const BatchLivePreview: React.FC<Props> = ({
                         <React.Fragment key={key}>
                           <tr className={cn(
                             'border-b border_secondary transition-colors',
-                            isExcluded ? 'opacity-40 bg_secondary' : 'hover:bg_secondary'
+                            isExcluded ? 'bg_secondary' : 'hover:bg_secondary'
                           )}>
                             <td className="px-3 py-2">
                               <input type="checkbox" checked={!isExcluded} onChange={() => onToggleExclude(key)}
+                                aria-label={isExcluded ? 'Include this campaign' : 'Exclude this campaign'}
                                 className="w-3.5 h-3.5 accent-[var(--status-info)]" />
                             </td>
                             <td className="px-3 py-2 text_secondary max-w-[130px]">
-                              <span className="truncate block">{combo.theme.name}</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="truncate">{combo.theme.name}</span>
+                                {isExcluded && <Tag color="default" className="shrink-0 text-[9px]">Excluded</Tag>}
+                              </div>
                               {sliceIndex === 0 && (
                                 <span className="text-[10px] text_tertiary">{combo.theme.files.length} files</span>
                               )}
                             </td>
                             <td className="px-3 py-2">
                               <span className={cn(
-                                'text-[11px] font-semibold px-1.5 py-0.5 radius_8',
+                                'text-[11px] font-semibold px-1.5 py-0.5 radius_8 tabular-nums',
                                 combo.slices.length > 1 ? 'fg_info bg_info' : 'text_secondary bg_secondary'
-                              )}>#{sliceIndex + 1}</span>
+                              )}>
+                                {combo.slices.length > 1 ? `${sliceIndex + 1}/${combo.slices.length}` : '1/1'}
+                              </span>
                             </td>
                             <td className="px-3 py-2">
                               <span className="text-[11px] text_secondary font-medium tabular-nums">{creativeCount}</span>

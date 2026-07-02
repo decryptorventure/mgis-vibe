@@ -1,14 +1,18 @@
 // meta-batch-progress-tracker.tsx — mock generation progress UI for batch campaign generator
 import React, { useEffect, useState } from 'react';
 import { Button, cn, toast } from '@frontend-team/ui-kit';
-import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
+import { CheckCircle2, Loader2, RefreshCw, XCircle } from 'lucide-react';
+import { BATCH_ERROR_MESSAGES } from './meta-batch-types';
 import type { BatchJob, BatchJobStatus } from './meta-batch-types';
+import { mockRunJob } from './meta-batch-job-runner';
 
 interface Props {
   jobs: BatchJob[];
   onClose: () => void;
   onBatchComplete?: (jobs: BatchJob[]) => void;
   onViewHistory?: () => void;
+  /** Pluggable job runner — defaults to the mock simulation. Swap in a real API call later. */
+  runJob?: (job: BatchJob) => Promise<{ status: 'done' | 'error'; error?: BatchJob['error'] }>;
 }
 
 const STATUS_ICON: Record<BatchJobStatus, React.ReactNode> = {
@@ -18,7 +22,7 @@ const STATUS_ICON: Record<BatchJobStatus, React.ReactNode> = {
   error:   <XCircle size={13} className="fg_error shrink-0" />,
 };
 
-export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClose, onBatchComplete, onViewHistory }) => {
+export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClose, onBatchComplete, onViewHistory, runJob = mockRunJob }) => {
   const [jobs, setJobs]     = useState<BatchJob[]>(initialJobs);
   const [paused, setPaused] = useState(false);
 
@@ -34,18 +38,17 @@ export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClo
   useEffect(() => {
     if (allDone || paused) return;
     const runningIdx = jobs.findIndex(j => j.status === 'running');
-    if (runningIdx !== -1) return; // already advancing, wait for timer to fire
+    if (runningIdx !== -1) return; // already advancing, wait for the runner to resolve
 
     const nextIdx = jobs.findIndex(j => j.status === 'queued');
     if (nextIdx === -1) return;
 
     setJobs(prev => prev.map((j, i) => i === nextIdx ? { ...j, status: 'running' } : j));
 
-    setTimeout(() => {
-      const outcome: BatchJobStatus = Math.random() < 0.1 ? 'error' : 'done';
-      setJobs(prev => prev.map((j, i) => i === nextIdx ? { ...j, status: outcome } : j));
-    }, 400 + Math.random() * 500);
-  }, [jobs, paused, allDone]);
+    runJob(jobs[nextIdx]).then(({ status, error }) => {
+      setJobs(prev => prev.map((j, i) => i === nextIdx ? { ...j, status, error } : j));
+    });
+  }, [jobs, paused, allDone, runJob]);
 
   useEffect(() => {
     if (!allDone) return;
@@ -54,52 +57,97 @@ export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClo
     onBatchComplete?.(jobs);
   }, [allDone]);
 
+  const retryOne = (key: string) => {
+    setJobs(prev => prev.map(j => `${j.combination.id}:${j.sliceIndex}` === key ? { ...j, status: 'queued', error: undefined } : j));
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Overall progress */}
-      <div className="px-6 pt-5 pb-4 border-b border_primary shrink-0">
-        <div className="flex items-center justify-between mb-2">
-          <span className="body_s font-semibold text_primary">
-            {allDone ? 'Generation Complete' : `Generating… ${doneCount}/${jobs.length}`}
-          </span>
-          <span className="text-xs text_tertiary">{pct}%</span>
-        </div>
-        <div className="w-full h-2 bg_secondary radius_round overflow-hidden">
-          <div className="h-full bg-[var(--status-info)] transition-all duration-300"
-            style={{ width: `${pct}%` }} />
-        </div>
-        {errorCount > 0 && (
-          <div className="mt-1.5 text-[11px] fg_error">
-            {errorCount} error{errorCount !== 1 ? 's' : ''} — check rows below
+      <div className="px-6 pt-5 pb-4 border-b border_primary shrink-0" role="status" aria-live="polite">
+        {allDone ? (
+          <div className={cn(
+            'flex items-center gap-3 px-4 py-3 radius_8 border',
+            errorCount === 0
+              ? 'bg-[var(--status-success,#22c55e)]/8 border-[var(--status-success,#22c55e)]/25'
+              : 'bg_error_subtle border-[var(--status-error,#ef4444)]/25'
+          )}>
+            {errorCount === 0
+              ? <CheckCircle2 size={18} className="text-[var(--status-success,#22c55e)] shrink-0" />
+              : <XCircle size={18} className="fg_error shrink-0" />}
+            <div>
+              <div className={cn('text-xs font-bold',
+                errorCount === 0 ? 'text-[var(--status-success,#22c55e)]' : 'fg_error'
+              )}>
+                {errorCount === 0
+                  ? `All ${jobs.length} campaigns created successfully`
+                  : `${doneCount - errorCount} succeeded · ${errorCount} failed`}
+              </div>
+              {errorCount > 0 && (
+                <div className="text-[11px] text_tertiary mt-0.5">Review errors below, then retry or continue</div>
+              )}
+            </div>
           </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-2">
+              <span className="body_s font-semibold text_primary">Generating… {doneCount}/{jobs.length}</span>
+              <span className="text-xs text_tertiary">{pct}%</span>
+            </div>
+            <div className="w-full h-2 bg_secondary radius_round overflow-hidden">
+              <div className="h-full bg-[var(--status-info)] transition-all duration-300"
+                style={{ width: `${pct}%` }} />
+            </div>
+            {errorCount > 0 && (
+              <div className="mt-1.5 text-[11px] fg_error" role="alert">
+                {errorCount} error{errorCount !== 1 ? 's' : ''} — check rows below
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {/* Job list */}
       <div className="flex-1 overflow-y-auto divide-y divide-[var(--border-secondary)]">
-        {jobs.map(job => (
-          <div key={`${job.combination.id}:${job.sliceIndex}`}
-            className={cn(
-              'flex items-center gap-3 px-6 py-2.5',
-              job.status === 'error' && 'bg_error_subtle'
-            )}>
-            {STATUS_ICON[job.status]}
-            <span className={cn(
-              'flex-1 text-xs truncate',
-              job.status === 'error' ? 'fg_error' : 'text_primary'
-            )}>
-              {job.combination.generatedNames[job.sliceIndex] ?? job.combination.generatedNames[0]}
-            </span>
-            <span className={cn('text-[11px] shrink-0 capitalize font-medium',
-              job.status === 'done'    ? 'text-[var(--status-success,#22c55e)]' :
-              job.status === 'error'   ? 'fg_error' :
-              job.status === 'running' ? 'fg_info' :
-              'text_tertiary'
-            )}>
-              {job.status}
-            </span>
-          </div>
-        ))}
+        {jobs.map(job => {
+          const key = `${job.combination.id}:${job.sliceIndex}`;
+          return (
+            <div key={key}
+              className={cn(
+                'flex items-center gap-3 px-6 py-2.5',
+                job.status === 'error' && 'bg_error_subtle'
+              )}>
+              {STATUS_ICON[job.status]}
+              <div className="flex-1 min-w-0">
+                <span className={cn(
+                  'block text-xs truncate',
+                  job.status === 'error' ? 'fg_error' : 'text_primary'
+                )}>
+                  {job.combination.generatedNames[job.sliceIndex] ?? job.combination.generatedNames[0]}
+                </span>
+                {job.status === 'error' && job.error && (
+                  <span className="block text-[10px] fg_error mt-0.5" role="alert">
+                    {BATCH_ERROR_MESSAGES[job.error]}
+                  </span>
+                )}
+              </div>
+              {job.status === 'error' ? (
+                <button type="button" aria-label="Retry this campaign" onClick={() => retryOne(key)}
+                  className="text-[11px] font-medium fg_error hover:underline shrink-0 px-1">
+                  Retry
+                </button>
+              ) : (
+                <span className={cn('text-[11px] shrink-0 capitalize font-medium',
+                  job.status === 'done'    ? 'text-[var(--status-success,#22c55e)]' :
+                  job.status === 'running' ? 'fg_info' :
+                  'text_tertiary'
+                )}>
+                  {job.status}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Footer */}
@@ -111,9 +159,10 @@ export const BatchProgressTracker: React.FC<Props> = ({ jobs: initialJobs, onClo
             </Button>
           )}
           {allDone && errorCount > 0 && (
-            <Button type="button" variant="border" size="s"
-              onClick={() => setJobs(prev => prev.map(j => j.status === 'error' ? { ...j, status: 'queued' } : j))}>
-              Retry {errorCount} Error{errorCount !== 1 ? 's' : ''}
+            <Button type="button" variant="border" size="s" className="gap-1.5 fg_error"
+              onClick={() => setJobs(prev => prev.map(j => j.status === 'error' ? { ...j, status: 'queued', error: undefined } : j))}>
+              <RefreshCw size={12} />
+              Retry {errorCount} Failed
             </Button>
           )}
           {allDone && (

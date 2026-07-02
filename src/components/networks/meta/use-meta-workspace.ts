@@ -4,12 +4,11 @@ import type { Key } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { mockAds, mockAdSets, mockCampaigns, mockProjects, type Ad, type AdSet, type Campaign } from '@/shared/mock-data';
-import type { MetaAutomationRun, MetaBulkCriteria, MetaBulkGenerationResult, MetaCreationRecipe } from '@/pages/networks/meta-bulk-generation';
 import type { MetaEntity, MetaReportRow, MetaColumnKey, MetaWorkspaceProps, MetaPage, MetaTemplate, DraftCampaign, FilterRule, BuilderContext, TablePreference } from './meta-types';
-import { META_ACCOUNT_OPTIONS, META_PAGES, META_TEMPLATES, META_DRAFTS, META_REPORT_COLUMNS, TABLE_PREF_STORAGE_KEY, META_CREATION_RECIPES_STORAGE_KEY, META_CREATION_RUNS_STORAGE_KEY, TABLE_VIEW_PRESETS } from './meta-table-config';
-import { getMetricValue, formatMetricValue, loadStoredArray, getInitialTablePreferences } from './meta-metric-helpers';
+import { META_ACCOUNT_OPTIONS, META_PAGES, META_TEMPLATES, META_DRAFTS, META_REPORT_COLUMNS, TABLE_PREF_STORAGE_KEY, TABLE_VIEW_PRESETS } from './meta-table-config';
+import { getMetricValue, formatMetricValue, getInitialTablePreferences } from './meta-metric-helpers';
 import { buildMetaColumns } from './meta-column-builder';
-import { duplicateRows, deleteRows, applyBulkStatus, editRow, drillDownRow, upsertRecipe, applyBulkGenerationResult, discardAllDrafts } from './meta-workspace-actions';
+import { duplicateRows, deleteRows, applyBulkStatus, editRow, drillDownRow, addBatchGeneratedEntities, discardAllDrafts } from './meta-workspace-actions';
 import { applyChipFilter } from './meta-filter-presets';
 
 export function useMetaWorkspace({ network }: MetaWorkspaceProps) {
@@ -33,7 +32,6 @@ export function useMetaWorkspace({ network }: MetaWorkspaceProps) {
   const [pagesOpen, setPagesOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [builderOpen, setBuilderOpen] = useState(false);
-  const [bulkCreateOpen, setBulkCreateOpen] = useState(false);
   const [columnsOpen, setColumnsOpen] = useState(false);
   const [draftsCollapsed, setDraftsCollapsed] = useState(false);
   const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
@@ -41,8 +39,6 @@ export function useMetaWorkspace({ network }: MetaWorkspaceProps) {
   const [ads, setAds] = useState<Ad[]>(initialAds);
   const [pages, setPages] = useState<MetaPage[]>(META_PAGES);
   const [templates, setTemplates] = useState<MetaTemplate[]>(META_TEMPLATES);
-  const [recipes, setRecipes] = useState<MetaCreationRecipe[]>(() => loadStoredArray<MetaCreationRecipe>(META_CREATION_RECIPES_STORAGE_KEY));
-  const [automationRuns, setAutomationRuns] = useState<MetaAutomationRun[]>(() => loadStoredArray<MetaAutomationRun>(META_CREATION_RUNS_STORAGE_KEY));
   const [drafts, setDrafts] = useState<DraftCampaign[]>(() => META_DRAFTS.map((d, i) => ({ ...d, campaignId: initialCampaigns[i]?.id ?? initialCampaigns[0]?.id })));
   const [draftFilters, setDraftFilters] = useState<FilterRule[]>([
     { id: 'filter-entity', field: 'entity', operator: 'contains', value: '' },
@@ -63,8 +59,6 @@ export function useMetaWorkspace({ network }: MetaWorkspaceProps) {
     setSelectedCampaignId(null); setSelectedAdSetId(null); setSelectedRowKeys([]);
   }, [initialAds, initialAdSets, initialCampaigns]);
   useEffect(() => { window.localStorage.setItem(TABLE_PREF_STORAGE_KEY, JSON.stringify(tablePreferences)); }, [tablePreferences]);
-  useEffect(() => { window.localStorage.setItem(META_CREATION_RECIPES_STORAGE_KEY, JSON.stringify(recipes)); }, [recipes]);
-  useEffect(() => { window.localStorage.setItem(META_CREATION_RUNS_STORAGE_KEY, JSON.stringify(automationRuns)); }, [automationRuns]);
   useEffect(() => { if (selectedCampaignId && !campaigns.some(c => c.id === selectedCampaignId)) { setSelectedCampaignId(null); setSelectedAdSetId(null); } }, [campaigns, selectedCampaignId]);
   useEffect(() => { if (selectedAdSetId && !adSets.some(s => s.id === selectedAdSetId)) setSelectedAdSetId(null); }, [adSets, selectedAdSetId]);
 
@@ -149,7 +143,7 @@ export function useMetaWorkspace({ network }: MetaWorkspaceProps) {
   const selectedRows = activeRows.filter(row => selectedRowKeys.includes(row.id));
 
   // Action setters bundle passed to extracted action helpers
-  const setters = { setCampaigns, setAdSets, setAds, setSelectedRowKeys, setDrafts, setAutomationRuns, setRecipes, setSelectedCampaignId, setSelectedAdSetId, setEntity: handleEntityChange, setDraftsCollapsed, setBulkCreateOpen };
+  const setters = { setCampaigns, setAdSets, setAds, setSelectedRowKeys, setDrafts, setSelectedCampaignId, setSelectedAdSetId, setEntity: handleEntityChange, setDraftsCollapsed };
 
   const duplicateSelected = () => duplicateRows(entity, selectedRows, setters);
   const deleteSelected = () => deleteRows(entity, selectedRowKeys, selectedRows, setters);
@@ -166,8 +160,8 @@ export function useMetaWorkspace({ network }: MetaWorkspaceProps) {
 
   const editInspectedRow = (row: MetaReportRow) => editRow(row, campaigns, normalizedAdSets, openBuilder);
   const drillDownInspectedRow = (row: MetaReportRow) => drillDownRow(row, setters);
-  const saveCreationRecipe = (recipe: MetaCreationRecipe) => upsertRecipe(recipe, setRecipes);
-  const handleBulkDraftGeneration = (result: MetaBulkGenerationResult, criteria: MetaBulkCriteria) => applyBulkGenerationResult(result, criteria, setters);
+  const addBatchDrafts = (entities: { campaigns: Campaign[]; adSets: AdSet[]; ads: Ad[] }, draft: DraftCampaign) =>
+    addBatchGeneratedEntities(entities, draft, setters);
   const discardDrafts = () => discardAllDrafts(drafts, setDrafts);
 
   const summaryRows = useMemo(() => {
@@ -191,15 +185,15 @@ export function useMetaWorkspace({ network }: MetaWorkspaceProps) {
     selectedCampaign, selectedAdSet, campaigns, adSets: normalizedAdSets, ads: normalizedAds,
     visibleCampaigns, visibleAdSets, visibleAds, activeRows, selectedRows, selectedRowKeys, setSelectedRowKeys,
     searchText, setSearchText, filtersOpen, setFiltersOpen, pagesOpen, setPagesOpen,
-    templatesOpen, setTemplatesOpen, builderOpen, setBuilderOpen, bulkCreateOpen, setBulkCreateOpen,
+    templatesOpen, setTemplatesOpen, builderOpen, setBuilderOpen,
     columnsOpen, setColumnsOpen, draftsCollapsed, setDraftsCollapsed, analysisOpen, setAnalysisOpen,
-    builderContext, pages, setPages, templates, setTemplates, drafts, setDrafts, recipes, automationRuns,
+    builderContext, pages, setPages, templates, setTemplates, drafts, setDrafts,
     draftFilters, setDraftFilters, appliedFilters, setAppliedFilters,
     visibleColumnKeys, heatmapColors, activePresetByEntity, bulkAction, setBulkAction,
     campaignColumns, adSetColumns, adColumns, summaryRows, breadcrumbItems,
     openBuilder, clearCampaignScope, clearAdSetScope, updateTablePreferences, applyTablePreset,
     duplicateSelected, deleteSelected, runBulkAction, editInspectedRow, drillDownInspectedRow,
-    saveCreationRecipe, handleBulkDraftGeneration, discardDrafts,
+    addBatchDrafts, discardDrafts,
     expandedRowKeys, setExpandedRowKeys, activeChips, toggleChip,
   };
 }

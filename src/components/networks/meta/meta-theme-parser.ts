@@ -1,7 +1,8 @@
 // meta-theme-parser.ts — filename → theme name parser + mock seed data
 import type { MediaFile } from './meta-media-library-modal';
-import type { BatchTheme, BatchCombination } from './meta-batch-types';
-import { DEFAULT_NAME_PATTERN } from './meta-batch-types';
+import type { BatchTheme, BatchCombination, NamePattern } from './meta-batch-types';
+import { DEFAULT_NAME_PATTERN, computeSlices } from './meta-batch-types';
+import type { MetaTemplate } from './meta-types';
 
 // Pattern: {AppCode}_{ThemeName}_Ver{version}_{dims}.{ext}
 // e.g. N3_Sexy_Phone_Ver1.3_25-55_916.mp4 → "Sexy_Phone"
@@ -45,6 +46,30 @@ export function resolveNamePattern(
 }
 
 export { DEFAULT_NAME_PATTERN };
+
+// Builds the full Templates × Themes matrix with creative slicing — shared by the drawer's
+// live useMemo and the "Edit & Regenerate" lazy-init (both need the identical computation).
+export function buildLiveCombinations(
+  templates: MetaTemplate[],
+  themes: BatchTheme[],
+  minCreatives: number,
+  namePattern: NamePattern,
+): BatchCombination[] {
+  return templates.flatMap(t =>
+    themes.map(th => {
+      const id = `${t.id}:${th.id}`;
+      const slices = computeSlices(th.files.length, minCreatives);
+      return {
+        id,
+        template: t,
+        theme: th,
+        slices,
+        generatedNames: slices.map((_, i) => resolveNamePattern(namePattern, { template: t, theme: th }, i)),
+        excluded: false,
+      };
+    })
+  );
+}
 
 // Mock media library — Sexy_Phone has 13 files to demonstrate campaign slicing
 export const MOCK_MEDIA_FILES: MediaFile[] = [

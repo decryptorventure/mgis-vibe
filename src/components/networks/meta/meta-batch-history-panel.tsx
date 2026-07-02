@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import { cn } from '@frontend-team/ui-kit';
 import { CheckCircle2, ChevronRight, Clock, History, XCircle } from 'lucide-react';
-import type { BatchRun } from './meta-batch-types';
+import type { BatchRegenerateRequest, BatchRun } from './meta-batch-types';
 import { BatchRunDetail } from './meta-batch-history-detail';
 
 interface Props {
   runs: BatchRun[];
-  onRegenerate: (jobs: BatchRun['jobs']) => void;
+  onRegenerate: (request: BatchRegenerateRequest) => void;
 }
 
 function formatRelative(iso: string): string {
@@ -32,7 +32,7 @@ export const BatchHistoryPanel: React.FC<Props> = ({ runs, onRegenerate }) => {
         </div>
         <div className="text-xs font-semibold text_secondary">No batch runs yet</div>
         <div className="text-[11px] text_tertiary max-w-[240px]">
-          Completed batch runs will appear here for this session.
+          Completed batch runs will appear here and are saved locally.
         </div>
       </div>
     );
@@ -43,7 +43,7 @@ export const BatchHistoryPanel: React.FC<Props> = ({ runs, onRegenerate }) => {
       <BatchRunDetail
         run={selectedRun}
         onBack={() => setSelectedRunId(null)}
-        onRegenerate={jobs => { onRegenerate(jobs); setSelectedRunId(null); }}
+        onRegenerate={request => { onRegenerate(request); setSelectedRunId(null); }}
       />
     );
   }
@@ -54,7 +54,7 @@ export const BatchHistoryPanel: React.FC<Props> = ({ runs, onRegenerate }) => {
         <div className="flex items-center gap-2">
           <History size={14} className="fg_info" />
           <span className="text-xs font-semibold text_secondary">Batch History</span>
-          <span className="text-[11px] text_tertiary">({runs.length} run{runs.length !== 1 ? 's' : ''} · resets on refresh)</span>
+          <span className="text-[11px] text_tertiary">({runs.length} run{runs.length !== 1 ? 's' : ''} · saved locally)</span>
         </div>
       </div>
 
@@ -63,6 +63,14 @@ export const BatchHistoryPanel: React.FC<Props> = ({ runs, onRegenerate }) => {
           const doneCount  = run.jobs.filter(j => j.status === 'done').length;
           const errorCount = run.jobs.filter(j => j.status === 'error').length;
           const allOk      = errorCount === 0;
+
+          // Derive unique template + theme names for quick recognition
+          const templateNames = [...new Set(run.jobs.map(j => j.combination.template.name))];
+          const themeNames    = [...new Set(run.jobs.map(j => j.combination.theme.name))];
+          const contextLabel  = [
+            templateNames.slice(0, 2).join(', ') + (templateNames.length > 2 ? ` +${templateNames.length - 2}` : ''),
+            themeNames.slice(0, 2).join(', ') + (themeNames.length > 2 ? ` +${themeNames.length - 2}` : ''),
+          ].filter(Boolean).join(' · ');
 
           return (
             <button key={run.id} type="button"
@@ -78,17 +86,15 @@ export const BatchHistoryPanel: React.FC<Props> = ({ runs, onRegenerate }) => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-semibold text_primary">
+                <div className="text-xs font-semibold text_primary truncate">
                   {run.totalCampaigns} campaign{run.totalCampaigns !== 1 ? 's' : ''}
-                </div>
-                <div className="text-[11px] text_tertiary mt-0.5 flex items-center gap-2">
-                  <span className="flex items-center gap-1"><Clock size={10} />{formatRelative(run.createdAt)}</span>
                   {errorCount > 0 && (
-                    <span className="fg_error">{errorCount} failed</span>
+                    <span className="fg_error font-normal ml-1.5">· {errorCount} failed</span>
                   )}
-                  {doneCount > 0 && errorCount === 0 && (
-                    <span className="text-[var(--status-success,#22c55e)]">All succeeded</span>
-                  )}
+                </div>
+                <div className="text-[10px] text_tertiary mt-0.5 truncate">{contextLabel}</div>
+                <div className="text-[10px] text_tertiary mt-0.5 flex items-center gap-1">
+                  <Clock size={9} />{formatRelative(run.createdAt)}
                 </div>
               </div>
 
