@@ -45,12 +45,12 @@ export const MetaWorkspace: React.FC<MetaWorkspaceProps> = (props) => {
   const handleBatchComplete = (run: BatchRun) => setBatchRuns(prev => [...prev, run]);
   const handleSavePreset = (preset: BatchPreset) => { setBatchPresets(prev => [preset, ...prev]); toast.success('Batch preset saved'); };
 
-  const handleGenerateDrafts = (jobs: BatchJob[], adCopy: BatchAdCopy) => {
-    const entities = buildDraftEntitiesFromBatchJobs(jobs, adCopy, activeApp?.id ?? ws.appId ?? 'p1');
+  const handleGenerateDrafts = (jobs: BatchJob[], adCopy: BatchAdCopy, runId: string) => {
+    const entities = buildDraftEntitiesFromBatchJobs(jobs, adCopy, activeApp?.id ?? ws.appId ?? 'p1', runId);
     if (entities.campaigns.length === 0) return;
     const templateNames = [...new Set(jobs.map(j => j.combination.template.name))].slice(0, 2).join(', ');
     ws.addBatchDrafts(entities, {
-      id: `batch-${Date.now()}`,
+      id: `draft-${runId}`,
       name: `Batch: ${templateNames}`,
       objective: jobs[0]?.combination.template.objective ?? '',
       budget: '—',

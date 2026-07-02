@@ -1,7 +1,15 @@
 # Plan: Meta Batch Campaign Generator — UX Optimization → AI-Agent Automation
 
-Status: Draft (research done, awaiting decision to implement)
+Status: Phase 1 + Phase 2 implemented and manually verified in browser (2026-07-02). Phase 3 remains backlog (see phase-03 file).
 Branch: main | Created: 2026-07-02
+
+## Implementation Notes (2026-07-02)
+
+- All Phase 1 + Phase 2 requirements shipped: confirm-before-generate modal, per-job error taxonomy (7 mock codes) with per-row retry, visible "Excluded" tag, full name-list preview, fixed slicing-aware footer copy, a11y pass (aria-label/role=checkbox/aria-live), 3-step setup stepper, localStorage-backed batch presets + run history, "Edit & Regenerate" reopening editable setup, pluggable `runJob()` interface, and the AI-Bulk-Create merge (prompt-to-criteria box + preflight panel + unified recipes/history). `meta-bulk-create-drawer.tsx` / `meta-bulk-generation.ts` deleted; "AI Bulk Create" toolbar entry removed — "Batch Generate" is now the single bulk-creation entry point.
+- New capability beyond the original plan: batch-generated campaigns now materialize as real DRAFT Campaign/AdSet/Ad rows in the workspace table (`meta-batch-entity-builder.ts` + `addBatchGeneratedEntities`) — the old batch generator never did this; it's ported from AI Bulk Create's "materialize as drafts" behavior, closing a gap where a "completed" batch didn't actually add anything to the table.
+- Bug found and fixed during self-review: draft Campaign/AdSet/Ad IDs were derived only from `combination.id` + `sliceIndex`, so regenerating the same template/theme/slice would collide with previously materialized rows (same `id` twice in state). Fixed by threading a per-run `runId` into `buildDraftEntitiesFromBatchJobs`. Verified live: generate → regenerate same combo → 5th distinct campaign appears, no React duplicate-key warning.
+- `npx tsc --noEmit` and `npx eslint` clean on all touched/new files (pre-existing lint debt in untouched files and two files with debt present before this change — `MetaWorkspace.tsx` 259→275 lines, `use-meta-workspace.ts` set-state-in-effect patterns — left as-is, out of scope).
+- Automated code-reviewer subagent hit a session limit mid-run; review was completed manually instead (see this section + git diff).
 
 ## Context
 

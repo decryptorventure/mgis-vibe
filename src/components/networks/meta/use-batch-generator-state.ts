@@ -18,7 +18,7 @@ export interface UseBatchGeneratorStateArgs {
   existingCampaignNames: string[];
   onSavePreset: (preset: BatchPreset) => void;
   onBatchComplete?: (run: BatchRun) => void;
-  onGenerateDrafts?: (jobs: BatchJob[], adCopy: BatchAdCopy) => void;
+  onGenerateDrafts?: (jobs: BatchJob[], adCopy: BatchAdCopy, runId: string) => void;
   regenerateRequest?: BatchRegenerateRequest;
 }
 
@@ -131,10 +131,11 @@ export function useBatchGeneratorState({
   };
 
   const handleBatchComplete = (finalJobs: BatchJob[]) => {
-    onGenerateDrafts?.(finalJobs, adCopy);
+    const runId = `run-${Date.now()}`;
+    onGenerateDrafts?.(finalJobs, adCopy, runId);
     if (onBatchComplete) {
       onBatchComplete({
-        id: `run-${Date.now()}`,
+        id: runId,
         createdAt: new Date().toISOString(),
         totalCampaigns: finalJobs.length,
         jobs: finalJobs,

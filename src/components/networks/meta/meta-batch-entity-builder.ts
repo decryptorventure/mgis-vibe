@@ -7,15 +7,19 @@ export function buildDraftEntitiesFromBatchJobs(
   jobs: BatchJob[],
   adCopy: BatchAdCopy,
   projectId: string,
+  runId: string,
 ): { campaigns: Campaign[]; adSets: AdSet[]; ads: Ad[] } {
   const now = new Date().toISOString().slice(0, 10);
   const campaigns: Campaign[] = [];
   const adSets: AdSet[] = [];
   const ads: Ad[] = [];
 
+  // runId keeps IDs unique per generation — without it, regenerating the same
+  // template/theme/slice combo would collide with the campaign/adset/ad IDs
+  // already materialized from the previous run.
   jobs.filter(job => job.status === 'done').forEach(job => {
     const name = job.combination.generatedNames[job.sliceIndex] ?? job.combination.generatedNames[0];
-    const campaignId = `batch-${job.combination.id}-${job.sliceIndex}-c`;
+    const campaignId = `batch-${runId}-${job.combination.id}-${job.sliceIndex}-c`;
     const adSetId = `${campaignId}-as`;
 
     campaigns.push({

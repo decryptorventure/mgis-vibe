@@ -22,7 +22,7 @@ interface Props {
   presets: BatchPreset[];
   onSavePreset: (preset: BatchPreset) => void;
   onBatchComplete?: (run: BatchRun) => void;
-  onGenerateDrafts?: (jobs: BatchJob[], adCopy: BatchAdCopy) => void;
+  onGenerateDrafts?: (jobs: BatchJob[], adCopy: BatchAdCopy, runId: string) => void;
   onViewHistory?: () => void;
   regenerateRequest?: BatchRegenerateRequest;
 }
